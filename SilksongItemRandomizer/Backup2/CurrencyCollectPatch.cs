@@ -1,0 +1,93 @@
+﻿using HarmonyLib;
+using System;
+using System.Linq;
+using UnityEngine;
+
+namespace SilksongItemRandomizer;
+
+[HarmonyPatch(typeof(CurrencyObjectBase), "Collect")]
+public class CurrencyCollectPatch
+{
+    private static int _consecutiveMisses = 0;
+    private const int PITY_THRESHOLD = 105;
+    private static int _dropCount = 0;
+    private static bool _hasGivenKey = false;
+    private const int KEY_GUARANTEE_MAX = 30;
+    private static readonly string keyName = "Simple Key";
+    private static int _silkSpearAttempts = 0;
+    private static bool _silkSpearGiven = false;
+    private const int SILK_SPEAR_PITY = 200;
+    private static readonly SavedItem _silkSpearItem = Resources.FindObjectsOfTypeAll<SavedItem>().FirstOrDefault(item => item.name == "Silk Spear");
+
+    static CurrencyCollectPatch()
+    {
+        if (_silkSpearItem == null)
+            Plugin.Log.LogWarning("未找到丝矛物品（Silk Spear），丝矛200次保底将禁用。");
+        else
+            Plugin.Log.LogInfo($"丝矛物品已找到: {_silkSpearItem.name}");
+    }
+
+    public static void ResetCounters()
+    {
+        _consecutiveMisses = 0;
+        _dropCount = 0;
+        _hasGivenKey = false;
+        _silkSpearAttempts = 0;
+        _silkSpearGiven = false;
+        Plugin.Log.LogInfo("货币保底计数器已重置");
+    }
+
+    private static void Postfix(bool __result)
+    {
+        try
+        {
+            if (!__result) return;
+
+            _dropCount++;
+            _silkSpearAttempts++;
+
+            // 钥匙保底（前30次内必出）
+            if (!_hasGivenKey && _dropCount <= KEY_GUARANTEE_MAX)
+            {
+                SavedItem key = Resources.FindObjectsOfTypeAll<SavedItem>().FirstOrDefault(item => item.name == keyName);
+                if (key != null)
+                {
+                    key.TryGet(false, true);
+                    Plugin.Log.LogInfo($"钥匙保底触发（第{_dropCount}次）");
+                    _hasGivenKey = true;
+                }
+            }
+
+            // 丝矛保底（200次）
+            if (_silkSpearItem != null && !_silkSpearGiven && _silkSpearAttempts >= SILK_SPEAR_PITY)
+            {
+                Plugin.Log.LogInfo("丝矛保底触发");
+                if (_silkSpearItem.TryGet(false, true))
+                {
+                    Plugin.Log.LogInfo("丝矛保底成功给予");
+                    Plugin.ShowNotification("获得丝矛！");
+                }
+                else
+                {
+                    Plugin.Log.LogError("丝矛保底失败");
+                }
+                _silkSpearGiven = true;
+            }
+            else if (_consecutiveMisses >= PITY_THRESHOLD - 1 || ItemRandomizer.RandomChance(1f / PITY_THRESHOLD))
+            {
+                SavedItem randomItem = ItemRandomizer.GetRandomItem();
+                if (randomItem != null)
+                    randomItem.TryGet(false, true);
+                _consecutiveMisses = 0;
+            }
+            else
+            {
+                _consecutiveMisses++;
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"Exception in CurrencyCollectPatch: {ex}");
+        }
+    }
+}

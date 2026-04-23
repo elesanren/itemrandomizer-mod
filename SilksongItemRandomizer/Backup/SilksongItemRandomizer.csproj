@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: E:\a\HardItemRandomizer\plugins\SilksongItemRandomizer.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SilksongItemRandomizer</AssemblyName>
+    <ApplicationVersion>0.1.0.0</ApplicationVersion>
+    <RootNamespace>SilksongItemRandomizer</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="System\Runtime\CompilerServices\RefSafetyRulesAttribute.cs" />
+    <Compile Include="BenchRespawnPatch.cs" />
+    <Compile Include="CrestRandomizePatch.cs" />
+    <Compile Include="CrestRandomizer.cs" />
+    <Compile Include="CurrencyCollectPatch.cs" />
+    <Compile Include="ItemRandomizer.cs" />
+    <Compile Include="PickupPatch.cs" />
+    <Compile Include="ShopItemStats_Purchase_Patch.cs" />
+    <Compile Include="ShopMenuStock_BuildItemList_Patch.cs" />
+    <Compile Include="ShopRandomizer.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="RecentItemsUI.cs" />
+    <Compile Include="SilkSpearPityPatch.cs" />
+    <Compile Include="ToolUnlockPatch.cs" />
+    <Compile Include="TryGetPatch.cs" />
+    <Compile Include="BepInEx\BepInAutoPluginAttribute.cs" />
+    <Compile Include="BepInEx\Preloader\Core\Patching\PatcherAutoPluginAttribute.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
