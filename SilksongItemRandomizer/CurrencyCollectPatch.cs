@@ -1,5 +1,7 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -19,8 +21,48 @@ public class CurrencyCollectPatch
     private const int SILK_SPEAR_PITY = 200;
     private static readonly SavedItem _silkSpearItem = Resources.FindObjectsOfTypeAll<SavedItem>().FirstOrDefault(item => item.name == "Silk Spear");
 
+    // ===== 钥匙保底持久化 =====
+    private static string KeyGivenFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "key_given.txt");
+
+    private static void LoadBoolFromFile(string path, ref bool target)
+    {
+        try
+        {
+            if (File.Exists(path))
+                target = File.ReadAllText(path).Trim() == "true";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"加载状态文件失败 {path}: {ex}");
+        }
+    }
+
+    private static void SaveBoolToFile(string path, bool value)
+    {
+        try
+        {
+            string dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            File.WriteAllText(path, value ? "true" : "false");
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"保存状态文件失败 {path}: {ex}");
+        }
+    }
+
+    public static void ResetKeyState()
+    {
+        _hasGivenKey = false;
+        string path = KeyGivenFilePath;
+        if (File.Exists(path)) File.Delete(path);
+    }
+    // ===== 钥匙保底持久化结束 =====
+
     static CurrencyCollectPatch()
     {
+        LoadBoolFromFile(KeyGivenFilePath, ref _hasGivenKey);
+
         if (_silkSpearItem == null)
             Plugin.Log.LogWarning("未找到丝矛物品（Silk Spear），丝矛200次保底将禁用。");
         else
@@ -55,6 +97,7 @@ public class CurrencyCollectPatch
                     key.TryGet(false, true);
                     Plugin.Log.LogInfo($"钥匙保底触发（第{_dropCount}次）");
                     _hasGivenKey = true;
+                    SaveBoolToFile(KeyGivenFilePath, true);  // ← 持久化
                 }
             }
 

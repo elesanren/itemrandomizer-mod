@@ -139,6 +139,8 @@ public class Plugin : BaseUnityPlugin
         CrestRandomizer.ResetMappings();
         CrestRandomizePatch.ResetProcessedIds();
         CurrencyCollectPatch.ResetCounters();
+        CurrencyCollectPatch.ResetKeyState();          // 新增：重置钥匙保底
+        SilkSpearPityPatch.ResetSilkSpearState();     // 新增：重置丝矛保底
         ResetDestroyedPickupKeys();
         ShopRandomizer.ResetCache();
         ShopMenuStock_BuildItemList_Patch.ResetAllCounts();
@@ -167,7 +169,7 @@ public class Plugin : BaseUnityPlugin
         {
             if (p.gameObject.scene == scene)
             {
-                string key = $"{scene.name}_{p.transform.position.x:F2}_{p.transform.position.y:F2}_{p.transform.position.z:F2}";
+                string key = $"{scene.name}_{p.transform.position.x:F1}_{p.transform.position.y:F1}_{p.transform.position.z:F1}";
                 if (_destroyedPickupKeys.Contains(key))
                 {
                     Destroy(p.gameObject);

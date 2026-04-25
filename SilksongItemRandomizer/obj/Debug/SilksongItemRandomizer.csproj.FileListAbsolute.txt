@@ -114,10 +114,8 @@ D:\code\mod\SilksongItemRandomizer\SilksongItemRandomizer\obj\Debug\SilksongItem
 D:\code\mod\SilksongItemRandomizer\SilksongItemRandomizer\obj\Debug\SilksongItemRandomizer.pdb
 D:\code\mod\SilksongItemRandomizer\bin\Debug\SilksongItemRandomizer.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\SilksongItemRandomizer.pdb
-D:\code\mod\SilksongItemRandomizer\bin\Debug\0Harmony20.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\Assembly-CSharp.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\BepInEx.dll
-D:\code\mod\SilksongItemRandomizer\bin\Debug\BepInEx.Harmony.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\Newtonsoft.Json.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\UnityEngine.CoreModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\UnityEngine.dll
@@ -128,7 +126,6 @@ D:\code\mod\SilksongItemRandomizer\bin\Debug\UnityEngine.UI.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\MonoMod.Utils.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\MonoMod.RuntimeDetour.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\Mono.Cecil.dll
-D:\code\mod\SilksongItemRandomizer\bin\Debug\HarmonyXInterop.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\0Harmony.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\UnityEngine.AudioModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\TeamCherry.TK2D.dll
@@ -216,7 +213,6 @@ D:\code\mod\SilksongItemRandomizer\bin\Debug\Unity.Mathematics.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\SharpDX.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\Unity.Burst.Unsafe.dll
 D:\code\mod\SilksongItemRandomizer\bin\Debug\BepInEx.xml
-D:\code\mod\SilksongItemRandomizer\bin\Debug\BepInEx.Harmony.xml
 D:\code\mod\SilksongItemRandomizer\bin\Debug\Newtonsoft.Json.xml
 D:\code\mod\SilksongItemRandomizer\bin\Debug\MonoMod.Utils.xml
 D:\code\mod\SilksongItemRandomizer\bin\Debug\MonoMod.RuntimeDetour.xml

@@ -1,9 +1,7 @@
 D:\code\mod\SkillRandomizerMod\bin\Debug\SkillRandomizerMod.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\SkillRandomizerMod.pdb
-D:\code\mod\SkillRandomizerMod\bin\Debug\0Harmony20.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\Assembly-CSharp.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\BepInEx.dll
-D:\code\mod\SkillRandomizerMod\bin\Debug\BepInEx.Harmony.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\PlayMaker.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\UnityEngine.CoreModule.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\UnityEngine.dll
@@ -16,7 +14,6 @@ D:\code\mod\SkillRandomizerMod\bin\Debug\UnityEngine.UI.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\MonoMod.Utils.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\MonoMod.RuntimeDetour.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\Mono.Cecil.dll
-D:\code\mod\SkillRandomizerMod\bin\Debug\HarmonyXInterop.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\0Harmony.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\UnityEngine.AudioModule.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\TeamCherry.TK2D.dll
@@ -101,7 +98,6 @@ D:\code\mod\SkillRandomizerMod\bin\Debug\Unity.Mathematics.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\SharpDX.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\Unity.Burst.Unsafe.dll
 D:\code\mod\SkillRandomizerMod\bin\Debug\BepInEx.xml
-D:\code\mod\SkillRandomizerMod\bin\Debug\BepInEx.Harmony.xml
 D:\code\mod\SkillRandomizerMod\bin\Debug\MonoMod.Utils.xml
 D:\code\mod\SkillRandomizerMod\bin\Debug\MonoMod.RuntimeDetour.xml
 D:\code\mod\SkillRandomizerMod\bin\Debug\0Harmony.xml

@@ -19,11 +19,16 @@ public static class RecentItemsUI
     public static void AddItem(SavedItem item)
     {
         if (item == null) return;
+
+        // 去重：如果队列里已有同名物品，不重复添加
+        if (recentItems.Any(i => i.name == item.name))
+            return;
+
         recentItems.Enqueue(item);
         while (recentItems.Count > MaxItems)
             recentItems.Dequeue();
         _showWindow = true;
-        hideTime = Time.time + 10f;  // 新版自动隐藏时间
+        hideTime = Time.time + 10f;
     }
 
     public static void Toggle()

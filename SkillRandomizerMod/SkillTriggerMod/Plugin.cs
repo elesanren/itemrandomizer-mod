@@ -209,8 +209,9 @@ public class Plugin : BaseUnityPlugin
     private void CreateTriggerAt(Vector3 position, string sceneName, int index)
     {
         string recordKey = $"SkillTriggered_{sceneName}_{index}";
-        if (_triggeredRecords.Contains(recordKey))
-            return;
+        if (IsTriggeredInFile(recordKey))
+            return;  // 文件中存在记录，跳过创建
+
 
         GameObject obj = new GameObject($"SkillTrigger_{sceneName}_{index}");
         obj.transform.position = position;
@@ -233,12 +234,70 @@ public class Plugin : BaseUnityPlugin
             Destroy(obj);
         }
     }
+    private bool IsTriggeredInFile(string recordKey)
+    {
+        try
+        {
+            if (!File.Exists(TriggerRecordsPath))
+                return false; // 文件不存在，视为未触发
 
+            string content = File.ReadAllText(TriggerRecordsPath);
+            // 简单的文本包含检查（因为文件内容为 JSON 数组，如 ["SkillTriggered_xxx_0"]）
+            return content.Contains($"\"{recordKey}\"");
+        }
+        catch (Exception)
+        {
+            // 读取失败时，放行创建（避免因错误导致触发器永久消失）
+            return false;
+        }
+    }
     public static void ResetAllRecords()
     {
         _triggeredRecords.Clear();
         if (Instance != null)
+        {
             Instance.SaveTriggerRecords();
-        Log.LogInfo("所有技能触发器记录已重置");
+
+            // 立即重建所有触发器，不检查记录
+            foreach (var target in Instance.targetPositions)
+            {
+                Instance.StartCoroutine(Instance.RebuildTriggerForReset(target));
+            }
+        }
+        Log.LogInfo("所有技能触发器记录已重置，并已触发重建");
+    }
+
+    // 用于重置时直接重建的协程（跳过记录检查）
+    private IEnumerator RebuildTriggerForReset((string scene, float x, float y, float z) target)
+    {
+        yield return null; // 等一帧，确保场景已加载
+
+        int index = targetPositions.IndexOf(target);
+        if (index < 0) yield break;
+
+        string sceneName = target.scene;
+        string recordKey = $"SkillTriggered_{sceneName}_{index}";
+
+        // 直接创建，不检查 _triggeredRecords
+        GameObject obj = new GameObject($"SkillTrigger_{sceneName}_{index}");
+        obj.transform.position = new Vector3(target.x, target.y, target.z);
+
+        BoxCollider2D box = obj.AddComponent<BoxCollider2D>();
+        box.isTrigger = true;
+        box.size = new Vector2(8f, 8f);
+
+        obj.AddComponent<SkillTrigger>().SetInfo(sceneName, index, recordKey);
+
+        Scene targetScene = SceneManager.GetSceneByName(sceneName);
+        if (targetScene.IsValid())
+        {
+            SceneManager.MoveGameObjectToScene(obj, targetScene);
+            Log.LogInfo($"触发器重建完成: {sceneName} 索引 {index}");
+        }
+        else
+        {
+            Log.LogWarning($"触发器重建跳过（场景未加载）: {sceneName} 索引 {index}");
+            Destroy(obj);
+        }
     }
 }

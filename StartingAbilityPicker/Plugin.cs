@@ -61,24 +61,6 @@ public class Plugin : BaseUnityPlugin
 
     private int currentProfileID => GameManager.instance?.profileID ?? -1;
 
-    // ######################################################
-    // ### 改动开始：实时调试状态出口（数据存储字段）     ###
-    // ######################################################
-    //public static bool Debug_UpPressed = false;
-    //public static bool Debug_DownPressed = false;
-    //public static bool Debug_FacingRight = true;
-    //public static bool Debug_OnGround = true;
-    //public static bool Debug_AllowCancel = false;
-    //public static bool Debug_AllowUp = false;
-    //public static bool Debug_AllowLeft = false;
-    //public static bool Debug_AllowRight = false;
-    //public static string Debug_IntendedDirection = "";
-    //public static bool Debug_AttackAllowed = true;
-    //public static float Debug_LastUpdateTime = 0f;
-    // ######################################################
-    // ###                改动结束                         ###
-    // ######################################################
-
     public static void ShowNotification(string message, float duration = 3f)
     {
         _notificationMessage = message;
@@ -112,6 +94,7 @@ public class Plugin : BaseUnityPlugin
 
         SceneManager.sceneLoaded += OnSceneLoaded;
         Harmony.CreateAndPatchAll(typeof(AttackPatch));
+        Log.LogInfo("[Harmony] AttackPatch 注册完成");
     }
 
     private void LoadAbilityConfig()
@@ -119,13 +102,22 @@ public class Plugin : BaseUnityPlugin
         try
         {
             if (File.Exists(AbilityConfigPath))
-                _abilityConfig = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(AbilityConfigPath)) ?? new Dictionary<string, string>();
+            {
+                string json = File.ReadAllText(AbilityConfigPath);
+                _abilityConfig = JsonConvert.DeserializeObject<Dictionary<string, string>>(json) ?? new Dictionary<string, string>();
+            }
             else
+            {
                 _abilityConfig.Clear();
+            }
 
-            AllowUpwardAttack = _abilityConfig.TryGetValue("AllowUpwardAttack", out string up) && up == "true";
-            AllowLeftAttack = _abilityConfig.TryGetValue("AllowLeftAttack", out string left) && left == "true";
-            AllowRightAttack = _abilityConfig.TryGetValue("AllowRightAttack", out string right) && right == "true";
+            // 修复：忽略大小写判断
+            AllowUpwardAttack = _abilityConfig.TryGetValue("AllowUpwardAttack", out string up)
+                && string.Equals(up, "true", StringComparison.OrdinalIgnoreCase);
+            AllowLeftAttack = _abilityConfig.TryGetValue("AllowLeftAttack", out string left)
+                && string.Equals(left, "true", StringComparison.OrdinalIgnoreCase);
+            AllowRightAttack = _abilityConfig.TryGetValue("AllowRightAttack", out string right)
+                && string.Equals(right, "true", StringComparison.OrdinalIgnoreCase);
 
             Log.LogInfo($"[LoadAbilityConfig] Loaded: up={AllowUpwardAttack}, left={AllowLeftAttack}, right={AllowRightAttack}");
         }
@@ -178,7 +170,9 @@ public class Plugin : BaseUnityPlugin
                 StartCoroutine(ShowUIAuto());
                 _lastSceneWasMenu = false;
             }
-            LoadAbilityConfig();
+
+            LoadAbilityConfig();  // 原有的，位置不变
+
             try
             {
                 PlayerData pd = PlayerData.instance;
@@ -198,6 +192,10 @@ public class Plugin : BaseUnityPlugin
             {
                 Log.LogError($"加载技能随机设置失败: {ex}");
             }
+
+            // ★ 就在这里再调用一次，确保最终状态一定是文件里的值 ★
+            LoadAbilityConfig();
+            Log.LogInfo($"[OnSceneLoaded] 最终权限状态: 上={AllowUpwardAttack}, 左={AllowLeftAttack}, 右={AllowRightAttack}");
         }
         else if (scene.name == "Menu_Title" || scene.name == "Menu")
         {
@@ -237,28 +235,6 @@ public class Plugin : BaseUnityPlugin
         Config.Save();
     }
 
-    // ######################################################
-    // ### 改动开始：供 AttackPatch 调用的数据更新方法    ###
-    // ######################################################
-    //public static void UpdateDebugAttackState(bool upPressed, bool downPressed, bool facingRight, bool onGround, bool allowCancel,
-    //                                         bool allowUp, bool allowLeft, bool allowRight, string intendedDirection, bool allowed)
-    //{
-    //    Debug_UpPressed = upPressed;
-    //    Debug_DownPressed = downPressed;
-    //    Debug_FacingRight = facingRight;
-    //    Debug_OnGround = onGround;
-    //    Debug_AllowCancel = allowCancel;
-    //    Debug_AllowUp = allowUp;
-    //    Debug_AllowLeft = allowLeft;
-    //    Debug_AllowRight = allowRight;
-    //    Debug_IntendedDirection = intendedDirection;
-    //    Debug_AttackAllowed = allowed;
-    //    Debug_LastUpdateTime = Time.time;
-    //}
-    // ######################################################
-    // ###                改动结束                         ###
-    // ######################################################
-
     private void Update()
     {
         if (!Input.GetKeyDown(KeyCode.F7) || currentProfileID == -1) return;
@@ -273,18 +249,6 @@ public class Plugin : BaseUnityPlugin
             resetPickups = false;
             seedInput = RandomSeed.Value.ToString();
         }
-
-        // ######################################################
-        // ### 改动开始：快捷键切换调试 UI（F8）              ###
-        // ######################################################
-        //if (Input.GetKeyDown(KeyCode.F5))
-        //{
-        //    DebugAttackUI.Toggle();
-        //    Log.LogInfo("实时调试窗口 " + (DebugAttackUI.IsVisible ? "打开" : "关闭"));
-        //}
-        // ######################################################
-        // ###                改动结束                         ###
-        // ######################################################
     }
 
     private void OnGUI()
@@ -294,14 +258,6 @@ public class Plugin : BaseUnityPlugin
             uiWindowRect = new Rect(20f, (Screen.height - 950) / 2, 650f, 950f);
             uiWindowRect = GUILayout.Window(100, uiWindowRect, DrawUIWindow, "开局选项");
         }
-
-        // ######################################################
-        // ### 改动开始：调用独立调试 UI 的绘制方法           ###
-        // ######################################################
-        //DebugAttackUI.Draw();
-        // ######################################################
-        // ###                改动结束                         ###
-        // ######################################################
 
         if (_notificationMessage != null && Time.time <= _notificationEndTime)
         {
@@ -614,6 +570,7 @@ public class Plugin : BaseUnityPlugin
             Type stPlugin = Type.GetType("SkillTriggerMod.Plugin, SkillTriggerMod");
             if (stPlugin != null)
             {
+                // 1. 同步种子
                 var prop = stPlugin.GetProperty("RandomSeed", BindingFlags.Public | BindingFlags.Static);
                 if (prop != null)
                 {
@@ -623,8 +580,19 @@ public class Plugin : BaseUnityPlugin
                 Type.GetType("SkillTriggerMod.SkillRandomizer, SkillTriggerMod")
                     ?.GetMethod("SetSeed", BindingFlags.Public | BindingFlags.Static)
                     ?.Invoke(null, new object[] { newSeed });
-                Log.LogInfo("已同步 SkillTriggerMod 种子");
+
+                // 2. 先调 ResetAllRecords——清内存 + 触发重建
+                stPlugin.GetMethod("ResetAllRecords", BindingFlags.Public | BindingFlags.Static)
+                    ?.Invoke(null, null);
             }
+
+            // 3. 删掉旧文件后立即创建空文件（这个操作最可靠，不依赖对方实例）
+            string triggerFilePath = Path.Combine(Paths.ConfigPath, "SkillTriggerMod", "trigger_records.json");
+            string dir = Path.GetDirectoryName(triggerFilePath);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(triggerFilePath, "[]");
+            Log.LogInfo("已重置技能触发器记录文件为空");
         }
         catch { }
 
