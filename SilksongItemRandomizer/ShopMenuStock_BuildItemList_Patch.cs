@@ -14,9 +14,8 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(ShopMenuStock), "BuildItemList")]
 public static class ShopMenuStock_BuildItemList_Patch
 {
-    private static Dictionary<string, int> _slotCounts = new Dictionary<string, int>();
+    private static Dictionary<string, int> _slotCounts = new();
 
-    // 反射缓存字段
     private static FieldInfo _availableStockField;
     private static FieldInfo _spawnedStockField;
     private static FieldInfo _yDistanceField;
@@ -80,7 +79,6 @@ public static class ShopMenuStock_BuildItemList_Patch
         {
             if (__instance == null) return;
 
-            // 初始化反射字段（仅第一次执行）
             if (_availableStockField == null)
             {
                 _availableStockField = AccessTools.Field(typeof(ShopMenuStock), "availableStock");
@@ -92,7 +90,6 @@ public static class ShopMenuStock_BuildItemList_Patch
             string sceneName = SceneManager.GetActiveScene().name;
             LoadCounts();
 
-            // 获取私有字段值
             var availableStock = _availableStockField.GetValue(__instance) as IList;
             var spawnedStock = _spawnedStockField.GetValue(__instance) as IList<ShopItemStats>;
             float yDistance = (float)_yDistanceField.GetValue(__instance);
@@ -179,14 +176,13 @@ public static class ShopMenuStock_BuildItemList_Patch
         costRefField?.SetValue(temp, null);
 
         FieldInfo currencyField = typeof(ShopItem).GetField("currencyType", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        currencyField?.SetValue(temp, 0); // 直接设 0 代替 CurrencyType.Geo
+        currencyField?.SetValue(temp, 0);
 
         ClearField(temp, "playerDataBoolName");
         ClearField(temp, "playerDataIntName");
         ClearField(temp, "requiredItem");
         ClearField(temp, "upgradeFromItem");
 
-        // 安全处理 questsAppearConditions
         FieldInfo questsField = typeof(ShopItem).GetField("questsAppearConditions", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         if (questsField != null && questsField.GetValue(temp) == null)
         {

@@ -10,7 +10,7 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(HeroController), "SetBenchRespawn", new Type[] { typeof(RespawnMarker), typeof(string), typeof(int) })]
 public static class BenchRespawnPatch
 {
-    private static Dictionary<string, float> _lastRefreshTime = new Dictionary<string, float>();
+    private static Dictionary<string, float> _lastRefreshTime = new();
     private const float COOLDOWN = 30f;
 
     private static void Postfix(HeroController __instance)

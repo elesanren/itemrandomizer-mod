@@ -11,13 +11,12 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(CurrencyObjectBase), "Collect")]
 public static class SilkSpearPityPatch
 {
-    private static int _silkSpearAttempts = 0;
-    private static bool _silkSpearGiven = false;
+    private static int _silkSpearAttempts;
+    private static bool _silkSpearGiven;
     private const int SILK_SPEAR_PITY = 200;
     private static SavedItem _silkSpearItem;
-    public static bool IsGivingSilkSpear = false;
+    public static bool IsGivingSilkSpear;
 
-    // ===== 丝矛保底持久化 =====
     private static string SilkSpearGivenFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "silkspear_given.txt");
 
     private static void LoadBoolFromFile(string path, ref bool target)
@@ -49,7 +48,6 @@ public static class SilkSpearPityPatch
         if (File.Exists(path)) File.Delete(path);
         Plugin.Log.LogInfo("[丝矛独立补丁] 保底状态已重置");
     }
-    // ===== 丝矛保底持久化结束 =====
 
     static SilkSpearPityPatch()
     {
@@ -127,6 +125,6 @@ public static class SilkSpearPityPatch
         }
 
         _silkSpearGiven = true;
-        SaveBoolToFile(SilkSpearGivenFilePath, true);  // ← 持久化
+        SaveBoolToFile(SilkSpearGivenFilePath, true);
     }
 }

@@ -9,8 +9,8 @@ namespace SilksongItemRandomizer;
 
 public static class ShopRandomizer
 {
-    private static Dictionary<string, SavedItem> _shopItemCache = new Dictionary<string, SavedItem>();
-    private static Dictionary<string, int> _shopPriceCache = new Dictionary<string, int>();
+    private static Dictionary<string, SavedItem> _shopItemCache = new();
+    private static Dictionary<string, int> _shopPriceCache = new();
 
     public static void ResetCache()
     {
@@ -27,7 +27,6 @@ public static class ShopRandomizer
             return cachedItem;
         }
 
-        // 缓存不存在或物品已拥有，重新生成
         string[] parts = permanentId.Split('_');
         string sceneName = string.Join("_", parts.Take(parts.Length - 1));
         int originalIndex = int.Parse(parts.Last());

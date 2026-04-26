@@ -16,12 +16,13 @@ namespace SkillTriggerMod;
 public class Plugin : BaseUnityPlugin
 {
     internal static ManualLogSource Log;
-    internal static HashSet<string> _triggeredRecords = new HashSet<string>();
-    private static string _notificationMessage = null;
-    private static float _notificationEndTime = 0.0f;
+    internal static HashSet<string> _triggeredRecords = new();
+    private static string _notificationMessage;
+    private static float _notificationEndTime;
     private static GUIStyle _notificationStyle;
+    private static Texture2D _bgTex;
 
-    private readonly List<(string scene, float x, float y, float z)> targetPositions = new List<(string, float, float, float)>()
+    private readonly List<(string scene, float x, float y, float z)> targetPositions = new()
     {
         ("Mosstown_02", 86.922f, 52.568f, 0.004f),
         ("Crawl_05", 23.032f, 16.568f, 0.004f),
@@ -30,7 +31,7 @@ public class Plugin : BaseUnityPlugin
         ("Bone_East_05", 100.062f, 13.568f, 0.004f)
     };
 
-    private readonly string[] shrineKeywords = new string[5]
+    private readonly string[] shrineKeywords = new[]
     {
         "bind orb",
         "shrine weaver ability",
@@ -50,6 +51,21 @@ public class Plugin : BaseUnityPlugin
         _notificationEndTime = Time.time + duration;
     }
 
+    private void Awake()
+    {
+        Instance = this;
+        Log = Logger;
+        RandomSeed = Config.Bind<int>("General", "RandomSeed", 0, "随机种子 (0 表示随机)");
+        LoadTriggerRecords();
+
+        // 提前创建不变的纹理，避免 OnGUI 重复判空
+        _bgTex = MakeTexture(2, 2, new Color(0f, 0f, 0f, 0.8f));
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        StartCoroutine(DisableShrinesAfterStart());
+        StartCoroutine(InitializeRandomizer());
+    }
+
     private void OnGUI()
     {
         if (_notificationMessage == null || Time.time > _notificationEndTime)
@@ -66,7 +82,7 @@ public class Plugin : BaseUnityPlugin
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = Color.white }
             };
-            _notificationStyle.normal.background = MakeTexture(2, 2, new Color(0f, 0f, 0f, 0.8f));
+            _notificationStyle.normal.background = _bgTex;
             _notificationStyle.border = new RectOffset(20, 20, 10, 10);
         }
 
@@ -77,27 +93,15 @@ public class Plugin : BaseUnityPlugin
         GUI.Box(new Rect(x, y, width, height), _notificationMessage, _notificationStyle);
     }
 
-    private Texture2D MakeTexture(int width, int height, Color col)
+    private static Texture2D MakeTexture(int width, int height, Color col)
     {
-        Color[] pixels = new Color[width * height];
+        var pixels = new Color[width * height];
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = col;
         Texture2D tex = new Texture2D(width, height);
         tex.SetPixels(pixels);
         tex.Apply();
         return tex;
-    }
-
-    private void Awake()
-    {
-        Instance = this;
-        Log = Logger;
-        RandomSeed = Config.Bind<int>("General", "RandomSeed", 0, "随机种子 (0 表示随机)");
-        LoadTriggerRecords();
-
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        StartCoroutine(DisableShrinesAfterStart());
-        StartCoroutine(InitializeRandomizer());
     }
 
     private void LoadTriggerRecords()
@@ -202,16 +206,14 @@ public class Plugin : BaseUnityPlugin
     private IEnumerator CreateTriggerDelayed((string scene, float x, float y, float z) target, int index)
     {
         yield return null;
-        Vector3 pos = new Vector3(target.x, target.y, target.z);
-        CreateTriggerAt(pos, target.scene, index);
+        CreateTriggerAt(new Vector3(target.x, target.y, target.z), target.scene, index);
     }
 
     private void CreateTriggerAt(Vector3 position, string sceneName, int index)
     {
         string recordKey = $"SkillTriggered_{sceneName}_{index}";
         if (IsTriggeredInFile(recordKey))
-            return;  // 文件中存在记录，跳过创建
-
+            return;
 
         GameObject obj = new GameObject($"SkillTrigger_{sceneName}_{index}");
         obj.transform.position = position;
@@ -234,43 +236,38 @@ public class Plugin : BaseUnityPlugin
             Destroy(obj);
         }
     }
+
     private bool IsTriggeredInFile(string recordKey)
     {
         try
         {
             if (!File.Exists(TriggerRecordsPath))
-                return false; // 文件不存在，视为未触发
+                return false;
 
             string content = File.ReadAllText(TriggerRecordsPath);
-            // 简单的文本包含检查（因为文件内容为 JSON 数组，如 ["SkillTriggered_xxx_0"]）
             return content.Contains($"\"{recordKey}\"");
         }
         catch (Exception)
         {
-            // 读取失败时，放行创建（避免因错误导致触发器永久消失）
             return false;
         }
     }
+
     public static void ResetAllRecords()
     {
         _triggeredRecords.Clear();
         if (Instance != null)
         {
             Instance.SaveTriggerRecords();
-
-            // 立即重建所有触发器，不检查记录
             foreach (var target in Instance.targetPositions)
-            {
                 Instance.StartCoroutine(Instance.RebuildTriggerForReset(target));
-            }
         }
         Log.LogInfo("所有技能触发器记录已重置，并已触发重建");
     }
 
-    // 用于重置时直接重建的协程（跳过记录检查）
     private IEnumerator RebuildTriggerForReset((string scene, float x, float y, float z) target)
     {
-        yield return null; // 等一帧，确保场景已加载
+        yield return null;
 
         int index = targetPositions.IndexOf(target);
         if (index < 0) yield break;
@@ -278,7 +275,6 @@ public class Plugin : BaseUnityPlugin
         string sceneName = target.scene;
         string recordKey = $"SkillTriggered_{sceneName}_{index}";
 
-        // 直接创建，不检查 _triggeredRecords
         GameObject obj = new GameObject($"SkillTrigger_{sceneName}_{index}");
         obj.transform.position = new Vector3(target.x, target.y, target.z);
 

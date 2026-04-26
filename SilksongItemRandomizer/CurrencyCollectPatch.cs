@@ -10,18 +10,17 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(CurrencyObjectBase), "Collect")]
 public class CurrencyCollectPatch
 {
-    private static int _consecutiveMisses = 0;
+    private static int _consecutiveMisses;
     private const int PITY_THRESHOLD = 105;
-    private static int _dropCount = 0;
-    private static bool _hasGivenKey = false;
+    private static int _dropCount;
+    private static bool _hasGivenKey;
     private const int KEY_GUARANTEE_MAX = 30;
     private static readonly string keyName = "Simple Key";
-    private static int _silkSpearAttempts = 0;
-    private static bool _silkSpearGiven = false;
+    private static int _silkSpearAttempts;
+    private static bool _silkSpearGiven;
     private const int SILK_SPEAR_PITY = 200;
     private static readonly SavedItem _silkSpearItem = Resources.FindObjectsOfTypeAll<SavedItem>().FirstOrDefault(item => item.name == "Silk Spear");
 
-    // ===== 钥匙保底持久化 =====
     private static string KeyGivenFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "key_given.txt");
 
     private static void LoadBoolFromFile(string path, ref bool target)
@@ -57,7 +56,6 @@ public class CurrencyCollectPatch
         string path = KeyGivenFilePath;
         if (File.Exists(path)) File.Delete(path);
     }
-    // ===== 钥匙保底持久化结束 =====
 
     static CurrencyCollectPatch()
     {
@@ -88,7 +86,6 @@ public class CurrencyCollectPatch
             _dropCount++;
             _silkSpearAttempts++;
 
-            // 钥匙保底（前30次内必出）
             if (!_hasGivenKey && _dropCount <= KEY_GUARANTEE_MAX)
             {
                 SavedItem key = Resources.FindObjectsOfTypeAll<SavedItem>().FirstOrDefault(item => item.name == keyName);
@@ -97,11 +94,10 @@ public class CurrencyCollectPatch
                     key.TryGet(false, true);
                     Plugin.Log.LogInfo($"钥匙保底触发（第{_dropCount}次）");
                     _hasGivenKey = true;
-                    SaveBoolToFile(KeyGivenFilePath, true);  // ← 持久化
+                    SaveBoolToFile(KeyGivenFilePath, true);
                 }
             }
 
-            // 丝矛保底（200次）
             if (_silkSpearItem != null && !_silkSpearGiven && _silkSpearAttempts >= SILK_SPEAR_PITY)
             {
                 Plugin.Log.LogInfo("丝矛保底触发");

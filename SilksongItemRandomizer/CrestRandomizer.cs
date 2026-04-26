@@ -6,11 +6,12 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using Random = System.Random;
+
 namespace SilksongItemRandomizer;
 
 public static class CrestRandomizer
 {
-    private static Dictionary<string, string> _crestMappings = new Dictionary<string, string>();
+    private static Dictionary<string, string> _crestMappings = new();
     private static List<ToolCrest> _allCrests;
 
     private static string FilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "crest_mappings.json");

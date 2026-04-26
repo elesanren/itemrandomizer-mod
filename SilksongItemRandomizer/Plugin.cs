@@ -10,20 +10,20 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Windows;
 using Random = System.Random;
 using Input = UnityEngine.Input;
+
 namespace SilksongItemRandomizer;
-using UnityEngine.UI;
 
 [BepInPlugin("YourName.SilksongItemRandomizer", "Silksong Item Randomizer", "1.0.0.0")]
 public class Plugin : BaseUnityPlugin
 {
     internal static ManualLogSource Log;
-    private static HashSet<string> _destroyedPickupKeys = new HashSet<string>();
-    private static string _notificationMessage = null;
-    private static float _notificationEndTime = 0.0f;
+    private static HashSet<string> _destroyedPickupKeys = new();
+    private static string _notificationMessage;
+    private static float _notificationEndTime;
     private static GUIStyle _notificationStyle;
+    private static Texture2D _bgTex;
 
     public static ConfigEntry<int> RandomSeed { get; private set; }
     public static Plugin Instance { get; private set; }
@@ -71,6 +71,8 @@ public class Plugin : BaseUnityPlugin
         Harmony.CreateAndPatchAll(typeof(ShopItemStats_Purchase_Patch));
         Harmony.CreateAndPatchAll(typeof(SilkSpearPityPatch));
         Harmony.CreateAndPatchAll(typeof(BenchRespawnPatch));
+
+        _bgTex = MakeTexture(2, 2, new Color(0, 0, 0, 0.7f));
 
         StartCoroutine(InitializeAfterLoad(RandomSeed.Value));
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -139,8 +141,8 @@ public class Plugin : BaseUnityPlugin
         CrestRandomizer.ResetMappings();
         CrestRandomizePatch.ResetProcessedIds();
         CurrencyCollectPatch.ResetCounters();
-        CurrencyCollectPatch.ResetKeyState();          // 新增：重置钥匙保底
-        SilkSpearPityPatch.ResetSilkSpearState();     // 新增：重置丝矛保底
+        CurrencyCollectPatch.ResetKeyState();
+        SilkSpearPityPatch.ResetSilkSpearState();
         ResetDestroyedPickupKeys();
         ShopRandomizer.ResetCache();
         ShopMenuStock_BuildItemList_Patch.ResetAllCounts();
@@ -209,7 +211,7 @@ public class Plugin : BaseUnityPlugin
                     alignment = TextAnchor.MiddleCenter
                 };
                 _notificationStyle.normal.textColor = Color.white;
-                _notificationStyle.normal.background = MakeTexture(2, 2, new Color(0, 0, 0, 0.7f));
+                _notificationStyle.normal.background = _bgTex;
             }
 
             float width = 600f;

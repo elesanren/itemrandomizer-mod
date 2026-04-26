@@ -8,7 +8,7 @@ namespace SkillTriggerMod;
 
 public static class SkillRandomizer
 {
-    private static readonly Dictionary<string, string> SkillDisplayNames = new Dictionary<string, string>()
+    private static readonly Dictionary<string, string> SkillDisplayNames = new()
     {
         { "hasNeedleThrow", "飞针" },
         { "hasThreadSphere", "丝线球" },
@@ -49,7 +49,7 @@ public static class SkillRandomizer
             PlayerData pd = PlayerData.instance;
             if (pd == null) return;
 
-            List<string> missing = new List<string>();
+            List<string> missing = new();
             foreach (string fieldName in AllSkillFields)
             {
                 FieldInfo field = typeof(PlayerData).GetField(fieldName, BindingFlags.Instance | BindingFlags.Public);

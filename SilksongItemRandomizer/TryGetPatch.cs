@@ -56,7 +56,7 @@ public class TryGetPatch
         bool hasLeft = (bool)leftField.GetValue(null);
         bool hasRight = (bool)rightField.GetValue(null);
 
-        List<string> missing = new List<string>();
+        List<string> missing = new();
         if (!hasUpward) missing.Add("upward");
         if (!hasLeft) missing.Add("left");
         if (!hasRight) missing.Add("right");

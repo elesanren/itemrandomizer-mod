@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
 namespace SilksongItemRandomizer;
 
 [HarmonyPatch(typeof(ToolCrest), "Unlock")]
 public static class CrestRandomizePatch
 {
     private static List<ToolCrest> _allCrests;
-    private static HashSet<int> _processedInstanceIds = new HashSet<int>();
+    private static HashSet<int> _processedInstanceIds = new();
 
     public static List<ToolCrest> CrestList => _allCrests;
 

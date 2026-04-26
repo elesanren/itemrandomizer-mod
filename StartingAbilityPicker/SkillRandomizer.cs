@@ -8,7 +8,7 @@ namespace StartingAbilityPicker;
 
 public static class SkillRandomizer
 {
-    private static readonly Dictionary<string, string> SkillDisplayNames = new Dictionary<string, string>()
+    private static readonly Dictionary<string, string> SkillDisplayNames = new()
     {
         { "hasNeedleThrow", "飞针" },
         { "hasThreadSphere", "丝线球" },
@@ -25,23 +25,10 @@ public static class SkillRandomizer
         { "hasWallJump", "爬墙" }
     };
 
-    // 新增：技能分类列表
-    public static readonly List<string> VerticalSkills = new List<string>()
-    {
-        "hasSuperJump", "hasDoubleJump", "hasWallJump", "hasBrolly", "hasHarpoonDash"
-    };
-    public static readonly List<string> HorizontalSkills = new List<string>()
-    {
-        "hasDash", "hasBrolly", "hasHarpoonDash", "hasSilkCharge"
-    };
-    public static readonly List<string> SpecialSkills = new List<string>()
-    {
-        "hasNeedolin", "hasChargeSlash", "hasBrolly", "hasHarpoonDash"
-    };
-    public static readonly List<string> AttackSkills = new List<string>()
-    {
-        "hasSilkBomb", "hasSilkBossNeedle", "hasThreadSphere", "hasSilkSpear", "hasSilkCharge"
-    };
+    public static readonly List<string> VerticalSkills = new() { "hasSuperJump", "hasDoubleJump", "hasWallJump", "hasBrolly", "hasHarpoonDash" };
+    public static readonly List<string> HorizontalSkills = new() { "hasDash", "hasBrolly", "hasHarpoonDash", "hasSilkCharge" };
+    public static readonly List<string> SpecialSkills = new() { "hasNeedolin", "hasChargeSlash", "hasBrolly", "hasHarpoonDash" };
+    public static readonly List<string> AttackSkills = new() { "hasSilkBomb", "hasSilkBossNeedle", "hasThreadSphere", "hasSilkSpear", "hasSilkCharge" };
 
     private static readonly List<string> AllSkillFields = SkillDisplayNames.Keys.ToList();
     private static Random _rng;
@@ -51,22 +38,11 @@ public static class SkillRandomizer
     {
         _currentSeed = seed;
         _rng = seed == 0 ? new Random() : new Random(seed);
-        Plugin.Log.LogInfo($"SkillRandomizer seed set to: {seed}");
-    }
-
-    public static void ResetSeed()
-    {
-        SetSeed(_currentSeed);
-        Plugin.Log.LogInfo("SkillRandomizer seed reset.");
     }
 
     private static void EnsureRng()
     {
-        if (_rng == null)
-        {
-            _rng = new Random();
-            Plugin.Log.LogWarning("SkillRandomizer RNG was not initialized, using default seed.");
-        }
+        _rng ??= new Random();
     }
 
     public static void GiveRandomSkill()
@@ -75,30 +51,21 @@ public static class SkillRandomizer
         try
         {
             PlayerData pd = PlayerData.instance;
-            if (pd == null)
-            {
-                Plugin.Log.LogError("PlayerData.instance 为空");
-                return;
-            }
+            if (pd == null) return;
 
-            List<string> missing = AllSkillFields.Where(fieldName =>
+            List<string> missing = AllSkillFields.Where(f =>
             {
-                FieldInfo field = typeof(PlayerData).GetField(fieldName, BindingFlags.Instance | BindingFlags.Public);
+                var field = typeof(PlayerData).GetField(f, BindingFlags.Instance | BindingFlags.Public);
                 return field != null && field.FieldType == typeof(bool) && !(bool)field.GetValue(pd);
             }).ToList();
 
-            if (missing.Count == 0)
-            {
-                Plugin.Log.LogInfo("所有技能已解锁，给予默认技能 Wall Jump");
-                GiveWallJump();
-                return;
-            }
+            if (missing.Count == 0) { GiveWallJump(); return; }
 
             string chosen = missing[_rng.Next(missing.Count)];
-            FieldInfo chosenField = typeof(PlayerData).GetField(chosen, BindingFlags.Instance | BindingFlags.Public);
+            var chosenField = typeof(PlayerData).GetField(chosen, BindingFlags.Instance | BindingFlags.Public);
             if (chosenField == null) return;
-
             chosenField.SetValue(pd, true);
+
             string display = SkillDisplayNames.TryGetValue(chosen, out string name) ? name : chosen.Replace("has", "");
             Plugin.ShowNotification("获得技能: " + display);
         }
@@ -108,7 +75,6 @@ public static class SkillRandomizer
         }
     }
 
-    // 新增：分类随机
     public static void GiveRandomSkillFromCategory(List<string> categoryFields)
     {
         EnsureRng();
@@ -117,19 +83,19 @@ public static class SkillRandomizer
             PlayerData pd = PlayerData.instance;
             if (pd == null) return;
 
-            List<string> missing = categoryFields.Where(fieldName =>
+            List<string> missing = categoryFields.Where(f =>
             {
-                FieldInfo field = typeof(PlayerData).GetField(fieldName, BindingFlags.Instance | BindingFlags.Public);
+                var field = typeof(PlayerData).GetField(f, BindingFlags.Instance | BindingFlags.Public);
                 return field != null && field.FieldType == typeof(bool) && !(bool)field.GetValue(pd);
             }).ToList();
 
             if (missing.Count == 0) return;
 
             string chosen = missing[_rng.Next(missing.Count)];
-            FieldInfo chosenField = typeof(PlayerData).GetField(chosen, BindingFlags.Instance | BindingFlags.Public);
+            var chosenField = typeof(PlayerData).GetField(chosen, BindingFlags.Instance | BindingFlags.Public);
             if (chosenField == null) return;
-
             chosenField.SetValue(pd, true);
+
             string display = SkillDisplayNames.TryGetValue(chosen, out string name) ? name : chosen.Replace("has", "");
             Plugin.ShowNotification("获得技能: " + display);
         }
@@ -147,9 +113,9 @@ public static class SkillRandomizer
             if (pd == null) return;
 
             string[] candidates = { "hasWallJump", "hasWalljump", "hasWallJumpUnlocked" };
-            foreach (string fieldName in candidates)
+            foreach (string f in candidates)
             {
-                FieldInfo field = typeof(PlayerData).GetField(fieldName, BindingFlags.Instance | BindingFlags.Public);
+                var field = typeof(PlayerData).GetField(f, BindingFlags.Instance | BindingFlags.Public);
                 if (field != null && field.FieldType == typeof(bool))
                 {
                     if (!(bool)field.GetValue(pd))

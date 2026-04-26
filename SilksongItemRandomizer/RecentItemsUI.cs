@@ -8,11 +8,11 @@ namespace SilksongItemRandomizer;
 
 public static class RecentItemsUI
 {
-    private static Queue<SavedItem> recentItems = new Queue<SavedItem>();
+    private static Queue<SavedItem> recentItems = new();
     private const int MaxItems = 5;
-    private static Rect windowRect = new Rect(20f, 300f, 700f, 600f);  // 新版位置
-    private static bool _showWindow = false;
-    private static float hideTime = 0.0f;
+    private static Rect windowRect = new Rect(20f, 300f, 700f, 600f);
+    private static bool _showWindow;
+    private static float hideTime;
 
     public static bool IsVisible => _showWindow;
 
@@ -20,7 +20,6 @@ public static class RecentItemsUI
     {
         if (item == null) return;
 
-        // 去重：如果队列里已有同名物品，不重复添加
         if (recentItems.Any(i => i.name == item.name))
             return;
 
@@ -53,7 +52,7 @@ public static class RecentItemsUI
     private static void DoWindow(int id)
     {
         int originalFontSize = GUI.skin.label.fontSize;
-        GUI.skin.label.fontSize = 32;  // 新版字体大小
+        GUI.skin.label.fontSize = 32;
 
         GUILayout.BeginVertical();
         foreach (SavedItem item in recentItems.Reverse())

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = System.Random;
+
 namespace SilksongItemRandomizer;
 
 public static class ItemRandomizer
@@ -13,7 +14,7 @@ public static class ItemRandomizer
 
     public static Random Rng => _rng;
 
-    public static readonly HashSet<string> ExcludedNames = new HashSet<string>()
+    public static readonly HashSet<string> ExcludedNames = new()
     {
         "Steel Spines",
         "Common Spine",

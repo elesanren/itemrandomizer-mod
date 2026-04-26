@@ -4,7 +4,7 @@ namespace SkillTriggerMod;
 
 public class SkillTrigger : MonoBehaviour
 {
-    private bool _triggered = false;
+    private bool _triggered;
     private string _sceneName;
     private int _index;
     private string _recordKey;

@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "D:\\code\\mod\\SkillRandomizerMod\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|D:\\code\\mod\\SkillRandomizerMod\\skilltriggermod\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|solutionrelative:skilltriggermod\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|d:\\code\\mod\\skillrandomizermod\\skilltriggermod\\skilltrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|solutionrelative:skilltriggermod\\skilltrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|D:\\code\\mod\\SkillRandomizerMod\\skilltriggermod\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|solutionrelative:skilltriggermod\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|D:\\code\\mod\\SkillRandomizerMod\\skilltriggermod\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{042DC9E5-3AA6-4E49-93F7-DC27B7B90549}|SkillRandomizerMod.csproj|solutionrelative:skilltriggermod\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,17 +22,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "SkillTrigger.cs",
               "DocumentMoniker": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\SkillTrigger.cs",
               "RelativeDocumentMoniker": "SkillTriggerMod\\SkillTrigger.cs",
               "ToolTip": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\SkillTrigger.cs",
               "RelativeToolTip": "SkillTriggerMod\\SkillTrigger.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAiwAwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T02:48:07.444Z",
               "EditorCaption": ""
@@ -43,26 +43,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "SkillRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\SkillRandomizer.cs",
               "RelativeDocumentMoniker": "SkillTriggerMod\\SkillRandomizer.cs",
               "ToolTip": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\SkillRandomizer.cs",
               "RelativeToolTip": "SkillTriggerMod\\SkillRandomizer.cs",
-              "ViewState": "AgIAAEQAAAAAAAAAAAAuwFkAAABwAAAAAAAAAA==",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAuwGoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T02:47:53.723Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Plugin.cs",
               "DocumentMoniker": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\Plugin.cs",
               "RelativeDocumentMoniker": "SkillTriggerMod\\Plugin.cs",
-              "ToolTip": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\Plugin.cs*",
-              "RelativeToolTip": "SkillTriggerMod\\Plugin.cs*",
-              "ViewState": "AgIAANwAAAAAAAAAAAAuwPIAAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\SkillRandomizerMod\\SkillTriggerMod\\Plugin.cs",
+              "RelativeToolTip": "SkillTriggerMod\\Plugin.cs",
+              "ViewState": "AgIAAAQBAAAAAAAAAAAuwCoBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T02:40:53.199Z",
               "EditorCaption": ""

@@ -3,28 +3,22 @@
   "WorkspaceRootPath": "D:\\code\\mod\\SilksongItemRandomizer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\pickuppatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|d:\\code\\mod\\silksongitemrandomizer\\pickuppatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:pickuppatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\recentitemsui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:recentitemsui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\silkspearpitypatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:silkspearpitypatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|d:\\code\\mod\\silksongitemrandomizer\\currencycollectpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\currencycollectpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:currencycollectpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\shopmenustock_builditemlist_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:shopmenustock_builditemlist_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\28267\\AppData\\Local\\Temp\\63d234c8-dc8d-4c5c-80ab-4d3672ad8e6a_Hard_Item_Randomizer_v1.0.2.zip.zip.e6a\\manifest.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\28267\\AppData\\Local\\Temp\\547c153a-cf16-4360-8fd4-76d638ce70d2_Hard_Item_Randomizer_v1.0.2.zip.zip.0d2\\manifest.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\trygetpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -35,16 +29,24 @@
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:toolunlockpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\silkspearpitypatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:silkspearpitypatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\shoprandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:shoprandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\shopmenustock_builditemlist_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:shopmenustock_builditemlist_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\shopitemstats_purchase_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:shopitemstats_purchase_patch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\recentitemsui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:recentitemsui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,6 +65,10 @@
       "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:benchrespawnpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|D:\\code\\mod\\SilksongItemRandomizer\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FEAC5B00-E64E-44B9-871C-0D9156F2FE7B}|SilksongItemRandomizer.csproj|solutionrelative:assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|SilksongItemRandomizer||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     }
   ],
@@ -73,141 +79,46 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "CurrencyCollectPatch.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\CurrencyCollectPatch.cs",
-              "RelativeDocumentMoniker": "CurrencyCollectPatch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\CurrencyCollectPatch.cs",
-              "RelativeToolTip": "CurrencyCollectPatch.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAADwv4cAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:28:18.232Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SilkSpearPityPatch.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\SilkSpearPityPatch.cs",
-              "RelativeDocumentMoniker": "SilkSpearPityPatch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\SilkSpearPityPatch.cs",
-              "RelativeToolTip": "SilkSpearPityPatch.cs",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAuwIMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:38:34.724Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Plugin.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\Plugin.cs",
-              "RelativeDocumentMoniker": "Plugin.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\Plugin.cs",
-              "RelativeToolTip": "Plugin.cs",
-              "ViewState": "AgIAAJAAAAAAAAAAAAASwLEAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:31:55.904Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "RecentItemsUI.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\RecentItemsUI.cs",
-              "RelativeDocumentMoniker": "RecentItemsUI.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\RecentItemsUI.cs",
-              "RelativeToolTip": "RecentItemsUI.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAACEAAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:33:37.37Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "PickupPatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\PickupPatch.cs",
               "RelativeDocumentMoniker": "PickupPatch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\PickupPatch.cs*",
-              "RelativeToolTip": "PickupPatch.cs*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAmwCMAAAABAAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\PickupPatch.cs",
+              "RelativeToolTip": "PickupPatch.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAuwCwAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T01:30:02.74Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "TryGetPatch.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\TryGetPatch.cs",
-              "RelativeDocumentMoniker": "TryGetPatch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\TryGetPatch.cs",
-              "RelativeToolTip": "TryGetPatch.cs",
-              "ViewState": "AgIAADMAAAAAAAAAAAAuwEkAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:40:10.279Z"
+              "DocumentIndex": 3,
+              "Title": "manifest.json",
+              "DocumentMoniker": "C:\\Users\\28267\\AppData\\Local\\Temp\\63d234c8-dc8d-4c5c-80ab-4d3672ad8e6a_Hard_Item_Randomizer_v1.0.2.zip.zip.e6a\\manifest.json",
+              "ToolTip": "C:\\Users\\28267\\AppData\\Local\\Temp\\63d234c8-dc8d-4c5c-80ab-4d3672ad8e6a_Hard_Item_Randomizer_v1.0.2.zip.zip.e6a\\manifest.json [\u53EA\u8BFB]",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-25T09:57:22.179Z",
+              "EditorCaption": " [\u53EA\u8BFB]"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ToolUnlockPatch.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ToolUnlockPatch.cs",
-              "RelativeDocumentMoniker": "ToolUnlockPatch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ToolUnlockPatch.cs",
-              "RelativeToolTip": "ToolUnlockPatch.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAuwDoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:39:28.953Z"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{269a02dc-6af8-11d3-bdc4-00c04f688e50}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AssemblyInfo.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\AssemblyInfo.cs",
-              "RelativeDocumentMoniker": "AssemblyInfo.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\AssemblyInfo.cs",
-              "RelativeToolTip": "AssemblyInfo.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T00:14:58.89Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ShopRandomizer.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ShopRandomizer.cs",
-              "RelativeDocumentMoniker": "ShopRandomizer.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ShopRandomizer.cs",
-              "RelativeToolTip": "ShopRandomizer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:37:33.755Z"
+              "DocumentIndex": 4,
+              "Title": "manifest.json",
+              "DocumentMoniker": "C:\\Users\\28267\\AppData\\Local\\Temp\\547c153a-cf16-4360-8fd4-76d638ce70d2_Hard_Item_Randomizer_v1.0.2.zip.zip.0d2\\manifest.json",
+              "ToolTip": "C:\\Users\\28267\\AppData\\Local\\Temp\\547c153a-cf16-4360-8fd4-76d638ce70d2_Hard_Item_Randomizer_v1.0.2.zip.zip.0d2\\manifest.json [\u53EA\u8BFB]",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-25T09:22:09.483Z",
+              "EditorCaption": " [\u53EA\u8BFB]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
-              "Title": "ShopMenuStock_BuildItemList_Patch.cs",
-              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ShopMenuStock_BuildItemList_Patch.cs",
-              "RelativeDocumentMoniker": "ShopMenuStock_BuildItemList_Patch.cs",
-              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ShopMenuStock_BuildItemList_Patch.cs",
-              "RelativeToolTip": "ShopMenuStock_BuildItemList_Patch.cs",
-              "ViewState": "AgIAAJ8AAAAAAAAAAAAuwMUAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T01:36:22.358Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
               "Title": "ShopItemStats_Purchase_Patch.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ShopItemStats_Purchase_Patch.cs",
               "RelativeDocumentMoniker": "ShopItemStats_Purchase_Patch.cs",
@@ -219,43 +130,139 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ShopMenuStock_BuildItemList_Patch.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ShopMenuStock_BuildItemList_Patch.cs",
+              "RelativeDocumentMoniker": "ShopMenuStock_BuildItemList_Patch.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ShopMenuStock_BuildItemList_Patch.cs",
+              "RelativeToolTip": "ShopMenuStock_BuildItemList_Patch.cs",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAuwMkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:36:22.358Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ShopRandomizer.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ShopRandomizer.cs",
+              "RelativeDocumentMoniker": "ShopRandomizer.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ShopRandomizer.cs",
+              "RelativeToolTip": "ShopRandomizer.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAuwF8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:37:33.755Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SilkSpearPityPatch.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\SilkSpearPityPatch.cs",
+              "RelativeDocumentMoniker": "SilkSpearPityPatch.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\SilkSpearPityPatch.cs",
+              "RelativeToolTip": "SilkSpearPityPatch.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAuwIEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:38:34.724Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CurrencyCollectPatch.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\CurrencyCollectPatch.cs",
+              "RelativeDocumentMoniker": "CurrencyCollectPatch.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\CurrencyCollectPatch.cs",
+              "RelativeToolTip": "CurrencyCollectPatch.cs",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAuwG8AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:28:18.232Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ToolUnlockPatch.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ToolUnlockPatch.cs",
+              "RelativeDocumentMoniker": "ToolUnlockPatch.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ToolUnlockPatch.cs",
+              "RelativeToolTip": "ToolUnlockPatch.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAuwDoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:39:28.953Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TryGetPatch.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\TryGetPatch.cs",
+              "RelativeDocumentMoniker": "TryGetPatch.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\TryGetPatch.cs",
+              "RelativeToolTip": "TryGetPatch.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAuwEYAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:40:10.279Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "RecentItemsUI.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\RecentItemsUI.cs",
+              "RelativeDocumentMoniker": "RecentItemsUI.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\RecentItemsUI.cs",
+              "RelativeToolTip": "RecentItemsUI.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAuwHoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:33:37.37Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 11,
+              "Title": "Plugin.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\Plugin.cs",
+              "RelativeDocumentMoniker": "Plugin.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\Plugin.cs",
+              "RelativeToolTip": "Plugin.cs",
+              "ViewState": "AgIAAO4AAAAAAAAAAAAuwBQBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T01:31:55.904Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "ItemRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\ItemRandomizer.cs",
               "RelativeDocumentMoniker": "ItemRandomizer.cs",
               "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\ItemRandomizer.cs",
               "RelativeToolTip": "ItemRandomizer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAADIAAAAAAAAAAAAuwFgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T01:29:09.015Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "CrestRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\CrestRandomizer.cs",
               "RelativeDocumentMoniker": "CrestRandomizer.cs",
               "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\CrestRandomizer.cs",
               "RelativeToolTip": "CrestRandomizer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADoAAAAAAAAAAAAuwGAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T01:27:00.13Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "CrestRandomizePatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\CrestRandomizePatch.cs",
               "RelativeDocumentMoniker": "CrestRandomizePatch.cs",
               "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\CrestRandomizePatch.cs",
               "RelativeToolTip": "CrestRandomizePatch.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACIAAAAAAAAAAAAuwEgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T00:38:09.557Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "BenchRespawnPatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\BenchRespawnPatch.cs",
               "RelativeDocumentMoniker": "BenchRespawnPatch.cs",
@@ -266,8 +273,24 @@
               "WhenOpened": "2026-04-22T01:12:12.23Z"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{269a02dc-6af8-11d3-bdc4-00c04f688e50}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "AssemblyInfo.cs",
+              "ToolTip": "D:\\code\\mod\\SilksongItemRandomizer\\AssemblyInfo.cs",
+              "RelativeToolTip": "AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T00:14:58.89Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "SilksongItemRandomizer",
               "DocumentMoniker": "D:\\code\\mod\\SilksongItemRandomizer\\SilksongItemRandomizer.csproj",
               "RelativeDocumentMoniker": "SilksongItemRandomizer.csproj",
