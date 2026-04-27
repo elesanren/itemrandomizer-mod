@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\roomrando.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|d:\\code\\mod\\hksilksong_scenerandomizer\\roomrando.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:roomrando.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|d:\\code\\mod\\hksilksong_scenerandomizer\\randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\seedmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:seedmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\transitionpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:transitionpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\seedmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:seedmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\roommapgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,11 +30,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "RoomRando.cs",
+              "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
+              "RelativeDocumentMoniker": "RoomRando.cs",
+              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
+              "RelativeToolTip": "RoomRando.cs",
+              "ViewState": "AgIAAL8CAAAAAAAAAAAkwNgCAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-26T02:52:24.518Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "RandomSceneLoader.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RandomSceneLoader.cs",
               "RelativeDocumentMoniker": "RandomSceneLoader.cs",
@@ -42,8 +55,7 @@
               "RelativeToolTip": "RandomSceneLoader.cs",
               "ViewState": "AgIAAFYDAAAAAAAAAAAWwHQDAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T02:51:29.952Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T02:51:29.952Z"
             },
             {
               "$type": "Document",
@@ -55,38 +67,24 @@
               "RelativeToolTip": "RoomMapGenerator.cs",
               "ViewState": "AgIAAPUAAAAAAAAAAAAuwBsBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T02:53:14.325Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T02:53:14.325Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "RoomRando.cs",
-              "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
-              "RelativeDocumentMoniker": "RoomRando.cs",
-              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
-              "RelativeToolTip": "RoomRando.cs",
-              "ViewState": "AgIAAHICAAAAAAAAAAAAAH0CAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T02:52:24.518Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "SeedManager.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\SeedManager.cs",
               "RelativeDocumentMoniker": "SeedManager.cs",
               "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\SeedManager.cs",
               "RelativeToolTip": "SeedManager.cs",
-              "ViewState": "AgIAAFUAAAAAAAAAAAAuwHEAAABHAAAAAAAAAA==",
+              "ViewState": "AgIAAFIAAAAAAAAAAAA+wHEAAABHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T02:52:05.796Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "TransitionPatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\TransitionPatch.cs",
               "RelativeDocumentMoniker": "TransitionPatch.cs",
@@ -94,8 +92,7 @@
               "RelativeToolTip": "TransitionPatch.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAJMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T02:51:47.59Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T02:51:47.59Z"
             },
             {
               "$type": "Bookmark",

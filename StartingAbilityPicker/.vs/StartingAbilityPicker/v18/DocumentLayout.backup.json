@@ -3,20 +3,28 @@
   "WorkspaceRootPath": "D:\\code\\mod\\StartingAbilityPicker\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|d:\\code\\mod\\startingabilitypicker\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|d:\\code\\mod\\startingabilitypicker\\locale.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:locale.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\crazyrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:crazyrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\attackpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -34,24 +42,49 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Locale.cs",
+              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Locale.cs",
+              "RelativeDocumentMoniker": "Locale.cs",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Locale.cs",
+              "RelativeToolTip": "Locale.cs",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAuwHQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-26T09:14:27.681Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CrazyRandomizer.cs",
+              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\CrazyRandomizer.cs",
+              "RelativeDocumentMoniker": "CrazyRandomizer.cs",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\CrazyRandomizer.cs",
+              "RelativeToolTip": "CrazyRandomizer.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAuwEcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-26T09:47:57.326Z"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Plugin.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
               "RelativeDocumentMoniker": "Plugin.cs",
-              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
-              "RelativeToolTip": "Plugin.cs",
-              "ViewState": "AgIAAAUCAAAAAAAAAAAWwBQCAAAhAAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs*",
+              "RelativeToolTip": "Plugin.cs*",
+              "ViewState": "AgIAAEkCAAAAAAAAAAAuwFsCAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T02:59:10.259Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "SkillRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\SkillRandomizer.cs",
               "RelativeDocumentMoniker": "SkillRandomizer.cs",
@@ -63,7 +96,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "DebugAttackUI.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\DebugAttackUI.cs",
               "RelativeDocumentMoniker": "DebugAttackUI.cs",
@@ -79,7 +112,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "AttackPatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\AttackPatch.cs",
               "RelativeDocumentMoniker": "AttackPatch.cs",
@@ -91,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "ItemRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\ItemRandomizer.cs",
               "RelativeDocumentMoniker": "ItemRandomizer.cs",
@@ -103,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "AssemblyInfo.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\AssemblyInfo.cs",
               "RelativeDocumentMoniker": "AssemblyInfo.cs",

@@ -66,7 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <!-- 删除反编译垃圾文件，只保留真正的源代码 -->
+    <Compile Include="CrazyRandomizer.cs" />
     <Compile Include="DebugAttackUI.cs" />
+    <Compile Include="Locale.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="AttackPatch.cs" />
     <Compile Include="SkillRandomizer.cs" />

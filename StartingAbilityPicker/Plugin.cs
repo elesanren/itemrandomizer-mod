@@ -26,17 +26,20 @@ public class Plugin : BaseUnityPlugin
 
     private static Dictionary<string, string> _abilityConfig = new();
 
-    private bool skillMode = false;
-    private int skillTotal = 0, skillV = 0, skillH = 0, skillS = 0, skillA = 0;
-    private const int MaxVertical = 5, MaxHorizontal = 4, MaxSpecial = 4, MaxAttack = 5;
+    internal bool skillMode = false;
+    internal int skillTotal = 0, skillV = 0, skillH = 0, skillS = 0, skillA = 0;
+    internal const int MaxVertical = 5;
+    internal const int MaxHorizontal = 4;
+    internal const int MaxSpecial = 4;
+    internal const int MaxAttack = 5;
 
     private bool _lastSceneWasMenu = true;
     private bool showUI = false;
     private Rect uiWindowRect;
-    private bool allowUpward = false, allowLeft = false, allowRight = false;
-    private int itemCount = 0;
-    private bool resetPickups = false;
-    private string seedInput = "";
+    internal bool allowUpward = false, allowLeft = false, allowRight = false;
+    internal int itemCount = 0;
+    internal bool resetPickups = false;
+    internal string seedInput = "";
     private static HashSet<int> chosenProfileSet = new();
 
     private static string _notificationMessage = null;
@@ -316,14 +319,14 @@ public class Plugin : BaseUnityPlugin
         GUI.skin.label.fontSize = 20; GUI.skin.toggle.fontSize = 20; GUI.skin.button.fontSize = 24;
         GUI.skin.horizontalSlider.fontSize = 18; GUI.skin.textField.fontSize = 18;
 
-        GUILayout.Label("当前存档开局设置：", GUILayout.Height(40));
+        GUILayout.Label(Locale.Get("当前存档开局设置："), GUILayout.Height(40));
         GUILayout.Space(15);
         bool alreadyChosen = chosenProfileSet.Contains(currentProfileID);
         if (alreadyChosen)
         {
-            GUILayout.Label("（此存档已设置过，只能查看）", GUILayout.Height(35));
+            GUILayout.Label(Locale.Get("（此存档已设置过，只能查看）"), GUILayout.Height(35));
             GUI.backgroundColor = new Color(0.8f, 0.5f, 0.2f);
-            if (GUILayout.Button("重置本存档设置", GUILayout.Height(45)))
+            if (GUILayout.Button(Locale.Get("重置本存档设置"), GUILayout.Height(45)))
             {
                 chosenProfileSet.Remove(currentProfileID); SaveChosenProfiles();
                 allowUpward = false; allowLeft = false; allowRight = false;
@@ -334,38 +337,47 @@ public class Plugin : BaseUnityPlugin
             GUI.backgroundColor = Color.white;
         }
         GUILayout.Space(20);
-        GUILayout.Label("攻击方向选择：", GUILayout.Height(35));
+        GUILayout.Label(Locale.Get("攻击方向选择："), GUILayout.Height(35));
         GUILayout.Space(5);
         GUILayout.BeginHorizontal();
-        GUI.color = Color.gray; GUILayout.Label("下劈 (默认)", GUILayout.Width(200), GUILayout.Height(40));
+        GUI.color = Color.gray; GUILayout.Label(Locale.Get("下劈 (默认)"), GUILayout.Width(200), GUILayout.Height(40));
         GUI.enabled = false; GUILayout.Toggle(true, "", GUILayout.Width(40), GUILayout.Height(40));
         GUI.enabled = !alreadyChosen; GUI.color = Color.white;
         GUILayout.EndHorizontal();
 
         GUI.color = allowUpward ? Color.green : Color.white;
-        bool newUp = GUILayout.Toggle(allowUpward, "上劈", GUILayout.Height(40));
+        bool newUp = GUILayout.Toggle(allowUpward, Locale.Get("上劈"), GUILayout.Height(40));
         if (newUp != allowUpward && !alreadyChosen) allowUpward = newUp;
         GUI.color = allowLeft ? Color.green : Color.white;
-        bool newLeft = GUILayout.Toggle(allowLeft, "左劈", GUILayout.Height(40));
+        bool newLeft = GUILayout.Toggle(allowLeft, Locale.Get("左劈"), GUILayout.Height(40));
         if (newLeft != allowLeft && !alreadyChosen) allowLeft = newLeft;
         GUI.color = allowRight ? Color.green : Color.white;
-        bool newRight = GUILayout.Toggle(allowRight, "右劈", GUILayout.Height(40));
+        bool newRight = GUILayout.Toggle(allowRight, Locale.Get("右劈"), GUILayout.Height(40));
         if (newRight != allowRight && !alreadyChosen) allowRight = newRight;
         GUI.color = Color.white;
 
         GUILayout.Space(20);
-        GUILayout.Label("技能随机模式：", GUILayout.Height(35));
+        GUILayout.Label(Locale.Get("技能随机模式："), GUILayout.Height(35));
         GUILayout.BeginHorizontal();
         GUI.color = !skillMode ? Color.green : Color.white;
-        if (GUILayout.Button("总随机", GUILayout.Height(40), GUILayout.Width(150)) && !alreadyChosen) skillMode = false;
+        if (GUILayout.Button(Locale.Get("总随机"), GUILayout.Height(40), GUILayout.Width(130)) && !alreadyChosen) skillMode = false;
         GUI.color = skillMode ? Color.green : Color.white;
-        if (GUILayout.Button("分类随机", GUILayout.Height(40), GUILayout.Width(150)) && !alreadyChosen) skillMode = true;
-        GUI.color = Color.white; GUILayout.EndHorizontal();
+        if (GUILayout.Button(Locale.Get("分类随机"), GUILayout.Height(40), GUILayout.Width(130)) && !alreadyChosen) skillMode = true;
+
+        // ★ 彻底疯狂按钮
+        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
+        if (GUILayout.Button(Locale.Get("彻底疯狂"), GUILayout.Height(40), GUILayout.Width(160)) && !alreadyChosen)
+        {
+            CrazyRandomizer.Apply(this);
+        }
+        GUI.backgroundColor = Color.white;
+        GUI.color = Color.white;
+        GUILayout.EndHorizontal();
         GUILayout.Space(10);
 
         if (!skillMode)
         {
-            GUILayout.Label("开局随机技能总数量：", GUILayout.Height(35));
+            GUILayout.Label(Locale.Get("开局随机技能总数量："), GUILayout.Height(35));
             GUILayout.BeginHorizontal();
             GUILayout.Label(skillTotal.ToString(), GUILayout.Width(35), GUILayout.Height(40));
             int newTotal = (int)GUILayout.HorizontalSlider(skillTotal, 0, 13, GUILayout.Width(220));
@@ -374,15 +386,15 @@ public class Plugin : BaseUnityPlugin
         }
         else
         {
-            GUILayout.Label("分类随机数量：", GUILayout.Height(35));
-            DrawCategorySlider("垂直技能", ref skillV, MaxVertical, alreadyChosen);
-            DrawCategorySlider("水平技能", ref skillH, MaxHorizontal, alreadyChosen);
-            DrawCategorySlider("特殊技能", ref skillS, MaxSpecial, alreadyChosen);
-            DrawCategorySlider("攻击技能", ref skillA, MaxAttack, alreadyChosen);
+            GUILayout.Label(Locale.Get("分类随机数量："), GUILayout.Height(35));
+            DrawCategorySlider(Locale.Get("垂直技能"), ref skillV, MaxVertical, alreadyChosen);
+            DrawCategorySlider(Locale.Get("水平技能"), ref skillH, MaxHorizontal, alreadyChosen);
+            DrawCategorySlider(Locale.Get("特殊技能"), ref skillS, MaxSpecial, alreadyChosen);
+            DrawCategorySlider(Locale.Get("攻击技能"), ref skillA, MaxAttack, alreadyChosen);
         }
 
         GUILayout.Space(15);
-        GUILayout.Label("开局随机物品数量：", GUILayout.Height(35));
+        GUILayout.Label(Locale.Get("开局随机物品数量："), GUILayout.Height(35));
         GUILayout.BeginHorizontal();
         GUILayout.Label(itemCount.ToString(), GUILayout.Width(35), GUILayout.Height(40));
         int newItem = (int)GUILayout.HorizontalSlider(itemCount, 0, 10, GUILayout.Width(220));
@@ -391,20 +403,20 @@ public class Plugin : BaseUnityPlugin
 
         GUILayout.Space(25);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("种子", GUILayout.Width(60), GUILayout.Height(40));
+        GUILayout.Label(Locale.Get("种子"), GUILayout.Width(60), GUILayout.Height(40));
         seedInput = GUILayout.TextField(seedInput, GUILayout.Width(160), GUILayout.Height(40));
         GUILayout.EndHorizontal();
         GUILayout.Space(5);
 
         GUI.color = resetPickups ? Color.red : Color.white;
-        bool newReset = GUILayout.Toggle(resetPickups, "重置种子世界（含技能触发器）", GUILayout.Height(40));
+        bool newReset = GUILayout.Toggle(resetPickups, Locale.Get("重置种子世界（含技能触发器）"), GUILayout.Height(40));
         if (newReset != resetPickups && !alreadyChosen) resetPickups = newReset;
         GUI.color = Color.white;
-        if (resetPickups) { GUI.color = Color.yellow; GUILayout.Label("警告：重置后当前种子世界将重新生成，所有拾取点会重生，技能触发器也会重置。", GUILayout.Height(70)); GUI.color = Color.white; }
+        if (resetPickups) { GUI.color = Color.yellow; GUILayout.Label(Locale.Get("警告：重置后当前种子世界将重新生成，所有拾取点会重生，技能触发器也会重置。"), GUILayout.Height(70)); GUI.color = Color.white; }
         GUILayout.Space(35);
 
         GUI.enabled = !alreadyChosen; GUI.backgroundColor = Color.green;
-        if (GUILayout.Button("确认", GUILayout.Height(50)) && !alreadyChosen)
+        if (GUILayout.Button(Locale.Get("确认"), GUILayout.Height(50)) && !alreadyChosen)
         {
             AllowUpwardAttack = allowUpward; AllowLeftAttack = allowLeft; AllowRightAttack = allowRight; SaveAbilityConfig();
             try
@@ -437,11 +449,11 @@ public class Plugin : BaseUnityPlugin
         }
         GUI.backgroundColor = Color.white; GUI.enabled = true;
         GUI.backgroundColor = new Color(0.8f, 0.2f, 0.2f);
-        if (GUILayout.Button("关闭", GUILayout.Height(40))) showUI = false;
+        if (GUILayout.Button(Locale.Get("关闭"), GUILayout.Height(40))) showUI = false;
         GUI.backgroundColor = Color.white;
         GUILayout.Space(15);
         int originalFontSize = GUI.skin.label.fontSize; GUI.skin.label.fontSize = 26; GUI.color = Color.yellow;
-        GUILayout.Label("提示: 按 F7 呼出此窗口", GUILayout.Height(40));
+        GUILayout.Label(Locale.Get("提示: 按 F7 呼出此窗口"), GUILayout.Height(40));
         GUI.color = Color.white; GUI.skin.label.fontSize = originalFontSize;
     }
 
@@ -522,14 +534,25 @@ public class Plugin : BaseUnityPlugin
     {
         if (!_sceneRandomAvailable)
         {
-            GUILayout.Label("场景随机未加载", GUILayout.Height(30));
+            GUILayout.Label(Locale.Get("场景随机未加载"), GUILayout.Height(30));
             return;
         }
 
-        GUILayout.Label("场景随机设置", GUILayout.Height(30));
+        // ★ 语言测试按钮（方便验证中英切换）
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("CN", GUILayout.Height(20), GUILayout.Width(60)))
+            Locale.SetForceChinese(true);
+        if (GUILayout.Button("EN", GUILayout.Height(20), GUILayout.Width(60)))
+            Locale.SetForceChinese(false);
+        if (GUILayout.Button("Auto", GUILayout.Height(20), GUILayout.Width(60)))
+            Locale.SetForceChinese(null);
+        GUILayout.EndHorizontal();
+        GUILayout.Space(8);
+
+        GUILayout.Label(Locale.Get("场景随机设置"), GUILayout.Height(30));
         GUILayout.Space(12);
 
-        // ★ 全局开关
+        // 全局开关
         bool enableRandom = true;
         try
         {
@@ -539,7 +562,7 @@ public class Plugin : BaseUnityPlugin
         catch { }
 
         GUI.color = enableRandom ? Color.green : Color.white;
-        if (GUILayout.Toggle(enableRandom, "启用场景随机", GUILayout.Height(30)))
+        if (GUILayout.Toggle(enableRandom, Locale.Get("启用场景随机"), GUILayout.Height(30)))
         {
             if (!enableRandom) SetSceneRandomEnabled(true);
         }
@@ -554,53 +577,68 @@ public class Plugin : BaseUnityPlugin
         // 当前种子
         int seed = 0;
         try { seed = (int)_getSeedMethod.Invoke(_roomRando, null); } catch { }
-        GUILayout.Label($"当前种子: {seed}", GUILayout.Height(30));
+        GUILayout.Label($"{Locale.Get("当前种子")}: {seed}", GUILayout.Height(30));
         GUILayout.Space(8);
 
         // 当前场景名
         string sceneName = "";
         try { sceneName = (string)_currentSceneNameField.GetValue(_sceneLoader); } catch { }
-        GUILayout.Label($"当前场景: {sceneName}", GUILayout.Height(30));
+        GUILayout.Label($"{Locale.Get("当前场景")}: {sceneName}", GUILayout.Height(30));
 
         GUILayout.Space(18);
 
         // 修改种子
-        GUILayout.Label("修改种子:", GUILayout.Height(25));
+        GUILayout.Label(Locale.Get("修改种子:"), GUILayout.Height(25));
         sceneSeedInput = GUILayout.TextField(sceneSeedInput, GUILayout.Width(260), GUILayout.Height(30));
         GUILayout.Space(4);
         GUI.backgroundColor = Color.green;
-        if (GUILayout.Button("应用种子", GUILayout.Height(32), GUILayout.Width(260)))
+        if (GUILayout.Button(Locale.Get("应用种子"), GUILayout.Height(32), GUILayout.Width(260)))
         {
-            if (int.TryParse(sceneSeedInput, out int newSeed) && newSeed != 0)
+            int newSeed;
+            string input = sceneSeedInput.Trim();
+
+            if (string.IsNullOrEmpty(input))
             {
-                try
-                {
-                    var seedEntry = _seedManager.GetType().GetField("cfgNewSeed", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_seedManager);
-                    var triggerEntry = _seedManager.GetType().GetField("cfgRegenerateTrigger", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_seedManager);
-                    seedEntry.GetType().GetProperty("Value").SetValue(seedEntry, newSeed, null);
-                    triggerEntry.GetType().GetProperty("Value").SetValue(triggerEntry, true, null);
-                    ShowNotification("场景连接已重新生成");
-                }
-                catch (Exception ex) { Log.LogError($"场景种子更新失败: {ex}"); }
+                // 空输入 → 自动随机种子（生成一个非零随机值）
+                newSeed = new Random().Next(1, int.MaxValue);
             }
+            else if (int.TryParse(input, out newSeed))
+            {
+                // 有效数字（包括0）→ 使用输入值，newSeed 已经是解析结果
+            }
+            else
+            {
+                // 输入不是数字，直接忽略本次点击
+                return;
+            }
+
+            try
+            {
+                var seedEntry = _seedManager.GetType().GetField("cfgNewSeed", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_seedManager);
+                var triggerEntry = _seedManager.GetType().GetField("cfgRegenerateTrigger", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_seedManager);
+                seedEntry.GetType().GetProperty("Value").SetValue(seedEntry, newSeed, null);
+                triggerEntry.GetType().GetProperty("Value").SetValue(triggerEntry, true, null);
+                ShowNotification(Locale.Get("场景连接已重新生成"));
+            }
+            catch (Exception ex) { Log.LogError($"场景种子更新失败: {ex}"); }
         }
         GUI.backgroundColor = Color.white;
 
         GUILayout.Space(20);
 
         // 场景传送
-        GUILayout.Label("场景传送:", GUILayout.Height(25));
+        GUILayout.Label(Locale.Get("场景传送:"), GUILayout.Height(25));
         sceneTeleportInput = GUILayout.TextField(sceneTeleportInput, GUILayout.Width(260), GUILayout.Height(30));
         GUILayout.Space(4);
         GUI.backgroundColor = Color.green;
-        if (GUILayout.Button("传送", GUILayout.Height(32), GUILayout.Width(260)))
+        if (GUILayout.Button(Locale.Get("传送"), GUILayout.Height(32), GUILayout.Width(260)))
         {
             if (!string.IsNullOrWhiteSpace(sceneTeleportInput))
             {
                 _pendingTeleport = true;
                 _pendingTeleportScene = sceneTeleportInput;
                 showUI = false;
-                ShowNotification($"稍后传送至 {sceneTeleportInput} ...");
+                ShowNotification(Locale.Get("稍后传送至") + sceneTeleportInput + " ...");
             }
         }
         GUI.backgroundColor = Color.white;
@@ -618,11 +656,11 @@ public class Plugin : BaseUnityPlugin
         }
         catch { }
 
-        GUILayout.Label("显示选项:", GUILayout.Height(25));
+        GUILayout.Label(Locale.Get("显示选项:"), GUILayout.Height(25));
         GUILayout.Space(4);
 
         GUI.color = showSceneLabel ? Color.green : Color.white;
-        if (GUILayout.Toggle(showSceneLabel, "显示当前场景名", GUILayout.Height(30)))
+        if (GUILayout.Toggle(showSceneLabel, Locale.Get("显示当前场景名"), GUILayout.Height(30)))
         {
             if (!showSceneLabel) _cfgShowSceneLabelProp.SetValue(_sceneLoader, true, null);
         }
@@ -634,7 +672,7 @@ public class Plugin : BaseUnityPlugin
         GUILayout.Space(6);
 
         GUI.color = showSeedLabel ? Color.green : Color.white;
-        if (GUILayout.Toggle(showSeedLabel, "显示当前种子", GUILayout.Height(30)))
+        if (GUILayout.Toggle(showSeedLabel, Locale.Get("显示当前种子"), GUILayout.Height(30)))
         {
             if (!showSeedLabel)
             {

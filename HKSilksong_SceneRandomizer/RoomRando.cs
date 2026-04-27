@@ -60,6 +60,9 @@ public class RoomRando : MonoBehaviour
         //"Dust_Chef_bot1",
     };
 
+    // 记录多出口场景已配对的单出口数量，用于配额限制
+    private static readonly Dictionary<string, int> SingleExitPairedCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
     public void Initialize(RandomSceneLoader loader)
     {
         sceneLoader = loader;
@@ -89,27 +92,30 @@ public class RoomRando : MonoBehaviour
         if (!enableRandomization)
             return;
 
-        // [核心逻辑] 尝试加载，如果存档与新规则冲突，则强制重新生成
         if (TryLoadConnectionsFromFile())
         {
-            // 构建当前应该存在的合法出口集合，用于验证存档有效性
-            var validExitsSnapshot = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var scene in availableScenes)
+            // ★ 全面检查旧连接是否违反当前所有规则（黑名单 + 单出口规则 + 配额限制）
+            bool hasConflict = false;
+            foreach (var kv in connections)
             {
-                if (sceneLoader.sceneConfigs.TryGetValue(scene, out var cfg) && cfg.Exits != null)
+                int keyPos = kv.Key.LastIndexOf('_');
+                if (keyPos > 0)
                 {
-                    foreach (var exit in cfg.Exits)
+                    string sceneA = kv.Key.Substring(0, keyPos);
+                    string exitA = kv.Key.Substring(keyPos + 1);
+                    string sceneB = kv.Value.targetScene;
+                    string exitB = kv.Value.targetGate;
+
+                    if (!IsConnectionAllowed(sceneA, exitA, sceneB, exitB))
                     {
-                        validExitsSnapshot.Add(MakeKey(scene, exit));
+                        hasConflict = true;
+                        break;
                     }
                 }
             }
-            validExitsSnapshot.ExceptWith(BlacklistedExits); // 从合法集合中移除黑名单
-
-            // 检查加载的 connections 中是否有任何键不存在于过滤后的合法集合中
-            if (connections.Keys.Any(key => !validExitsSnapshot.Contains(key)))
+            if (hasConflict)
             {
-                Debug.LogWarning("RoomRando: Loaded connections conflict with current blacklist rules. Forcing regeneration...");
+                Debug.LogWarning("RoomRando: Loaded connections conflict with current rules. Forcing regeneration...");
                 connections.Clear();
                 GenerateAllConnectionsAtStart();
                 SaveConnectionsToFile();
@@ -167,6 +173,9 @@ public class RoomRando : MonoBehaviour
                         freeExits[scene].Remove(exit);
                 }
             }
+
+            // 清除已配对的单出口计数
+            SingleExitPairedCounts.Clear();
 
             foreach (var kv in connections.ToList())
             {
@@ -375,6 +384,11 @@ public class RoomRando : MonoBehaviour
                     return;
                 string exit1 = freeExits[a][rng.Next(freeExits[a].Count)];
                 string exit2 = freeExits[b][rng.Next(freeExits[b].Count)];
+
+                // ★ 统一规则检查
+                if (!IsConnectionAllowed(a, exit1, b, exit2))
+                    return;
+
                 string key1 = MakeKey(a, exit1);
                 string key2 = MakeKey(b, exit2);
                 if (connections.ContainsKey(key1) || connections.ContainsKey(key2))
@@ -384,6 +398,9 @@ public class RoomRando : MonoBehaviour
                 freeExits[a].Remove(exit1);
                 freeExits[b].Remove(exit2);
                 finalConnectionCount++;
+
+                // ★ 更新单出口配对计数（配额管理）
+                UpdateSingleExitCount(a, b);
             }
 
             void AddNeighborEdge(string s1, string s2)
@@ -417,9 +434,63 @@ public class RoomRando : MonoBehaviour
         Debug.Log($"RoomRando: Generated {finalConnectionCount} bidirectional connection pairs ({connections.Count} total directional connections)");
     }
 
+    /// <summary>
+    /// 统一规则检查：是否允许从场景 A 的出口 exitA 连接到场景 B 的出口 exitB。
+    /// 所有自定义连接规则均在此维护，方便扩展。
+    /// </summary>
+    private bool IsConnectionAllowed(string sceneA, string exitA, string sceneB, string exitB)
+    {
+        // 规则1：黑名单过滤（出口级别）
+        string keyA = MakeKey(sceneA, exitA);
+        string keyB = MakeKey(sceneB, exitB);
+        if (BlacklistedExits.Contains(keyA) || BlacklistedExits.Contains(keyB))
+            return false;
+
+        // 规则2：单出口房间必须连接多出口房间（≥3个出口）
+        int origA = sceneLoader.sceneConfigs[sceneA].Exits.Count;
+        int origB = sceneLoader.sceneConfigs[sceneB].Exits.Count;
+
+        if (origA == 1 && origB < 3) return false;
+        if (origB == 1 && origA < 3) return false;
+
+        // 规则3：多出口房间最多允许连接 (n-2) 个单出口
+        if (origA == 1 && origB >= 3)
+        {
+            int used = SingleExitPairedCounts.TryGetValue(sceneB, out int c) ? c : 0;
+            if (used >= origB - 2) return false;
+        }
+        if (origB == 1 && origA >= 3)
+        {
+            int used = SingleExitPairedCounts.TryGetValue(sceneA, out int c) ? c : 0;
+            if (used >= origA - 2) return false;
+        }
+
+        return true;
+    }
+
+    private void UpdateSingleExitCount(string sceneA, string sceneB)
+    {
+        int exitsA = sceneLoader.sceneConfigs[sceneA].Exits.Count;
+        int exitsB = sceneLoader.sceneConfigs[sceneB].Exits.Count;
+
+        if (exitsA == 1 && exitsB >= 3)
+        {
+            if (!SingleExitPairedCounts.ContainsKey(sceneB))
+                SingleExitPairedCounts[sceneB] = 1;
+            else
+                SingleExitPairedCounts[sceneB]++;
+        }
+        if (exitsB == 1 && exitsA >= 3)
+        {
+            if (!SingleExitPairedCounts.ContainsKey(sceneA))
+                SingleExitPairedCounts[sceneA] = 1;
+            else
+                SingleExitPairedCounts[sceneA]++;
+        }
+    }
+
     private bool TryLoadConnectionsFromFile()
     {
-        // 代码逻辑与之前完全一致，包含严密的源头过滤
         try
         {
             if (string.IsNullOrWhiteSpace(saveFilePath))
@@ -656,5 +727,4 @@ public class RoomRando : MonoBehaviour
         SaveConnectionsToFile();
         Debug.Log($"RoomRando: regeneration complete with seed {generationSeed}, saved to {saveFilePath}");
     }
-
 }
