@@ -22,13 +22,16 @@ public static class SkillRandomizer
         { "hasDoubleJump", "二段跳" },
         { "hasChargeSlash", "蓄力斩" },
         { "hasSuperJump", "超级跳" },
-        { "hasWallJump", "爬墙" }
+        { "hasWallJump", "爬墙" },
+        { "hasSilkSpear", "丝矛" },
+        { "hasParry", "弹反" },
     };
+
 
     public static readonly List<string> VerticalSkills = new() { "hasSuperJump", "hasDoubleJump", "hasWallJump", "hasBrolly", "hasHarpoonDash" };
     public static readonly List<string> HorizontalSkills = new() { "hasDash", "hasBrolly", "hasHarpoonDash", "hasSilkCharge" };
     public static readonly List<string> SpecialSkills = new() { "hasNeedolin", "hasChargeSlash", "hasBrolly", "hasHarpoonDash" };
-    public static readonly List<string> AttackSkills = new() { "hasSilkBomb", "hasSilkBossNeedle", "hasThreadSphere", "hasSilkSpear", "hasSilkCharge" };
+    public static readonly List<string> AttackSkills = new() { "hasSilkBomb", "hasSilkBossNeedle", "hasThreadSphere", "hasSilkSpear", "hasSilkCharge", "hasParry", "hasNeedleThrow" };
 
     private static readonly List<string> AllSkillFields = SkillDisplayNames.Keys.ToList();
     private static Random _rng;

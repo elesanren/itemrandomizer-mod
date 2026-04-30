@@ -69,8 +69,10 @@
     <Compile Include="CrazyRandomizer.cs" />
     <Compile Include="DebugAttackUI.cs" />
     <Compile Include="Locale.cs" />
+    <Compile Include="PanelRenderer.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="AttackPatch.cs" />
+    <Compile Include="RoomRandomMode.cs" />
     <Compile Include="SkillRandomizer.cs" />
     <Compile Include="ItemRandomizer.cs" />
     <Compile Include="AssemblyInfo.cs" />

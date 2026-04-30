@@ -42,8 +42,8 @@ namespace StartingAbilityPicker
             { "左劈", "Left Slash" },
             { "右劈", "Right Slash" },
             { "技能随机模式：", "Skill Random Mode:" },
-            { "总随机", "Total Random" },
-            { "分类随机", "Category Random" },
+            { "总随机", "Total Mode" },
+            { "分类随机", "Type Mode" },
             { "开局随机技能总数量：", "Total Random Skills:" },
             { "分类随机数量：", "Category Random Count:" },
             { "垂直技能", "Vertical Skills" },
@@ -58,11 +58,15 @@ namespace StartingAbilityPicker
             { "关闭", "Close" },
             { "提示: 按 F7 呼出此窗口", "Tip: Press F7 to open this window" },
             { "彻底疯狂", "Crazy Mode" },
+            // ★ 房随模式（新增）
+            { "房随模式", "Room Mode" },
+            { "给予疾风步、升腾与一格丝之心", "Grants Dash, Super Jump & 1 Silk Regen" },
 
             // 场景随机面板
             { "场景随机未加载", "Scene Randomizer Not Loaded" },
             { "场景随机设置", "Scene Randomizer" },
             { "启用场景随机", "Enable Randomizer" },
+            { "启用陷阱随机", "Enable Trap Randomizer" },  // ← 新增
             { "当前种子", "Current Seed" },
             { "当前场景", "Current Scene" },
             { "修改种子:", "Modify Seed:" },

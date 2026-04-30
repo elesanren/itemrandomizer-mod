@@ -78,7 +78,17 @@ public class Plugin : BaseUnityPlugin
         SceneManager.sceneLoaded += OnSceneLoaded;
         LoadDestroyedKeys();
 
+        // ★ 启动陷阱随机初始化
+        StartCoroutine(InitTrapsAfterLoad());
+
         Log.LogInfo("Plugin SilksongItemRandomizer loaded (seed-based)");
+    }
+
+    private IEnumerator InitTrapsAfterLoad()
+    {
+        yield return new WaitForSeconds(5f);
+        TrapRandomizer.Initialize(RandomSeed.Value);
+        Log.LogInfo("陷阱随机系统已初始化");
     }
 
     private void OnDestroy()
@@ -146,6 +156,7 @@ public class Plugin : BaseUnityPlugin
         ResetDestroyedPickupKeys();
         ShopRandomizer.ResetCache();
         ShopMenuStock_BuildItemList_Patch.ResetAllCounts();
+        TrapRandomizer.ClearAllCache();   // ★ 清除陷阱位置缓存
         Log.LogInfo("物品随机MOD所有静态数据已重置");
     }
 
@@ -161,6 +172,20 @@ public class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         StartCoroutine(DestroyMarkedPickups(scene));
+
+        // ★ 陷阱随机：清理旧实例并强制重新扫描
+        if (TrapRandomizer.Enabled && scene.name != "Menu_Title" && scene.name != "Menu" && scene.name != "Loading")
+        {
+            TrapRandomizer.ClearAndRescan();          // 清理 + 重置扫描缓存
+            TrapRandomizer.Initialize(RandomSeed.Value);
+            StartCoroutine(SpawnTrapsAfterSceneLoad());
+        }
+    }
+
+    private IEnumerator SpawnTrapsAfterSceneLoad()
+    {
+        yield return new WaitForSeconds(0.5f);
+        TrapRandomizer.SpawnTraps();
     }
 
     private IEnumerator DestroyMarkedPickups(Scene scene)

@@ -25,7 +25,7 @@ public class RoomRando : MonoBehaviour
     // ★ 排除门黑名单：这些出口无法正常使用，随机连接时必须跳过
     private static readonly HashSet<string> BlacklistedExits = new(StringComparer.OrdinalIgnoreCase)
     {
-        // ---- 已确认 ----
+        // ---- 已确认 (1-10) ----
         "Bone_11_top1",             // Bone_11 的上
         "Bellshrine_right1",        // Bellshrine 的右
         "Bellshrine_05_right1",     // Bellshrine_05 右
@@ -37,27 +37,69 @@ public class RoomRando : MonoBehaviour
         "Dust_06_left1",            // Dust_06 左中
         "Shadow_20_bot1",           // Shadow_20 下
 
-        // ---- 待确认（去掉前缀 "//" 即可激活）----
-        //"Bone_08_left2",
-        //"Bone_08_left3",
-        //"Dock_01_right1",
-        //"Dock_01_right2",
-        //"Dock_03_bot1",
-        //"Dock_03c_left2",
-        //"Dock_03c_top1",
-        //"Dock_03c_top2",
-        //"Dock_02_left1",
-        //"Dock_02_left2",
-        //"Bone_East_14_right1",
-        //"Bone_East_14_right2",
-        //"Greymoor_01_right1",
-        //"Greymoor_01_right2",
-        //"Dust_02_right1",
-        //"Dust_02_right2",
-        //"Dust_04_left1",
-        //"Dust_04_left2",
-        //"Dust_Chef_left1",
-        //"Dust_Chef_bot1",
+        // ---- 已确认 (11-28) ----
+        "Bellshrine_03_right1",     // Bellshrine_03 右
+        "Shellwood_19_left1",       // bellwood19 左
+        "Shellwood_01b_right2",     // shellwood01b 右边第二个
+        "Bellshrine_02_right1",     // Bellshrine_02 右
+        "Dust_06_right1",           // Dust_06 右
+        "Mosstown_03_top1",         // mosstown零三上
+        "Coral_10_left1",           // coral10 左
+        "Song_27_left1",            // song27 左
+        "Dock_01_right1",           // Dock_01 的右上
+        "Dock_01_right2",           // Dock_01 的右上
+        "Bone_East_14_right1",      // Bone_East_14 右
+        "Bone_East_14_right2",      // Bone_East_14 右
+        "Greymoor_01_right1",       // Greymoor_01 右中
+        "Greymoor_01_right2",       // Greymoor_01 右中
+        "Dust_02_right1",           // Dust_02 右中
+        "Dust_02_right2",           // Dust_02 右中
+        "Dust_04_left1",            // Dust_04 左中
+        "Dust_04_left2",            // Dust_04 左中
+
+        // ---- 已确认 (29-37) ----
+        "Song_25_top1",             // song25上 (两个上出口)
+        "Song_25_top2",             // song25上
+        "Arborium_05_top1",         // arbroium05上
+        "Hang_07_top1",             // hang07上
+        "Hang_07_left1",            // hang07左
+        "Slab_02_left1",            // slab02左
+        "Slab_05_right1",           // slab05右
+        "Cog_06_right1",            // cog06右
+        "Library_11b_right1",       // library11b右
+
+        // ---- 已确认 (38-53) ----
+        "Dock_03_bot1",             // Dock_03 右下
+        "Dock_03c_top1",            // Dock_03c 左中向上的口子
+        "Dock_03c_left2",           // Dock_03c 左下
+        "Dock_02_left1",            // Dock_02 左上
+        "Shellwood_02_right2",      // sherwood02 右下
+        "Shellwood_01_left2",       // sherwood01 左下
+        "Dust_Chef_left1",          // Dust_Chef 左下
+        "Song_11_left4",            // song11左墙未破 (左侧四个中确认 left4)
+        "Slab_03_right1",           // slab03右 (第一个)
+        "Slab_03_right2",           // slab03右 (第二个)
+        "Slab_03_right5",           // slab03右 (第三个)
+        "Slab_03_right7",           // slab03右 (第四个)
+        "Slab_03_left6",            // slab03左
+        "Under_05_left2",           // under05左下
+        "Under_02_right4",          // under02右下
+        "Under_02_left1",           // under02左下
+
+        // ---- 已确认 (54-62) ----
+        "Bone_East_12_right1",      // Bone_East_12 的右
+        "Shadow_27_right1",         // Shadow_27 的右
+        "Halfway_01_right1",        // Halfway_01 的右
+        "Wisp_03_top1",             // Wisp_03 的上
+        "Arborium_01_right1",       // arborium01上右 (确认 right1)
+        "Arborium_04_left1",        // arborium04 左
+        "Library_13_left1",         // library13 左
+        "Hang_03_right2",           // hang03 右下 (确认 right2)
+        "Aqueduct_02_right3",       // Aqueduct_02 右中 (确认 right3)
+        "Song_19_entrance_left1",   // song19entrance左
+        "Weave_04_right2",          // weave04右
+        "Slab_16_right1",           // slab16右
+        "Bone_East_04_left1",       // boneeast04左
     };
 
     // 记录多出口场景已配对的单出口数量，用于配额限制
@@ -438,6 +480,10 @@ public class RoomRando : MonoBehaviour
     /// 统一规则检查：是否允许从场景 A 的出口 exitA 连接到场景 B 的出口 exitB。
     /// 所有自定义连接规则均在此维护，方便扩展。
     /// </summary>
+    /// <summary>
+    /// 统一规则检查：是否允许从场景 A 的出口 exitA 连接到场景 B 的出口 exitB。
+    /// 所有自定义连接规则均在此维护，方便扩展。
+    /// </summary>
     private bool IsConnectionAllowed(string sceneA, string exitA, string sceneB, string exitB)
     {
         // 规则1：黑名单过滤（出口级别）
@@ -447,24 +493,54 @@ public class RoomRando : MonoBehaviour
             return false;
 
         // 规则2：单出口房间必须连接多出口房间（≥3个出口）
+        // ★ 改用实际可用出口数（原始出口数 - 黑名单排除数）
         int origA = sceneLoader.sceneConfigs[sceneA].Exits.Count;
         int origB = sceneLoader.sceneConfigs[sceneB].Exits.Count;
 
-        if (origA == 1 && origB < 3) return false;
-        if (origB == 1 && origA < 3) return false;
+        int blacklistedA = sceneLoader.sceneConfigs[sceneA].Exits.Count(e => BlacklistedExits.Contains(MakeKey(sceneA, e)));
+        int blacklistedB = sceneLoader.sceneConfigs[sceneB].Exits.Count(e => BlacklistedExits.Contains(MakeKey(sceneB, e)));
+        int actualA = origA - blacklistedA;
+        int actualB = origB - blacklistedB;
+
+        if (actualA == 1 && actualB < 3) return false;
+        if (actualB == 1 && actualA < 3) return false;
 
         // 规则3：多出口房间最多允许连接 (n-2) 个单出口
-        if (origA == 1 && origB >= 3)
+        if (actualA == 1 && actualB >= 3)
         {
             int used = SingleExitPairedCounts.TryGetValue(sceneB, out int c) ? c : 0;
-            if (used >= origB - 2) return false;
+            if (used >= actualB - 2) return false;
         }
-        if (origB == 1 && origA >= 3)
+        if (actualB == 1 && actualA >= 3)
         {
             int used = SingleExitPairedCounts.TryGetValue(sceneA, out int c) ? c : 0;
-            if (used >= origA - 2) return false;
+            if (used >= actualA - 2) return false;
         }
+        // 规则4：Tut_01_left3 特殊限制
+        // 开局无能力时，从此出口出去若进入特定出口会卡死，额外限制
+        if (keyA == "Tut_01_left3" || keyB == "Tut_01_left3")
+        {
+            string otherScene = keyA == "Tut_01_left3" ? sceneB : sceneA;
+            string otherExit = keyA == "Tut_01_left3" ? exitB : exitA;
+            string otherKey = keyA == "Tut_01_left3" ? keyB : keyA;
 
+            // 4a. 禁止连接单出口房间
+            int otherActual = keyA == "Tut_01_left3" ? actualB : actualA;
+            if (otherActual == 1)
+                return false;
+
+            // ★ Tut_01_left3 专用黑名单（独立于全局 BlacklistedExits）
+            // 以下出口即使不在全局黑名单中，也不得与 Tut_01_left3 相连
+            // 待确认后逐条填入
+            HashSet<string> tutRestricted = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                // "SceneName_exitName",
+                // "SceneName_exitName",
+            };
+
+            if (tutRestricted.Contains(otherKey))
+                return false;
+        }
         return true;
     }
 
@@ -473,14 +549,19 @@ public class RoomRando : MonoBehaviour
         int exitsA = sceneLoader.sceneConfigs[sceneA].Exits.Count;
         int exitsB = sceneLoader.sceneConfigs[sceneB].Exits.Count;
 
-        if (exitsA == 1 && exitsB >= 3)
+        int blacklistedA = sceneLoader.sceneConfigs[sceneA].Exits.Count(e => BlacklistedExits.Contains(MakeKey(sceneA, e)));
+        int blacklistedB = sceneLoader.sceneConfigs[sceneB].Exits.Count(e => BlacklistedExits.Contains(MakeKey(sceneB, e)));
+        int actualA = exitsA - blacklistedA;
+        int actualB = exitsB - blacklistedB;
+
+        if (actualA == 1 && actualB >= 3)
         {
             if (!SingleExitPairedCounts.ContainsKey(sceneB))
                 SingleExitPairedCounts[sceneB] = 1;
             else
                 SingleExitPairedCounts[sceneB]++;
         }
-        if (exitsB == 1 && exitsA >= 3)
+        if (actualB == 1 && actualA >= 3)
         {
             if (!SingleExitPairedCounts.ContainsKey(sceneA))
                 SingleExitPairedCounts[sceneA] = 1;

@@ -63,6 +63,10 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>..\..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>..\..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
@@ -81,6 +85,7 @@
     <Compile Include="RecentItemsUI.cs" />
     <Compile Include="SilkSpearPityPatch.cs" />
     <Compile Include="ToolUnlockPatch.cs" />
+    <Compile Include="TrapRandomizer.cs" />
     <Compile Include="TryGetPatch.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>

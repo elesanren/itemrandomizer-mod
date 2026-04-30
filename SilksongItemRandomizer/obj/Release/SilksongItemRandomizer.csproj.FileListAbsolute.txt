@@ -8,13 +8,13 @@ D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.CoreModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.IMGUIModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.InputLegacyModule.dll
+D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.Physics2DModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.TextRenderingModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\Mono.Cecil.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\MonoMod.Utils.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\MonoMod.RuntimeDetour.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.AudioModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.TK2D.dll
-D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.Physics2DModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.Localization.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.SharedUtils.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.UI.dll

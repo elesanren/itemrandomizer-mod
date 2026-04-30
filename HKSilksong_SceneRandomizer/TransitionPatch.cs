@@ -23,7 +23,9 @@ public class TransitionPatch
                 isRedirecting = false;
                 return true;
             }
-
+            // 死亡重生时放行原生逻辑，不随机
+            if (GameManager.instance != null && GameManager.instance.RespawningHero)
+                return true;
             // ★ 新增：全局开关关闭时，直接放行原版过渡
             if (!RandomSceneLoader.EnableRandomization)
                 return true;

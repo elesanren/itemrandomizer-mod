@@ -653,29 +653,129 @@ public class RandomSceneLoader : BaseUnityPlugin
         try
         {
             if (isTransitioning)
-                log.LogInfo("Teleport skipped: transition already in progress");
-            else if (string.IsNullOrWhiteSpace(sceneName))
-                log.LogWarning("TeleportToScene called with empty scene name");
-            else
             {
-                string entryGate = null;
-                SceneConfig config;
-                if (sceneConfigs != null && sceneConfigs.TryGetValue(sceneName, out config))
+                log.LogInfo("Teleport skipped: transition already in progress");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(sceneName))
+            {
+                log.LogWarning("TeleportToScene called with empty scene name");
+                return;
+            }
+
+            // ---- 分离场景名和入口名 ----
+            string desiredEntryGate = null;
+            string scenePart = sceneName.Trim();
+
+            // 查找最后一个空格，之前为场景，之后为入口
+            int lastSpace = scenePart.LastIndexOf(' ');
+            if (lastSpace > 0)
+            {
+                desiredEntryGate = scenePart.Substring(lastSpace + 1).Trim();
+                scenePart = scenePart.Substring(0, lastSpace).Trim();
+                // 如果入口名为空字符串，则视为未指定
+                if (string.IsNullOrEmpty(desiredEntryGate))
+                    desiredEntryGate = null;
+            }
+
+            // ---- 模糊匹配场景 ----
+            string entryGate = null;
+            SceneConfig config = null;
+            string matchedScene = null;
+
+            // 1. 精确匹配（忽略大小写）
+            if (sceneConfigs != null && sceneConfigs.TryGetValue(scenePart, out config))
+            {
+                matchedScene = scenePart;
+            }
+            else if (sceneConfigs != null)
+            {
+                var allScenes = sceneConfigs.Keys.ToList();
+                string inputLetters = new string(scenePart.Where(char.IsLetter).ToArray());
+                string inputDigits = new string(scenePart.Where(char.IsDigit).ToArray());
+
+                // 2a. 再次尝试精确匹配（和 TryGetValue 相同，但可能有大小写差异）
+                matchedScene = allScenes.FirstOrDefault(s =>
+                    string.Equals(s, scenePart, StringComparison.OrdinalIgnoreCase));
+
+                // 2b. 字母+数字匹配（针对有数字后缀的场景）
+                if (matchedScene == null
+                    && !string.IsNullOrEmpty(inputLetters)
+                    && !string.IsNullOrEmpty(inputDigits))
+                {
+                    matchedScene = allScenes.FirstOrDefault(s =>
+                    {
+                        string sceneDigits = new string(s.Where(char.IsDigit).ToArray());
+                        string sceneLetters = new string(s.Where(char.IsLetter).ToArray());
+                        return !string.IsNullOrEmpty(sceneDigits)
+                            && sceneLetters.IndexOf(inputLetters, StringComparison.OrdinalIgnoreCase) >= 0
+                            && sceneDigits.IndexOf(inputDigits, StringComparison.OrdinalIgnoreCase) >= 0;
+                    });
+                }
+
+                // 2c. 纯字母匹配（针对无数字的场景）
+                if (matchedScene == null
+                    && !string.IsNullOrEmpty(inputLetters)
+                    && string.IsNullOrEmpty(inputDigits))
+                {
+                    matchedScene = allScenes.FirstOrDefault(s =>
+                    {
+                        string sceneDigits = new string(s.Where(char.IsDigit).ToArray());
+                        return string.IsNullOrEmpty(sceneDigits)
+                            && s.IndexOf(inputLetters, StringComparison.OrdinalIgnoreCase) >= 0;
+                    });
+                }
+
+                // 2d. 简单包含匹配（兜底）
+                if (matchedScene == null)
+                {
+                    matchedScene = allScenes.FirstOrDefault(s =>
+                        s.IndexOf(scenePart, StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+            }
+
+            // ---- 确定入口门 ----
+            if (matchedScene != null && sceneConfigs.TryGetValue(matchedScene, out config))
+            {
+                // 如果用户指定了入口，且该入口在场景的出口列表中，则使用；否则随机
+                if (desiredEntryGate != null)
+                {
+                    if (config.Exits != null && config.Exits.Contains(desiredEntryGate, StringComparer.OrdinalIgnoreCase))
+                    {
+                        entryGate = desiredEntryGate;
+                    }
+                    else
+                    {
+                        log.LogWarning($"TeleportToScene: entry '{desiredEntryGate}' not valid for scene '{matchedScene}', will pick random.");
+                        // 仍随机选一个
+                        if (config.Exits != null && config.Exits.Count > 0)
+                            entryGate = config.Exits[rng.Next(config.Exits.Count)];
+                    }
+                }
+                else
                 {
                     if (config.Exits != null && config.Exits.Count > 0)
                         entryGate = config.Exits[rng.Next(config.Exits.Count)];
                 }
-                else
-                    log.LogWarning($"TeleportToScene: scene '{sceneName}' not found in sceneConfigs. Attempting direct load.");
-
-                log.LogInfo($"Teleport: {sceneName} (entry '{entryGate ?? "(null)"}')");
-                SuppressTransitionPatch = true;
-                StartCoroutine(LoadSceneCoroutine(sceneName, entryGate));
+                log.LogInfo($"Teleport: {scenePart} -> {matchedScene} (entry '{entryGate ?? "(null)"}')");
             }
-        }
-        catch (Exception ex) { log.LogError($"TeleportToScene failed: {ex}"); }
-    }
+            else
+            {
+                log.LogWarning($"TeleportToScene: scene '{scenePart}' not found in sceneConfigs. Attempting direct load.");
+                matchedScene = scenePart;
+                if (desiredEntryGate != null)
+                    entryGate = desiredEntryGate;
+            }
 
+            SuppressTransitionPatch = true;
+            StartCoroutine(LoadSceneCoroutine(matchedScene, entryGate));
+        }
+        catch (Exception ex)
+        {
+            log.LogError($"TeleportToScene failed: {ex}");
+        }
+    }
     private void DiscoverGatesInCurrentScene()
     {
         log.LogInfo("=== DISCOVERING GATES ===");
