@@ -373,7 +373,7 @@ public class Plugin : BaseUnityPlugin
             var type = Type.GetType("HKSilksong_Randomizer.RandomSceneLoader, HKSilksong_SceneRandomizer");
             return (bool)type?.GetField("EnableRandomization", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
         }
-        catch { return true; }
+        catch { return false; }
     }
 
     public void SetSceneRandomEnabled(bool enabled)

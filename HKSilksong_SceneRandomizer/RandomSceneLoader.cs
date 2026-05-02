@@ -487,7 +487,7 @@ public class RandomSceneLoader : BaseUnityPlugin
     private ConfigEntry<string> cfgTeleportScene;
     private ConfigEntry<bool> cfgTeleportConfirm;
     private HashSet<string> visitedScenesF6 = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    public static bool EnableRandomization = true;
+    public static bool EnableRandomization = false;
     private ConfigEntry<bool> cfgEnableRandomization;
 
     private void Awake()
@@ -509,7 +509,7 @@ public class RandomSceneLoader : BaseUnityPlugin
         // ★ 开关绑定
         try
         {
-            cfgEnableRandomization = Config.Bind<bool>("General", "EnableRandomization", true, "Enable/disable scene transition randomization");
+            cfgEnableRandomization = Config.Bind<bool>("General", "EnableRandomization", false, "Enable/disable scene transition randomization");
             EnableRandomization = cfgEnableRandomization.Value;
         }
         catch { }

@@ -3,16 +3,19 @@
   "WorkspaceRootPath": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\a\\Hard_Item_Randomizer_v1.0.2.zip\\manifest.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|d:\\code\\mod\\hksilksong_scenerandomizer\\roomrando.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:roomrando.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\transitionpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:transitionpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|solutionrelative:randomsceneloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6B822AD0-498B-45D7-9BF4-CF0A30119400}|HKSilksong_SceneRandomizer.csproj|D:\\code\\mod\\HKSilksong_SceneRandomizer\\roommapgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,37 +33,48 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "manifest.json",
+              "DocumentMoniker": "E:\\a\\Hard_Item_Randomizer_v1.0.2.zip\\manifest.json",
+              "ToolTip": "E:\\a\\Hard_Item_Randomizer_v1.0.2.zip\\manifest.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-01T15:38:32.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "RoomRando.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
               "RelativeDocumentMoniker": "RoomRando.cs",
-              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs*",
-              "RelativeToolTip": "RoomRando.cs*",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAAAGkAAAB1AAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomRando.cs",
+              "RelativeToolTip": "RoomRando.cs",
+              "ViewState": "AgIAAAcDAAAAAAAAAAAiwCoDAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T02:52:24.518Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "RandomSceneLoader.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RandomSceneLoader.cs",
               "RelativeDocumentMoniker": "RandomSceneLoader.cs",
-              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RandomSceneLoader.cs",
-              "RelativeToolTip": "RandomSceneLoader.cs",
-              "ViewState": "AgIAAM0BAAAAAAAAAAAAwAADAAANAAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RandomSceneLoader.cs*",
+              "RelativeToolTip": "RandomSceneLoader.cs*",
+              "ViewState": "AgIAAOwBAAAAAAAAAAAswAYCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T02:51:29.952Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "RoomMapGenerator.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\RoomMapGenerator.cs",
               "RelativeDocumentMoniker": "RoomMapGenerator.cs",
@@ -72,7 +86,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "SeedManager.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\SeedManager.cs",
               "RelativeDocumentMoniker": "SeedManager.cs",
@@ -84,7 +98,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "TransitionPatch.cs",
               "DocumentMoniker": "D:\\code\\mod\\HKSilksong_SceneRandomizer\\TransitionPatch.cs",
               "RelativeDocumentMoniker": "TransitionPatch.cs",
@@ -92,8 +106,7 @@
               "RelativeToolTip": "TransitionPatch.cs",
               "ViewState": "AgIAAG8AAAAAAAAAAAAuwJIAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T02:51:47.59Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T02:51:47.59Z"
             },
             {
               "$type": "Bookmark",

@@ -60,8 +60,9 @@ namespace StartingAbilityPicker
             { "彻底疯狂", "Crazy Mode" },
             // ★ 房随模式（新增）
             { "房随模式", "Room Mode" },
-            { "给予疾风步、升腾与一格丝之心", "Grants Dash, Super Jump & 1 Silk Regen" },
-
+            { "丝之心、疾跑和上冲", "Silk,Dash,Super Jump" },
+            { "[开]", "[ON]" },
+            { "[关]", "[OFF]" },
             // 场景随机面板
             { "场景随机未加载", "Scene Randomizer Not Loaded" },
             { "场景随机设置", "Scene Randomizer" },

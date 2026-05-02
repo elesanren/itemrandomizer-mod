@@ -29,7 +29,7 @@ public static class PanelRenderer
         }
         GUILayout.Space(20);
 
-        // 攻击方向
+        // 攻击方向（改用大按钮）
         DrawAttackDirection(p, alreadyChosen);
 
         GUILayout.Space(20);
@@ -139,59 +139,56 @@ public static class PanelRenderer
         RoomRandomMode.ResetPending();
     }
 
+    // ★ 攻击方向改用大按钮
     private static void DrawAttackDirection(Plugin p, bool alreadyChosen)
     {
         GUILayout.Label(Locale.Get("攻击方向选择："), GUILayout.Height(35));
         GUILayout.Space(5);
-        GUILayout.BeginHorizontal();
-        GUI.color = Color.gray; GUILayout.Label(Locale.Get("下劈 (默认)"), GUILayout.Width(200), GUILayout.Height(40));
-        GUI.enabled = false; GUILayout.Toggle(true, "", GUILayout.Width(40), GUILayout.Height(40));
-        GUI.enabled = !alreadyChosen; GUI.color = Color.white;
-        GUILayout.EndHorizontal();
 
-        GUI.color = p.allowUpward ? Color.green : Color.white;
-        bool newUp = GUILayout.Toggle(p.allowUpward, Locale.Get("上劈"), GUILayout.Height(40));
+        // 下劈（始终默认开启，不可关闭）
+        GUI.enabled = false;
+        DrawModeButton("下劈 (默认)", true, 18, GUILayout.Width(220), GUILayout.Height(60));
+        GUI.enabled = !alreadyChosen;
+
+        // 上劈
+        bool newUp = DrawModeButton(Locale.Get("上劈"), p.allowUpward, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newUp != p.allowUpward && !alreadyChosen) p.allowUpward = newUp;
-        GUI.color = p.allowLeft ? Color.green : Color.white;
-        bool newLeft = GUILayout.Toggle(p.allowLeft, Locale.Get("左劈"), GUILayout.Height(40));
+
+        // 左劈
+        bool newLeft = DrawModeButton(Locale.Get("左劈"), p.allowLeft, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newLeft != p.allowLeft && !alreadyChosen) p.allowLeft = newLeft;
-        GUI.color = p.allowRight ? Color.green : Color.white;
-        bool newRight = GUILayout.Toggle(p.allowRight, Locale.Get("右劈"), GUILayout.Height(40));
+
+        // 右劈
+        bool newRight = DrawModeButton(Locale.Get("右劈"), p.allowRight, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newRight != p.allowRight && !alreadyChosen) p.allowRight = newRight;
-        GUI.color = Color.white;
     }
 
     private static void DrawSkillModeButtons(Plugin p, bool alreadyChosen)
     {
         GUILayout.Label(Locale.Get("技能随机模式："), GUILayout.Height(35));
         GUILayout.BeginHorizontal();
-        GUI.color = !p.skillMode ? Color.green : Color.white;
-        if (GUILayout.Button(Locale.Get("总随机"), GUILayout.Height(40), GUILayout.Width(130)) && !alreadyChosen) p.skillMode = false;
-        GUI.color = p.skillMode ? Color.green : Color.white;
-        if (GUILayout.Button(Locale.Get("分类随机"), GUILayout.Height(40), GUILayout.Width(130)) && !alreadyChosen) p.skillMode = true;
 
-        // 彻底疯狂
-        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
-        if (GUILayout.Button(Locale.Get("彻底疯狂"), GUILayout.Height(40), GUILayout.Width(160)) && !alreadyChosen)
+        // 总随机按钮（带上状态文字）
+        bool newSkillMode = DrawModeButton(Locale.Get("总随机"), !p.skillMode, 18, GUILayout.Width(130), GUILayout.Height(60));
+        if (newSkillMode != !p.skillMode && !alreadyChosen) p.skillMode = false;
+
+        // 分类随机按钮（带上状态文字）
+        bool newTypeMode = DrawModeButton(Locale.Get("分类随机"), p.skillMode, 18, GUILayout.Width(130), GUILayout.Height(60));
+        if (newTypeMode != p.skillMode && !alreadyChosen) p.skillMode = true;
+
+        // 彻底疯狂按钮（带上状态文字）
+        bool crazyOn = false;
+        bool newCrazy = DrawModeButton(Locale.Get("彻底疯狂"), crazyOn, 18, GUILayout.Width(160), GUILayout.Height(60));
+        if (newCrazy && !alreadyChosen)
+        {
             CrazyRandomizer.Apply(p);
-        GUI.backgroundColor = Color.white;
-        GUI.color = Color.white;
+        }
 
-        // 房随模式
-        GUI.backgroundColor = RoomRandomMode.IsPending ? new Color(0.2f, 1f, 0.2f) : new Color(0.2f, 0.4f, 1f);
-        if (GUILayout.Button(Locale.Get("房随模式"), GUILayout.Height(40), GUILayout.Width(160)) && !alreadyChosen)
+        // 房随模式按钮（文字改为“丝之心、疾跑和上冲”，字号缩小为11）
+        bool newRoomMode = DrawModeButton(Locale.Get("丝之心、疾跑和上冲"), RoomRandomMode.IsPending, 14, GUILayout.Width(160), GUILayout.Height(60));
+        if (newRoomMode != RoomRandomMode.IsPending && !alreadyChosen)
             RoomRandomMode.Toggle();
-        GUI.backgroundColor = Color.white;
-        GUILayout.EndHorizontal();
 
-        // 房随模式说明（现在也使用本地化）
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(10);
-        GUI.skin.label.fontSize = 14;
-        GUI.color = Color.white;
-        GUILayout.Label(Locale.Get("给予疾风步、升腾与一格丝之心"), GUILayout.Height(20));
-        GUI.skin.label.fontSize = 20;
-        GUI.color = Color.white;
         GUILayout.EndHorizontal();
     }
 
@@ -274,39 +271,21 @@ public static class PanelRenderer
     private static void DrawSceneToggle(Plugin p)
     {
         bool enableRandom = p.GetSceneRandomEnabled();
-        GUI.color = enableRandom ? Color.green : Color.white;
-        if (GUILayout.Toggle(enableRandom, Locale.Get("启用场景随机"), GUILayout.Height(30)))
-        {
-            if (!enableRandom) p.SetSceneRandomEnabled(true);
-        }
-        else
-        {
-            if (enableRandom) p.SetSceneRandomEnabled(false);
-        }
-        GUI.color = Color.white;
+        bool newValue = DrawModeButton(Locale.Get("启用场景随机"), enableRandom, 18, GUILayout.Width(260), GUILayout.Height(60));
+        if (newValue != enableRandom)
+            p.SetSceneRandomEnabled(newValue);
     }
 
     private static void DrawTrapToggle(Plugin p)
     {
         bool trapEnabled = GetTrapEnabled();
-        GUI.color = trapEnabled ? Color.green : Color.white;
-        if (GUILayout.Toggle(trapEnabled, Locale.Get("启用陷阱随机"), GUILayout.Height(30)))
+        bool newValue = DrawModeButton(Locale.Get("启用陷阱随机"), trapEnabled, 18, GUILayout.Width(260), GUILayout.Height(60));
+        if (newValue != trapEnabled)
         {
-            if (!trapEnabled)
-            {
-                SetTrapEnabled(true);
-                TriggerTrapSpawn();
-            }
+            SetTrapEnabled(newValue);
+            if (newValue) TriggerTrapSpawn();
+            else TriggerTrapClear();
         }
-        else
-        {
-            if (trapEnabled)
-            {
-                SetTrapEnabled(false);
-                TriggerTrapClear();
-            }
-        }
-        GUI.color = Color.white;
     }
 
     private static void DrawSeedChanger(Plugin p)
@@ -395,6 +374,43 @@ public static class PanelRenderer
             if (showSeedLabel) p.SetShowSceneLabel(false, isSeed: true);
         }
         GUI.color = Color.white;
+    }
+
+    // ===== 双排字大按钮（新增可选字号参数） =====
+    private static bool DrawModeButton(string label, bool isOn, int titleFontSize = 18, params GUILayoutOption[] options)
+    {
+        // 状态文字
+        string statusText = isOn ? Locale.Get("[开]") : Locale.Get("[关]");
+        Color bgColor = isOn ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.6f, 0.6f, 0.6f);
+        Color oldBg = GUI.backgroundColor;
+        GUI.backgroundColor = bgColor;
+
+        bool clicked = GUILayout.Button("", options);
+        Rect buttonRect = GUILayoutUtility.GetLastRect();
+
+        // 绘制两排文字
+        GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.UpperCenter,
+            fontSize = titleFontSize,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = Color.white }
+        };
+        GUIStyle statusStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.LowerCenter,
+            fontSize = titleFontSize - 3,
+            fontStyle = FontStyle.Normal,
+            normal = { textColor = isOn ? Color.white : new Color(0.9f, 0.9f, 0.9f) }
+        };
+
+        GUI.Label(new Rect(buttonRect.x, buttonRect.y, buttonRect.width, buttonRect.height / 2), label, titleStyle);
+        GUI.Label(new Rect(buttonRect.x, buttonRect.y + buttonRect.height / 2, buttonRect.width, buttonRect.height / 2), statusText, statusStyle);
+
+        GUI.backgroundColor = oldBg;
+
+        if (clicked) return !isOn;
+        return isOn;
     }
 
     // ===== 陷阱随机辅助方法 =====
