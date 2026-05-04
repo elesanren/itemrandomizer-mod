@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using BepInEx;
@@ -32,10 +33,17 @@ public static class TrapRandomizer
         "frost_marker", "white_thorns", "jelly_egg", "wp_trap_spikes"
     };
 
+    // ★ 排除场景：这些场景不会生成陷阱
+    private static readonly HashSet<string> ExcludedScenes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Belltown_04"
+    };
+
     private static readonly HashSet<string> LargeTraps = new(StringComparer.OrdinalIgnoreCase)
     {
         "fan_hazard", "steam_vent", "coral_lightning_rock", "mill_trap",
-        "spike_cog_2", "spike_cog_3", "spike_cog_1", "spike_cog_4", "spike_cog_5", "voltgrass"
+        "spike_cog_2", "spike_cog_3", "spike_cog_1", "spike_cog_4", "spike_cog_5", "voltgrass",
+        "junk_pipe"
     };
     private const int LargeTrapRadius = 7;
 
@@ -47,26 +55,97 @@ public static class TrapRandomizer
 
     private const string LavaTrapId = "lava_area";
 
+    // ★ 需要下移的尖刺陷阱
+    private static readonly HashSet<string> LoweredSpikeTraps = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "pilgrim_trap_spike",
+        "organ_spikes",
+        "cradle_spikes"
+    };
+    private const float SpikeYOffset = 1.3f;
+
     private static readonly List<GameObject> ActiveTraps = new();
     private static List<Vector3> _surfacePoints = new();
     private static string _lastScene = "";
-    public static bool Enabled = false;
+
+    // ★ 拾取点数据缓存：位置 + 碰撞箱（用于荆棘规避）
+    private static List<(Vector3 position, Bounds? bounds)> _pickupData = new();
+
+    private static string EnabledFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "trap_enabled.txt");
+    private static void SaveEnabledState(bool enabled)
+    {
+        try
+        {
+            string dir = Path.GetDirectoryName(EnabledFilePath);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(EnabledFilePath, enabled ? "true" : "false");
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log?.LogError($"保存陷阱开关状态失败: {ex}");
+        }
+    }
+
+    public static void LoadEnabledState()
+    {
+        try
+        {
+            if (File.Exists(EnabledFilePath))
+            {
+                string content = File.ReadAllText(EnabledFilePath).Trim();
+                _enabled = content == "true";
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log?.LogError($"加载陷阱开关状态失败: {ex}");
+            _enabled = false;
+        }
+    }
+    private static bool _enabled = false;
+    public static bool Enabled
+    {
+        get => _enabled;
+        set
+        {
+            if (_enabled == value) return;
+            _enabled = value;
+            SaveEnabledState(value);
+        }
+    }
     private static int _masterSeed;
     private const float MinDistance = 6f;
+    private const float PickupSafeRadius = 7f; // 拾取点安全距离
 
     private static List<(Vector3 center, float minX, float maxX, float waterY)> _waterRegions = new();
     private static readonly Dictionary<string, List<(Vector3 pos, string trapId)>> _cachedTraps = new();
 
-    // ★ 新增：门位置缓存，用于防止陷阱生成在门口
+    // ★ 门位置缓存，用于防止陷阱生成在门口
     private static List<Vector2> _doorPositions = new();
 
     public static void Initialize(int seed)
     {
         _masterSeed = seed == 0 ? Environment.TickCount : seed;
-        
+        LoadEnabledState();
     }
 
-    
+    // ★ 扫描场景中的拾取点，缓存位置和碰撞箱
+    private static void ScanPickups()
+    {
+        _pickupData.Clear();
+        var pickups = Resources.FindObjectsOfTypeAll<CollectableItemPickup>();
+        foreach (var pickup in pickups)
+        {
+            if (pickup == null || !pickup.gameObject.scene.isLoaded) continue;
+            Vector3 pos = pickup.transform.position;
+            Bounds? bounds = null;
+            var col = pickup.GetComponent<Collider2D>();
+            if (col != null)
+                bounds = col.bounds;
+            _pickupData.Add((pos, bounds));
+        }
+    }
 
     // ★ 原始物理扫描 + 收集门位置
     private static void ScanSceneSurfaces()
@@ -102,8 +181,11 @@ public static class TrapRandomizer
         foreach (var tp in transitionPoints)
             _doorPositions.Add(tp.transform.position);
 
+        // ★ 扫描拾取点
+        ScanPickups();
+
         _lastScene = GameManager.instance?.sceneName ?? "";
-        Plugin.Log?.LogInfo($"TrapRandomizer: 扫描到 {_surfacePoints.Count} 个平台候选点 on {_lastScene}");
+        Plugin.Log?.LogInfo($"TrapRandomizer: 扫描到 {_surfacePoints.Count} 个平台候选点, {_pickupData.Count} 个拾取点 on {_lastScene}");
     }
 
     private static void ScanWaterRegions()
@@ -145,6 +227,28 @@ public static class TrapRandomizer
         return right - left;
     }
 
+    // ★ 检查候选点是否在拾取点安全区域内
+    private static bool IsTooCloseToPickup(Vector3 point)
+    {
+        foreach (var (pos, _) in _pickupData)
+        {
+            if (Vector2.Distance(new Vector2(point.x, point.y), new Vector2(pos.x, pos.y)) < PickupSafeRadius)
+                return true;
+        }
+        return false;
+    }
+
+    // ★ 检查候选点是否在某个拾取点的碰撞箱内（用于荆棘排除）
+    private static bool IsInsidePickupBounds(Vector3 point)
+    {
+        foreach (var (_, bounds) in _pickupData)
+        {
+            if (bounds.HasValue && bounds.Value.Contains(point))
+                return true;
+        }
+        return false;
+    }
+
     private static bool CanPlaceLargeTrap(Vector2 origin)
     {
         RaycastHit2D floorHit = Physics2D.Raycast(origin, Vector2.down, 2f, LayerMask.GetMask("Terrain"));
@@ -169,6 +273,15 @@ public static class TrapRandomizer
         if (hero == null) return;
 
         string currentScene = GameManager.instance?.sceneName ?? "";
+
+        // ★ 排除特定场景不生成陷阱
+        if (ExcludedScenes.Contains(currentScene))
+        {
+            _cachedTraps.Remove(currentScene);
+            Plugin.Log?.LogInfo($"TrapRandomizer: 场景 {currentScene} 已排除，跳过陷阱生成");
+            return;
+        }
+
         if (_surfacePoints.Count == 0 || _lastScene != currentScene)
         {
             ScanSceneSurfaces();
@@ -202,7 +315,6 @@ public static class TrapRandomizer
         if (_surfacePoints.Count > 0)
             roomCenter /= _surfacePoints.Count;
 
-        // ★ 计算所有候选点的最低 Y 坐标（用于排除过高的天花板平台）
         float minY = float.MaxValue;
         foreach (var pt in _surfacePoints)
             if (pt.y < minY) minY = pt.y;
@@ -223,7 +335,7 @@ public static class TrapRandomizer
                     if (Vector2.Distance(new Vector2(lavaPos.x, lavaPos.y), new Vector2(used.x, used.y)) < MinDistance)
                     { tooClose = true; break; }
                 }
-                if (!tooClose)
+                if (!tooClose && !IsTooCloseToPickup(lavaPos))
                 {
                     ArchitectSpawn(LavaTrapId, lavaPos);
                     usedPositions.Add(lavaPos);
@@ -245,7 +357,6 @@ public static class TrapRandomizer
                 }
                 if (tooClose) continue;
 
-                // 排除离门7格内的点
                 bool tooCloseToDoor = false;
                 foreach (var doorPos in _doorPositions)
                 {
@@ -257,8 +368,10 @@ public static class TrapRandomizer
                 }
                 if (tooCloseToDoor) continue;
 
-                // ★ 排除纵坐标过高的点（距离最低点超过70格）
                 if (pt.y - minY > 70f) continue;
+
+                // ★ 拾取点安全距离检查
+                if (IsTooCloseToPickup(pt)) continue;
 
                 validPoints.Add(pt);
             }
@@ -273,10 +386,13 @@ public static class TrapRandomizer
                 string trapId = TrapPool[rng.Next(TrapPool.Count)];
                 if (trapId == LavaTrapId) continue;
                 if (LargeTraps.Contains(trapId) && !CanPlaceLargeTrap(chosen)) continue;
+
+                // ★ 荆棘陷阱额外检查：不能位于拾取点碰撞箱内
                 if (ThornTraps.Contains(trapId))
                 {
                     float platformWidth = GetPlatformWidth(chosen);
                     if (platformWidth < ThornTrapMinWidth || !CanPlaceLargeTrap(chosen)) continue;
+                    if (IsInsidePickupBounds(chosen)) continue;
                 }
                 ArchitectSpawn(trapId, chosen);
                 usedPositions.Add(chosen);
@@ -306,6 +422,7 @@ public static class TrapRandomizer
         _lastScene = "";
         _waterRegions.Clear();
         _doorPositions.Clear();
+        _pickupData.Clear();
         Plugin.Log?.LogInfo("TrapRandomizer: 已清除所有陷阱并准备重新扫描");
     }
 
@@ -320,6 +437,12 @@ public static class TrapRandomizer
     {
         try
         {
+            // ★ 尖刺陷阱下移
+            if (LoweredSpikeTraps.Contains(id))
+            {
+                pos.y -= SpikeYOffset;
+            }
+
             var registeredType = Type.GetType("Architect.Objects.Placeable.PlaceableObject, Architect");
             var field = registeredType?.GetField("RegisteredObjects", BindingFlags.Public | BindingFlags.Static);
             var registeredDict = field?.GetValue(null) as System.Collections.IDictionary;

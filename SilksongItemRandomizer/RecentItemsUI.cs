@@ -55,7 +55,8 @@ public static class RecentItemsUI
         GUI.skin.label.fontSize = 32;
 
         GUILayout.BeginVertical();
-        foreach (SavedItem item in recentItems.Reverse())
+        // ★ 去掉 Reverse()，按添加顺序从上到下显示，最新物品在最下面
+        foreach (SavedItem item in recentItems)
         {
             GUILayout.BeginHorizontal();
 

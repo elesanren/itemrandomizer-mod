@@ -89,6 +89,16 @@ public static class PanelRenderer
         // 陷阱随机开关
         DrawTrapToggle(p);
 
+        // ★ 提示文字
+        GUILayout.Space(5);
+        int prevFont = GUI.skin.label.fontSize;
+        GUI.skin.label.fontSize = 20;
+        GUI.color = Color.yellow;
+        GUILayout.Label(Locale.Get("陷阱、房间随机建议丝之心，疾跑和上冲"), GUILayout.Height(40));
+        GUI.color = Color.white;
+        GUI.skin.label.fontSize = prevFont;
+        GUILayout.Space(5);
+
         GUILayout.Space(12);
 
         // 当前种子
@@ -184,7 +194,7 @@ public static class PanelRenderer
             CrazyRandomizer.Apply(p);
         }
 
-        // 房随模式按钮（文字改为“丝之心、疾跑和上冲”，字号缩小为11）
+        // 房随模式按钮（文字改为"丝之心、疾跑和上冲"，字号缩小为11）
         bool newRoomMode = DrawModeButton(Locale.Get("丝之心、疾跑和上冲"), RoomRandomMode.IsPending, 14, GUILayout.Width(160), GUILayout.Height(60));
         if (newRoomMode != RoomRandomMode.IsPending && !alreadyChosen)
             RoomRandomMode.Toggle();
@@ -420,8 +430,8 @@ public static class PanelRenderer
         try
         {
             Type trapType = Type.GetType("SilksongItemRandomizer.TrapRandomizer, SilksongItemRandomizer");
-            var field = trapType?.GetField("Enabled", BindingFlags.Public | BindingFlags.Static);
-            return field != null && (bool)field.GetValue(null);
+            var prop = trapType?.GetProperty("Enabled", BindingFlags.Public | BindingFlags.Static);
+            return prop != null && (bool)prop.GetValue(null);
         }
         catch { return false; }
     }
@@ -431,7 +441,7 @@ public static class PanelRenderer
         try
         {
             Type trapType = Type.GetType("SilksongItemRandomizer.TrapRandomizer, SilksongItemRandomizer");
-            trapType?.GetField("Enabled", BindingFlags.Public | BindingFlags.Static)?.SetValue(null, enabled);
+            trapType?.GetProperty("Enabled", BindingFlags.Public | BindingFlags.Static)?.SetValue(null, enabled);
         }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱开关设置失败: {ex}"); }
     }

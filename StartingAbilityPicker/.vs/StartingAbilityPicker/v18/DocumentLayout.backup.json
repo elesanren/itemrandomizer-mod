@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "D:\\code\\mod\\StartingAbilityPicker\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|d:\\code\\mod\\startingabilitypicker\\locale.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:locale.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\roomrandommode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -50,30 +50,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Locale.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Locale.cs",
               "RelativeDocumentMoniker": "Locale.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Locale.cs*",
               "RelativeToolTip": "Locale.cs*",
-              "ViewState": "AgIAACkAAAAAAAAAAAAAAD4AAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAADEAAAAAzMzMzMwQwEYAAABqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T09:14:27.681Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "PanelRenderer.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs",
               "RelativeDocumentMoniker": "PanelRenderer.cs",
-              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs",
-              "RelativeToolTip": "PanelRenderer.cs",
-              "ViewState": "AgIAAKQAAAAAAAAAAAAAwMEAAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs*",
+              "RelativeToolTip": "PanelRenderer.cs*",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAwwFsAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-29T08:11:35.133Z",
               "EditorCaption": ""
@@ -136,12 +136,11 @@
               "RelativeToolTip": "RoomRandomMode.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T10:05:05.832Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-28T10:05:05.832Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Plugin.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
               "RelativeDocumentMoniker": "Plugin.cs",

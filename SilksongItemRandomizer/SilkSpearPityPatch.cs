@@ -15,7 +15,7 @@ public static class SilkSpearPityPatch
     private static bool _silkSpearGiven;
     private const int SILK_SPEAR_PITY = 200;
     private static SavedItem _silkSpearItem;
-    public static bool IsGivingSilkSpear;
+    public static bool IsGivingSilkSpear;   // 保留原字段，虽然不再用于随机拦截
 
     private static string SilkSpearGivenFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "silkspear_given.txt");
 
@@ -81,47 +81,29 @@ public static class SilkSpearPityPatch
 
         Plugin.Log.LogInfo($"[丝矛独立补丁] 保底触发（第{_silkSpearAttempts}次）");
 
-        bool success = false;
-        IsGivingSilkSpear = true;
-
-        if (_silkSpearItem is ToolItem toolItem)
+        ToolUnlockPatch.IsGivingPityItem = true;
+        try
         {
-            try
+            PlayerData pd = PlayerData.instance;
+            var field = typeof(PlayerData).GetField("hasSilkSpear", BindingFlags.Instance | BindingFlags.Public);
+            if (pd != null && field != null && field.FieldType == typeof(bool))
             {
-                MethodInfo method = typeof(ToolItem).GetMethod("Unlock", Type.EmptyTypes);
-                if (method == null)
-                    method = typeof(ToolItem).GetMethod("Unlock", new Type[] { typeof(Action), typeof(ToolItem.PopupFlags) });
-
-                if (method != null)
-                {
-                    if (method.GetParameters().Length == 0)
-                        method.Invoke(toolItem, null);
-                    else
-                        method.Invoke(toolItem, new object[] { null, (ToolItem.PopupFlags)3 });
-
-                    success = true;
-                }
+                field.SetValue(pd, true);
+                Plugin.Log.LogInfo("[丝矛独立补丁] 丝矛成功给予");
+                Plugin.ShowNotification("获得丝矛！");
             }
-            catch (Exception ex)
+            else
             {
-                Plugin.Log.LogError($"[丝矛独立补丁] Unlock 失败: {ex}");
+                Plugin.Log.LogError("[丝矛独立补丁] 丝矛给予失败：找不到PlayerData或hasSilkSpear字段");
             }
         }
-        else
+        catch (Exception ex)
         {
-            success = _silkSpearItem.TryGet(false, true);
+            Plugin.Log.LogError($"[丝矛独立补丁] 直接写入hasSilkSpear异常: {ex}");
         }
-
-        IsGivingSilkSpear = false;
-
-        if (success)
+        finally
         {
-            Plugin.Log.LogInfo("[丝矛独立补丁] 丝矛成功给予");
-            Plugin.ShowNotification("获得丝矛！");
-        }
-        else
-        {
-            Plugin.Log.LogError("[丝矛独立补丁] 丝矛给予失败");
+            ToolUnlockPatch.IsGivingPityItem = false;
         }
 
         _silkSpearGiven = true;

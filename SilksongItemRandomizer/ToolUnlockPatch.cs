@@ -10,6 +10,7 @@ public static class ToolUnlockPatch
 {
     private static List<ToolItem> _allTools;
     public static bool IsShopPurchase;
+    public static bool IsGivingPityItem;   // ★ 保底标志，为 true 时不随机
 
     public static void Initialize()
     {
@@ -26,6 +27,9 @@ public static class ToolUnlockPatch
     {
         try
         {
+            if (IsGivingPityItem)    // ★ 保底给予丝矛时直接放行
+                return true;
+
             if (IsShopPurchase)
             {
                 Plugin.Log.LogInfo($"商店购买工具 {__instance?.name}，跳过随机");

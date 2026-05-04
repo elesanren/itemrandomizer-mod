@@ -67,7 +67,8 @@ namespace StartingAbilityPicker
             { "场景随机未加载", "Scene Randomizer Not Loaded" },
             { "场景随机设置", "Scene Randomizer" },
             { "启用场景随机", "Enable Randomizer" },
-            { "启用陷阱随机", "Enable Trap Randomizer" },  // ← 新增
+            { "启用陷阱随机", "Enable Trap Randomizer" },
+            { "陷阱、房间随机建议丝之心，疾跑和上冲", "Trap & Room Randomizer: Silk Heart, Dash & Super Jump recommended" }, // ← 新增提示
             { "当前种子", "Current Seed" },
             { "当前场景", "Current Scene" },
             { "修改种子:", "Modify Seed:" },

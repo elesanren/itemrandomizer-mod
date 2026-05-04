@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace SilksongItemRandomizer;
@@ -100,15 +101,26 @@ public class CurrencyCollectPatch
 
             if (_silkSpearItem != null && !_silkSpearGiven && _silkSpearAttempts >= SILK_SPEAR_PITY)
             {
-                Plugin.Log.LogInfo("丝矛保底触发");
-                if (_silkSpearItem.TryGet(false, true))
+                Plugin.Log.LogInfo("丝矛保底触发（直接写入PlayerData）");
+                ToolUnlockPatch.IsGivingPityItem = true;
+                try
                 {
-                    Plugin.Log.LogInfo("丝矛保底成功给予");
-                    Plugin.ShowNotification("获得丝矛！");
+                    PlayerData pd = PlayerData.instance;
+                    var field = typeof(PlayerData).GetField("hasSilkSpear", BindingFlags.Instance | BindingFlags.Public);
+                    if (pd != null && field != null && field.FieldType == typeof(bool))
+                    {
+                        field.SetValue(pd, true);
+                        Plugin.Log.LogInfo("丝矛保底成功给予");
+                        Plugin.ShowNotification("获得丝矛！");
+                    }
+                    else
+                    {
+                        Plugin.Log.LogError("丝矛保底失败：找不到PlayerData或hasSilkSpear字段");
+                    }
                 }
-                else
+                finally
                 {
-                    Plugin.Log.LogError("丝矛保底失败");
+                    ToolUnlockPatch.IsGivingPityItem = false;
                 }
                 _silkSpearGiven = true;
             }
