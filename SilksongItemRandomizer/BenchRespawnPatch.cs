@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -10,15 +9,11 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(HeroController), "SetBenchRespawn", new Type[] { typeof(RespawnMarker), typeof(string), typeof(int) })]
 public static class BenchRespawnPatch
 {
-    private static Dictionary<string, float> _lastRefreshTime = new();
-    private const float COOLDOWN = 30f;
-
     private static void Postfix(HeroController __instance)
     {
         try
         {
-            if (__instance == null || PlayerData.instance == null)
-                return;
+            if (__instance == null || PlayerData.instance == null) return;
             __instance.StartCoroutine(DelayedCrestRefresh(__instance));
         }
         catch (Exception ex)
@@ -30,38 +25,30 @@ public static class BenchRespawnPatch
     private static IEnumerator DelayedCrestRefresh(HeroController hero)
     {
         yield return new WaitForSeconds(15f);
+
         try
         {
-            object currentCrestObj = PlayerData.instance.CurrentCrestID;
-            if (currentCrestObj != null)
+            string currentCrest = PlayerData.instance.CurrentCrestID;
+            if (string.IsNullOrEmpty(currentCrest)) yield break;
+
+            // ★ 只检查当前纹章是不是某个“源”——如果是，就换到它的目标
+            string sourceMapped = CrestRandomizer.GetMappedCrestName(currentCrest);
+            if (sourceMapped == currentCrest)
             {
-                string currentCrest = currentCrestObj.ToString();
-                if (!string.IsNullOrEmpty(currentCrest))
-                {
-                    if (_lastRefreshTime.TryGetValue(currentCrest, out float last) && Time.time - last < COOLDOWN)
-                    {
-                        Plugin.Log.LogInfo($"纹章 {currentCrest} 在冷却期内，跳过刷新");
-                    }
-                    else
-                    {
-                        string targetCrest = CrestRandomizer.GetMappedCrestName(currentCrest);
-                        if (!string.IsNullOrEmpty(targetCrest))
-                        {
-                            if (currentCrest != targetCrest)
-                            {
-                                Plugin.Log.LogInfo($"延迟15秒后检测到纹章不一致: 当前={currentCrest}, 目标={targetCrest}，开始刷新");
-                                MethodInfo setEquippedMethod = typeof(ToolItemManager).GetMethod("SetEquippedCrest", new Type[] { typeof(string) });
-                                if (setEquippedMethod != null)
-                                    setEquippedMethod.Invoke(null, new object[] { targetCrest });
-                                if (hero != null)
-                                    hero.ResetAllCrestState();
-                                _lastRefreshTime[currentCrest] = Time.time;
-                                Plugin.Log.LogInfo("延迟刷新完成，当前装备: " + targetCrest);
-                            }
-                        }
-                    }
-                }
+                // 当前纹章没有映射记录，说明它不是源，什么都不做
+                yield break;
             }
+
+            // 当前纹章是“源”，需要换成目标
+            Plugin.Log.LogInfo($"长椅刷新: {currentCrest} -> {sourceMapped}");
+
+            MethodInfo setEquippedMethod = typeof(ToolItemManager).GetMethod("SetEquippedCrest", new[] { typeof(string) });
+            setEquippedMethod?.Invoke(null, new object[] { sourceMapped });
+
+            if (hero != null)
+                hero.ResetAllCrestState();
+
+            Plugin.Log.LogInfo($"长椅刷新完成，当前装备: {sourceMapped}");
         }
         catch (Exception ex)
         {
@@ -71,7 +58,6 @@ public static class BenchRespawnPatch
 
     public static void ResetCooldown()
     {
-        _lastRefreshTime.Clear();
-        Plugin.Log.LogInfo("纹章刷新冷却已清空");
+        // 保持接口不变
     }
 }

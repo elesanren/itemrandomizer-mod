@@ -44,6 +44,13 @@ public class Plugin : BaseUnityPlugin
     private static float _notificationEndTime = 0.0f;
     private static GUIStyle _notificationStyle;
 
+    // ★ 面板背景图 + 难度图标
+    private static Sprite _backgroundSprite;
+    private static Sprite _beginnerIcon;
+    private static Sprite _focusedIcon;
+    private static Sprite _overflowIcon;
+    private static bool _bgLoaded = false;
+
     public static ConfigEntry<string> ChosenProfiles { get; private set; }
     public static ConfigEntry<int> StartingSkillCount { get; private set; }
     public static ConfigEntry<int> StartingItemCount { get; private set; }
@@ -78,6 +85,11 @@ public class Plugin : BaseUnityPlugin
     public static int MaxSpecialDynamic => MaxSpecial;
     public static int MaxAttackDynamic => MaxAttack;
 
+    // ★ 难度图标公开属性，供 PanelRenderer 使用
+    public static Sprite BeginnerIcon => _beginnerIcon;
+    public static Sprite FocusedIcon => _focusedIcon;
+    public static Sprite OverflowIcon => _overflowIcon;
+
     public static void ShowNotification(string message, float duration = 3f)
     {
         _notificationMessage = message;
@@ -107,6 +119,53 @@ public class Plugin : BaseUnityPlugin
         LoadAbilityConfig();
         SceneManager.sceneLoaded += OnSceneLoaded;
         Harmony.CreateAndPatchAll(typeof(AttackPatch));
+        StartCoroutine(LoadAllImages()); // ★ 加载所有面板图片
+    }
+
+    // ★ 协程：同时加载背景图和难度图标
+    private IEnumerator LoadAllImages()
+    {
+        string folder = Path.Combine(Paths.PluginPath, "elesanren-Hard_Item_Randomizer", "nandu");
+
+        // 背景图
+        string bgPath = Path.Combine(folder, "4.png");
+        if (File.Exists(bgPath))
+        {
+            using (WWW www = new WWW("file://" + bgPath))
+            {
+                yield return www;
+                if (string.IsNullOrEmpty(www.error) && www.texture != null)
+                {
+                    _backgroundSprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f));
+                }
+            }
+        }
+
+        // 三个难度图标
+        string[] iconFiles = { "1.png", "2.png", "3.png" };
+        for (int i = 0; i < 3; i++)
+        {
+            string iconPath = Path.Combine(folder, iconFiles[i]);
+            if (File.Exists(iconPath))
+            {
+                using (WWW www = new WWW("file://" + iconPath))
+                {
+                    yield return www;
+                    if (string.IsNullOrEmpty(www.error) && www.texture != null)
+                    {
+                        Sprite sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f));
+                        switch (i)
+                        {
+                            case 0: _beginnerIcon = sprite; break;
+                            case 1: _focusedIcon = sprite; break;
+                            case 2: _overflowIcon = sprite; break;
+                        }
+                    }
+                }
+            }
+        }
+
+        _bgLoaded = true;
     }
 
     private void LoadAbilityConfig()
@@ -268,7 +327,7 @@ public class Plugin : BaseUnityPlugin
     {
         if (showUI)
         {
-            uiWindowRect = new Rect(20f, (Screen.height - 950) / 2, 950f, 950f);
+            uiWindowRect = new Rect(20f, (Screen.height - 950) / 2, 950f, 1200f);
             uiWindowRect = GUILayout.Window(100, uiWindowRect, DrawUIWindow, "开局选项 & 场景随机");
         }
         if (_notificationMessage != null && Time.time <= _notificationEndTime)
@@ -287,10 +346,18 @@ public class Plugin : BaseUnityPlugin
 
     private void DrawUIWindow(int windowID)
     {
-        Color originalColor = GUI.color;
-        GUI.color = Color.black;
-        GUI.DrawTexture(new Rect(0, 0, uiWindowRect.width, uiWindowRect.height), Texture2D.whiteTexture);
-        GUI.color = originalColor;
+        // ★ 绘制背景图（如果已加载），否则用黑色
+        if (_backgroundSprite != null && _backgroundSprite.texture != null)
+        {
+            GUI.DrawTexture(new Rect(0, 0, uiWindowRect.width, uiWindowRect.height), _backgroundSprite.texture, ScaleMode.StretchToFill);
+        }
+        else
+        {
+            Color originalColor = GUI.color;
+            GUI.color = Color.black;
+            GUI.DrawTexture(new Rect(0, 0, uiWindowRect.width, uiWindowRect.height), Texture2D.whiteTexture);
+            GUI.color = originalColor;
+        }
 
         GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(620));
@@ -486,6 +553,30 @@ public class Plugin : BaseUnityPlugin
             crestRandomizer?.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, null);
             Type.GetType("SilksongItemRandomizer.CrestRandomizePatch, SilksongItemRandomizer")?.GetMethod("ResetProcessedIds", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, null);
             Type.GetType("SilksongItemRandomizer.BenchRespawnPatch, SilksongItemRandomizer")?.GetMethod("ResetCooldown", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, null);
+        }
+        catch { }
+    }
+
+    // ===== 物品随机开关接口 =====
+    public bool GetItemRandomEnabled()
+    {
+        try
+        {
+            var type = Type.GetType("SilksongItemRandomizer.Plugin, SilksongItemRandomizer");
+            var prop = type?.GetProperty("PublicItemRandomEnabled", BindingFlags.Public | BindingFlags.Static);
+            if (prop != null) return (bool)prop.GetValue(null);
+        }
+        catch { }
+        return false;
+    }
+
+    public void SetItemRandomEnabled(bool value)
+    {
+        try
+        {
+            var type = Type.GetType("SilksongItemRandomizer.Plugin, SilksongItemRandomizer");
+            var prop = type?.GetProperty("PublicItemRandomEnabled", BindingFlags.Public | BindingFlags.Static);
+            prop?.SetValue(null, value);
         }
         catch { }
     }

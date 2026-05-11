@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace SilksongItemRandomizer;
@@ -12,17 +13,12 @@ public static class CrestRandomizePatch
     private static List<ToolCrest> _allCrests;
     private static HashSet<int> _processedInstanceIds = new();
 
-    public static List<ToolCrest> CrestList => _allCrests;
-
     public static void Initialize()
     {
         _allCrests = Resources.FindObjectsOfTypeAll<ToolCrest>().ToList();
     }
 
-    public static void ResetProcessedIds()
-    {
-        _processedInstanceIds.Clear();
-    }
+    public static void ResetProcessedIds() => _processedInstanceIds.Clear();
 
     [HarmonyPrefix]
     private static bool Prefix(ToolCrest __instance)
@@ -31,8 +27,8 @@ public static class CrestRandomizePatch
         {
             if (_processedInstanceIds.Contains(__instance.GetInstanceID()))
                 return true;
-
             _processedInstanceIds.Add(__instance.GetInstanceID());
+
             string name = __instance.name;
             string mappedCrestName = CrestRandomizer.GetMappedCrestName(name);
 
@@ -45,20 +41,21 @@ public static class CrestRandomizePatch
             if (_allCrests == null || _allCrests.Count == 0)
                 Initialize();
 
-            ToolCrest targetCrest = _allCrests?.FirstOrDefault(c => c.name == mappedCrestName);
+            ToolCrest targetCrest = _allCrests.FirstOrDefault(c => c.name == mappedCrestName);
             if (targetCrest == null)
             {
                 Plugin.Log.LogWarning($"无法找到目标纹章 {mappedCrestName}，放行原解锁");
                 return true;
             }
 
+            // 解锁目标纹章
             targetCrest.Unlock();
 
-            PlayerData instance = PlayerData.instance;
-            if (instance != null && instance.CurrentCrestID == name)
+            // 如果当前装备的是源纹章，强制装备目标纹章
+            if (PlayerData.instance != null && PlayerData.instance.CurrentCrestID == name)
             {
                 typeof(ToolItemManager)
-                    .GetMethod("SetEquippedCrest", new Type[] { typeof(string) })
+                    .GetMethod("SetEquippedCrest", new[] { typeof(string) })
                     ?.Invoke(null, new object[] { mappedCrestName });
             }
 

@@ -26,15 +26,35 @@ public class Plugin : BaseUnityPlugin
     private static Texture2D _bgTex;
 
     public static ConfigEntry<int> RandomSeed { get; private set; }
+    public static ConfigEntry<bool> ItemRandomEnabled { get; private set; }
     public static Plugin Instance { get; private set; }
+
+    private Harmony _harmonyItem;
+
+    public static bool PublicItemRandomEnabled
+    {
+        get => ItemRandomEnabled.Value;
+        set
+        {
+            if (ItemRandomEnabled.Value == value) return;
+            ItemRandomEnabled.Value = value;
+            Instance.Config.Save();
+            if (Instance != null)
+            {
+                if (value)
+                    Instance.ApplyItemPatches();
+                else
+                    Instance._harmonyItem.UnpatchSelf();
+            }
+        }
+    }
 
     private static string DestroyedPickupsFilePath
     {
         get
         {
             string dir = Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer");
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             return Path.Combine(dir, "destroyed_pickups.json");
         }
     }
@@ -48,8 +68,7 @@ public class Plugin : BaseUnityPlugin
     private Texture2D MakeTexture(int width, int height, Color col)
     {
         Color[] pixels = new Color[width * height];
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = col;
+        for (int i = 0; i < pixels.Length; i++) pixels[i] = col;
         Texture2D tex = new Texture2D(width, height);
         tex.SetPixels(pixels);
         tex.Apply();
@@ -61,16 +80,9 @@ public class Plugin : BaseUnityPlugin
         Instance = this;
         Log = Logger;
         RandomSeed = Config.Bind("General", "RandomSeed", 0, "随机种子 (0 表示随机)");
-
-        Harmony.CreateAndPatchAll(typeof(PickupPatch));
-        Harmony.CreateAndPatchAll(typeof(CurrencyCollectPatch));
-        Harmony.CreateAndPatchAll(typeof(TryGetPatch));
-        Harmony.CreateAndPatchAll(typeof(ToolUnlockPatch));
-        Harmony.CreateAndPatchAll(typeof(CrestRandomizePatch));
-        Harmony.CreateAndPatchAll(typeof(ShopMenuStock_BuildItemList_Patch));
-        Harmony.CreateAndPatchAll(typeof(ShopItemStats_Purchase_Patch));
-        Harmony.CreateAndPatchAll(typeof(SilkSpearPityPatch));
-        Harmony.CreateAndPatchAll(typeof(BenchRespawnPatch));
+        ItemRandomEnabled = Config.Bind("General", "ItemRandomEnabled", true, "Enable/disable item randomization (pickups, shops, crests, etc.)");
+        _harmonyItem = new Harmony("SilksongItemRandomizer.ItemPatches");
+        ApplyItemPatches();
 
         _bgTex = MakeTexture(2, 2, new Color(0, 0, 0, 0.7f));
 
@@ -78,10 +90,25 @@ public class Plugin : BaseUnityPlugin
         SceneManager.sceneLoaded += OnSceneLoaded;
         LoadDestroyedKeys();
 
-        // ★ 启动陷阱随机初始化
         StartCoroutine(InitTrapsAfterLoad());
-
         Log.LogInfo("Plugin SilksongItemRandomizer loaded (seed-based)");
+    }
+
+    private void ApplyItemPatches()
+    {
+        if (!ItemRandomEnabled.Value) return;
+        _harmonyItem.PatchAll(typeof(PickupPatch));
+        _harmonyItem.PatchAll(typeof(CurrencyCollectPatch));
+        _harmonyItem.PatchAll(typeof(TryGetPatch));
+        _harmonyItem.PatchAll(typeof(ToolUnlockPatch));
+        // 老版纹章随机（纯映射+强制装备）
+        _harmonyItem.PatchAll(typeof(CrestRandomizePatch));
+        CrestRandomizePatch.Initialize();
+        _harmonyItem.PatchAll(typeof(ShopMenuStock_BuildItemList_Patch));
+        _harmonyItem.PatchAll(typeof(ShopItemStats_Purchase_Patch));
+        _harmonyItem.PatchAll(typeof(SilkSpearPityPatch));
+        // 坐长椅刷新纹章
+        _harmonyItem.PatchAll(typeof(BenchRespawnPatch));
     }
 
     private IEnumerator InitTrapsAfterLoad()
@@ -142,21 +169,23 @@ public class Plugin : BaseUnityPlugin
     {
         _destroyedPickupKeys.Clear();
         string path = DestroyedPickupsFilePath;
-        if (File.Exists(path))
-            File.Delete(path);
+        if (File.Exists(path)) File.Delete(path);
     }
 
     public static void ResetAllStaticData()
     {
         CrestRandomizer.ResetMappings();
-        CrestRandomizePatch.ResetProcessedIds();
+        CrestRandomizer.Initialize();
+
+        CrestRandomizePatch.ResetProcessedIds();   // 老版纹章随机重置
+
         CurrencyCollectPatch.ResetCounters();
         CurrencyCollectPatch.ResetKeyState();
         SilkSpearPityPatch.ResetSilkSpearState();
         ResetDestroyedPickupKeys();
         ShopRandomizer.ResetCache();
         ShopMenuStock_BuildItemList_Patch.ResetAllCounts();
-        TrapRandomizer.ClearAllCache();   // ★ 清除陷阱位置缓存
+        TrapRandomizer.ClearAllCache();
         Log.LogInfo("物品随机MOD所有静态数据已重置");
     }
 
@@ -172,12 +201,11 @@ public class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         StartCoroutine(DestroyMarkedPickups(scene));
-
-        // ★ 陷阱随机：清理旧实例并强制重新扫描
         if (TrapRandomizer.Enabled && scene.name != "Menu_Title" && scene.name != "Menu" && scene.name != "Loading")
         {
-            TrapRandomizer.ClearAndRescan();          // 清理 + 重置扫描缓存
-            TrapRandomizer.Initialize(RandomSeed.Value);
+            TrapRandomizer.ClearAndRescan();
+            // ★ 移除了这行，避免重复从文件覆盖 Enabled 状态
+            // TrapRandomizer.Initialize(RandomSeed.Value);
             StartCoroutine(SpawnTrapsAfterSceneLoad());
         }
     }
@@ -209,23 +237,17 @@ public class Plugin : BaseUnityPlugin
     private void Update()
     {
         RecentItemsUI.UpdateAutoHide();
-
         if (Input.GetKeyDown(KeyCode.F8))
         {
             RecentItemsUI.Toggle();
             Log.LogInfo("最近获得物品UI " + (RecentItemsUI.IsVisible ? "显示" : "隐藏"));
         }
-
-        if (Input.GetKeyDown(KeyCode.F9))
-        {
-            DumpAllMappings();
-        }
+        if (Input.GetKeyDown(KeyCode.F9)) { DumpAllMappings(); }
     }
 
     private void OnGUI()
     {
         RecentItemsUI.Draw();
-
         if (_notificationMessage != null && Time.time <= _notificationEndTime)
         {
             if (_notificationStyle == null)
@@ -238,24 +260,19 @@ public class Plugin : BaseUnityPlugin
                 _notificationStyle.normal.textColor = Color.white;
                 _notificationStyle.normal.background = _bgTex;
             }
-
             float width = 600f;
             float height = 120f;
             float x = (Screen.width - width) / 2f;
             float y = Screen.height / 2 - 100;
             GUI.Box(new Rect(x, y, width, height), _notificationMessage, _notificationStyle);
         }
-        else
-        {
-            _notificationMessage = null;
-        }
+        else { _notificationMessage = null; }
     }
 
     private void DumpAllMappings()
     {
         int seed = RandomSeed.Value;
         Log.LogInfo($"===== 当前种子: {seed} =====");
-
         var crestList = CrestRandomizer.CrestList;
         if (crestList != null && crestList.Count > 0)
         {
@@ -266,20 +283,11 @@ public class Plugin : BaseUnityPlugin
                 Log.LogInfo($"  {crest.name} -> {mapped}");
             }
         }
-        else
-        {
-            Log.LogInfo("--- 未找到纹章 ---");
-        }
-
+        else { Log.LogInfo("--- 未找到纹章 ---"); }
         Log.LogInfo("--- 当前场景拾取点映射 ---");
         var pickups = Resources.FindObjectsOfTypeAll<CollectableItemPickup>()
-            .Where(p => p.gameObject.scene.isLoaded)
-            .ToList();
-
-        if (pickups.Count == 0)
-        {
-            Log.LogInfo("当前场景无拾取点。");
-        }
+            .Where(p => p.gameObject.scene.isLoaded).ToList();
+        if (pickups.Count == 0) { Log.LogInfo("当前场景无拾取点。"); }
         else
         {
             foreach (var p in pickups)
@@ -289,14 +297,11 @@ public class Plugin : BaseUnityPlugin
                 {
                     var rng = new Random(seed + p.GetInstanceID());
                     SavedItem random = ItemRandomizer.PeekRandomItem(rng);
-                    if (random != null)
-                        Log.LogInfo($"  {original.name} (位置 {p.transform.position}) -> {random.name}");
-                    else
-                        Log.LogInfo($"  {original.name} -> 随机失败");
+                    if (random != null) Log.LogInfo($"  {original.name} (位置 {p.transform.position}) -> {random.name}");
+                    else Log.LogInfo($"  {original.name} -> 随机失败");
                 }
             }
         }
-
         Log.LogInfo("===============================");
     }
 }

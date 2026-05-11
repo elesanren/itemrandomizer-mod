@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Project was exported from assembly: E:\a\HardItemRandomizer\plugins\SilksongItemRandomizer.dll -->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,9 +8,7 @@
     <AssemblyName>SilksongItemRandomizer</AssemblyName>
     <ApplicationVersion>0.1.0.0</ApplicationVersion>
     <RootNamespace>SilksongItemRandomizer</RootNamespace>
-    <!-- 新增：目标框架为 .NET Framework 4.7.2 -->
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <!-- 已有：C# 语言版本 -->
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -36,9 +33,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="0Harmony">
       <HintPath>..\..\..\steam\steamapps\common\Hollow Knight Silksong\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Architect">
+      <HintPath>C:\Users\28267\AppData\Roaming\r2modmanPlus-local\HollowKnightSilksong\profiles\Default\BepInEx\plugins\cometcake575-Architect\Architect.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -46,9 +45,14 @@
     <Reference Include="BepInEx">
       <HintPath>..\..\..\..\maps\BepInEx_win_x64_5.4.23.5\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
-    <Reference Include="netstandard" />
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="netstandard">
+      <HintPath>..\..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\netstandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.13.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PlayMaker">
+      <HintPath>..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\PlayMaker.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
@@ -63,8 +67,7 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>..\..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.Physics2DModule">
       <HintPath>..\..\..\steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
@@ -72,26 +75,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BenchRespawnPatch.cs" />
-    <Compile Include="CrestRandomizePatch.cs" />
     <Compile Include="CrestRandomizer.cs" />
+    <Compile Include="CrestRandomizePatch.cs" />
     <Compile Include="CurrencyCollectPatch.cs" />
     <Compile Include="ItemRandomizer.cs" />
     <Compile Include="PickupPatch.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="RecentItemsUI.cs" />
     <Compile Include="ShopItemStats_Purchase_Patch.cs" />
     <Compile Include="ShopMenuStock_BuildItemList_Patch.cs" />
     <Compile Include="ShopRandomizer.cs" />
-    <Compile Include="Plugin.cs" />
-    <Compile Include="RecentItemsUI.cs" />
     <Compile Include="SilkSpearPityPatch.cs" />
     <Compile Include="ToolUnlockPatch.cs" />
+    <Compile Include="TrapMovement.cs" />
+    <Compile Include="TrapPreloader.cs" />
     <Compile Include="TrapRandomizer.cs" />
     <Compile Include="TryGetPatch.cs" />
-    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <!-- 删除无用的空文件夹引用 -->
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

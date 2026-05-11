@@ -6,10 +6,6 @@ namespace StartingAbilityPicker
     {
         private static bool? _forceChinese = null;
 
-        // ★ 手动覆盖开关
-        // null = 自动检测游戏语言
-        // true = 强制中文
-        // false = 强制英文
         public static void SetForceChinese(bool? force)
         {
             _forceChinese = force;
@@ -19,10 +15,8 @@ namespace StartingAbilityPicker
         {
             get
             {
-                // 优先检查手动覆盖
                 if (_forceChinese.HasValue)
                     return _forceChinese.Value;
-                // 否则每次实时检测，不缓存
                 return DetectChinese();
             }
         }
@@ -58,17 +52,22 @@ namespace StartingAbilityPicker
             { "关闭", "Close" },
             { "提示: 按 F7 呼出此窗口", "Tip: Press F7 to open this window" },
             { "彻底疯狂", "Crazy Mode" },
-            // ★ 房随模式（新增）
+            // 房随模式
             { "房随模式", "Room Mode" },
             { "丝之心、疾跑和上冲", "Silk,Dash,Super Jump" },
             { "[开]", "[ON]" },
             { "[关]", "[OFF]" },
+            { "启用物品随机", "Enable Item Randomizer" },
             // 场景随机面板
             { "场景随机未加载", "Scene Randomizer Not Loaded" },
             { "场景随机设置", "Scene Randomizer" },
             { "启用场景随机", "Enable Randomizer" },
             { "启用陷阱随机", "Enable Trap Randomizer" },
-            { "陷阱、房间随机建议丝之心，疾跑和上冲", "Trap & Room Randomizer: Silk Heart, Dash & Super Jump recommended" }, // ← 新增提示
+            { "陷阱、房间随机建议丝之心，疾跑和上冲", "Trap & Room Randomizer: Silk Heart, Dash & Super Jump recommended" },
+            { "陷阱难度：", "Trap Difficulty:" },          // 新增
+            { "初猎", "Beginner" },                        // 新增
+            { "专注", "Focused" },                         // 新增
+            { "满溢", "Overflow" },                        // 新增
             { "当前种子", "Current Seed" },
             { "当前场景", "Current Scene" },
             { "修改种子:", "Modify Seed:" },
@@ -80,6 +79,7 @@ namespace StartingAbilityPicker
             { "显示选项:", "Display:" },
             { "显示当前场景名", "Show Scene Name" },
             { "显示当前种子", "Show Seed" },
+            { "陷阱生命化", "Trap Life" },
         };
 
         public static string Get(string chineseText)
@@ -95,7 +95,6 @@ namespace StartingAbilityPicker
         {
             try
             {
-                // 直接读 FontManager._currentLanguage 静态字段
                 var fmType = System.Type.GetType("FontManager, Assembly-CSharp");
                 if (fmType != null)
                 {
@@ -114,7 +113,6 @@ namespace StartingAbilityPicker
             }
             catch { }
 
-            // 备用：GameSettings.language
             try
             {
                 var gm = GameManager.instance;

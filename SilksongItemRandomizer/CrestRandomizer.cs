@@ -11,6 +11,7 @@ namespace SilksongItemRandomizer;
 
 public static class CrestRandomizer
 {
+    // ★ 改为“已生成的映射”，不再是全部预生成
     private static Dictionary<string, string> _crestMappings = new();
     private static List<ToolCrest> _allCrests;
 
@@ -18,24 +19,23 @@ public static class CrestRandomizer
 
     public static List<ToolCrest> CrestList => _allCrests;
 
+    private static readonly HashSet<string> ExcludeFromPool = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Hunter", "Hunter_v2", "Hunter_v3", "Witch_v2"
+    };
+
     public static void Initialize()
     {
         _allCrests = Resources.FindObjectsOfTypeAll<ToolCrest>().ToList();
         LoadMappings();
-        if (_allCrests.Count > 0 && _crestMappings.Count < _allCrests.Count)
-        {
-            Plugin.Log.LogInfo($"映射不完整（现有 {_crestMappings.Count}/{_allCrests.Count}），重新生成完整映射");
-            GenerateAllMappings();
-        }
-        Plugin.Log.LogInfo($"纹章随机初始化完成，共 {_crestMappings.Count} 个映射");
+        // ★ 不再检查映射完整性，不再预生成
+        Plugin.Log.LogInfo($"纹章随机初始化完成，已有 {_crestMappings.Count} 个映射");
     }
 
     public static void ResetMappings()
     {
         _crestMappings.Clear();
-        if (File.Exists(FilePath))
-            File.Delete(FilePath);
-        Plugin.Log.LogInfo("纹章映射已重置");
+        if (File.Exists(FilePath)) File.Delete(FilePath);
     }
 
     private static void LoadMappings()
@@ -43,7 +43,8 @@ public static class CrestRandomizer
         try
         {
             if (File.Exists(FilePath))
-                _crestMappings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(FilePath)) ?? new Dictionary<string, string>();
+                _crestMappings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(FilePath))
+                                 ?? new Dictionary<string, string>();
             else
                 _crestMappings.Clear();
         }
@@ -58,9 +59,8 @@ public static class CrestRandomizer
     {
         try
         {
-            string directoryName = Path.GetDirectoryName(FilePath);
-            if (!Directory.Exists(directoryName))
-                Directory.CreateDirectory(directoryName);
+            string dir = Path.GetDirectoryName(FilePath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             File.WriteAllText(FilePath, JsonConvert.SerializeObject(_crestMappings, Formatting.Indented));
         }
         catch (Exception ex)
@@ -69,29 +69,43 @@ public static class CrestRandomizer
         }
     }
 
-    private static void GenerateAllMappings()
+    // ★ 按需生成：只在第一次遇到某个源纹章时，才为它随机选一个目标
+    private static string GetOrCreateMapping(string sourceCrestName)
     {
+        // 已经有了就直接返回
+        if (_crestMappings.TryGetValue(sourceCrestName, out string existing))
+            return existing;
+
+        // 需要新建映射
         if (_allCrests == null || _allCrests.Count == 0)
-            return;
-        Random rng = new Random(Plugin.RandomSeed.Value);
-        List<ToolCrest> shuffled = _allCrests.OrderBy(x => rng.Next()).ToList();
-        foreach (ToolCrest source in _allCrests)
+            _allCrests = Resources.FindObjectsOfTypeAll<ToolCrest>().ToList();
+
+        // 构建候选池：排除猎手、升级版、以及源纹章自身
+        List<ToolCrest> candidates = _allCrests
+            .Where(c => !ExcludeFromPool.Contains(c.name)
+                        && !c.name.Contains("_v")
+                        && c.name != sourceCrestName)
+            .ToList();
+
+        if (candidates.Count == 0)
         {
-            List<ToolCrest> candidates = shuffled.Where(c => c.name != source.name).ToList();
-            if (candidates.Count == 0)
-                _crestMappings[source.name] = source.name;
-            else
-                _crestMappings[source.name] = candidates[rng.Next(candidates.Count)].name;
+            // 没有候选，映射到自身（等于不随机）
+            _crestMappings[sourceCrestName] = sourceCrestName;
         }
+        else
+        {
+            Random rng = new Random(Plugin.RandomSeed.Value ^ sourceCrestName.GetHashCode());
+            _crestMappings[sourceCrestName] = candidates[rng.Next(candidates.Count)].name;
+        }
+
         SaveMappings();
-        Plugin.Log.LogInfo($"已为所有 {_allCrests.Count} 个纹章预生成映射");
+        Plugin.Log.LogInfo($"新映射: {sourceCrestName} -> {_crestMappings[sourceCrestName]}");
+        return _crestMappings[sourceCrestName];
     }
 
+    // ★ 这个方法会在补丁中被调用
     public static string GetMappedCrestName(string sourceCrestName)
     {
-        if (_crestMappings.TryGetValue(sourceCrestName, out string mappedCrestName))
-            return mappedCrestName;
-        Plugin.Log.LogWarning($"警告：纹章 {sourceCrestName} 没有映射，返回自身");
-        return sourceCrestName;
+        return GetOrCreateMapping(sourceCrestName);
     }
 }

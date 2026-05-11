@@ -19,18 +19,15 @@ public class SkillTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_triggered) return;
-        if (!other.CompareTag("Hero") && !other.CompareTag("Player")) return;
+        if (other.GetComponent<HeroController>() == null) return;
 
         _triggered = true;
-
-        if (_sceneName == "Shellwood_10")
-            SkillRandomizer.GiveWallJump();
-        else
-            SkillRandomizer.GiveRandomSkill();
+        if (_sceneName == "Shellwood_10") SkillRandomizer.GiveWallJump();
+        else if (_sceneName == "Under_18") SkillRandomizer.GiveHarpoonDash();
+        else SkillRandomizer.GiveRandomSkill();
 
         Plugin._triggeredRecords.Add(_recordKey);
-        Plugin.Instance.SaveTriggerRecords();
-
+        Plugin.Instance?.SaveTriggerRecords();
         Destroy(gameObject);
     }
 }
