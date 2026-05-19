@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -75,6 +76,50 @@ public class Plugin : BaseUnityPlugin
         return tex;
     }
 
+    private void OverrideBenchwarpLanguage()
+    {
+        bool isChinese = CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
+        if (!isChinese) return;
+
+        string sourcePath = Path.Combine(Paths.PluginPath, "elesanren-Hard_Item_Randomizer", "en.json");
+        string targetDir = Path.Combine(Paths.PluginPath, "homothety-Benchwarp", "languages");
+        string targetPath = Path.Combine(targetDir, "en.json");
+
+        if (!File.Exists(sourcePath))
+        {
+            Log.LogWarning($"[Benchwarp] 源文件不存在: {sourcePath}");
+            return;
+        }
+
+        try
+        {
+            if (!Directory.Exists(targetDir))
+                Directory.CreateDirectory(targetDir);
+
+            string backupPath = targetPath + ".backup";
+            if (File.Exists(targetPath) && !File.Exists(backupPath))
+                File.Copy(targetPath, backupPath, true);
+
+            File.Copy(sourcePath, targetPath, true);
+            Log.LogInfo($"[Benchwarp] 已覆盖语言文件: {sourcePath} -> {targetPath}");
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"[Benchwarp] 覆盖失败: {ex.Message}");
+        }
+    }
+
+    public void RefreshBenchwarpUI()
+    {
+        GameObject menu = GameObject.Find("WarpMenu") ?? GameObject.Find("BenchwarpMenu");
+        if (menu != null && menu.activeInHierarchy)
+        {
+            menu.SetActive(false);
+            menu.SetActive(true);
+            Log.LogInfo("[Benchwarp] UI 已刷新");
+        }
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -84,6 +129,10 @@ public class Plugin : BaseUnityPlugin
         _harmonyItem = new Harmony("SilksongItemRandomizer.ItemPatches");
         ApplyItemPatches();
 
+        OverrideBenchwarpLanguage();
+
+        TrapRandomizer.LoadState();
+
         _bgTex = MakeTexture(2, 2, new Color(0, 0, 0, 0.7f));
 
         StartCoroutine(InitializeAfterLoad(RandomSeed.Value));
@@ -91,6 +140,15 @@ public class Plugin : BaseUnityPlugin
         LoadDestroyedKeys();
 
         StartCoroutine(InitTrapsAfterLoad());
+
+        Harmony.CreateAndPatchAll(typeof(HeroRespawnReset));
+
+        // ★ 关键：创建并持久化 HotkeyHandler 游戏对象，确保热键始终有效
+        GameObject hotkeyGo = new GameObject("SilksongItemRandomizer_HotkeyHandler");
+        DontDestroyOnLoad(hotkeyGo);
+        hotkeyGo.AddComponent<HotkeyHandler>();
+        Log.LogInfo("[Plugin] HotkeyHandler 已创建并持久化，F6 可传送至上次坐的椅子");
+
         Log.LogInfo("Plugin SilksongItemRandomizer loaded (seed-based)");
     }
 
@@ -101,13 +159,11 @@ public class Plugin : BaseUnityPlugin
         _harmonyItem.PatchAll(typeof(CurrencyCollectPatch));
         _harmonyItem.PatchAll(typeof(TryGetPatch));
         _harmonyItem.PatchAll(typeof(ToolUnlockPatch));
-        // 老版纹章随机（纯映射+强制装备）
         _harmonyItem.PatchAll(typeof(CrestRandomizePatch));
         CrestRandomizePatch.Initialize();
         _harmonyItem.PatchAll(typeof(ShopMenuStock_BuildItemList_Patch));
         _harmonyItem.PatchAll(typeof(ShopItemStats_Purchase_Patch));
         _harmonyItem.PatchAll(typeof(SilkSpearPityPatch));
-        // 坐长椅刷新纹章
         _harmonyItem.PatchAll(typeof(BenchRespawnPatch));
     }
 
@@ -176,9 +232,7 @@ public class Plugin : BaseUnityPlugin
     {
         CrestRandomizer.ResetMappings();
         CrestRandomizer.Initialize();
-
-        CrestRandomizePatch.ResetProcessedIds();   // 老版纹章随机重置
-
+        CrestRandomizePatch.ResetProcessedIds();
         CurrencyCollectPatch.ResetCounters();
         CurrencyCollectPatch.ResetKeyState();
         SilkSpearPityPatch.ResetSilkSpearState();
@@ -204,8 +258,6 @@ public class Plugin : BaseUnityPlugin
         if (TrapRandomizer.Enabled && scene.name != "Menu_Title" && scene.name != "Menu" && scene.name != "Loading")
         {
             TrapRandomizer.ClearAndRescan();
-            // ★ 移除了这行，避免重复从文件覆盖 Enabled 状态
-            // TrapRandomizer.Initialize(RandomSeed.Value);
             StartCoroutine(SpawnTrapsAfterSceneLoad());
         }
     }
@@ -236,13 +288,9 @@ public class Plugin : BaseUnityPlugin
 
     private void Update()
     {
+        // 自动隐藏最近物品 UI（必须保留）
         RecentItemsUI.UpdateAutoHide();
-        if (Input.GetKeyDown(KeyCode.F8))
-        {
-            RecentItemsUI.Toggle();
-            Log.LogInfo("最近获得物品UI " + (RecentItemsUI.IsVisible ? "显示" : "隐藏"));
-        }
-        if (Input.GetKeyDown(KeyCode.F9)) { DumpAllMappings(); }
+        // 所有热键处理已迁移至 HotkeyHandler，此处不再重复
     }
 
     private void OnGUI()
@@ -266,10 +314,13 @@ public class Plugin : BaseUnityPlugin
             float y = Screen.height / 2 - 100;
             GUI.Box(new Rect(x, y, width, height), _notificationMessage, _notificationStyle);
         }
-        else { _notificationMessage = null; }
+        else
+        {
+            _notificationMessage = null;
+        }
     }
 
-    private void DumpAllMappings()
+    public void DumpAllMappings()
     {
         int seed = RandomSeed.Value;
         Log.LogInfo($"===== 当前种子: {seed} =====");
@@ -283,11 +334,17 @@ public class Plugin : BaseUnityPlugin
                 Log.LogInfo($"  {crest.name} -> {mapped}");
             }
         }
-        else { Log.LogInfo("--- 未找到纹章 ---"); }
+        else
+        {
+            Log.LogInfo("--- 未找到纹章 ---");
+        }
         Log.LogInfo("--- 当前场景拾取点映射 ---");
         var pickups = Resources.FindObjectsOfTypeAll<CollectableItemPickup>()
             .Where(p => p.gameObject.scene.isLoaded).ToList();
-        if (pickups.Count == 0) { Log.LogInfo("当前场景无拾取点。"); }
+        if (pickups.Count == 0)
+        {
+            Log.LogInfo("当前场景无拾取点。");
+        }
         else
         {
             foreach (var p in pickups)
@@ -297,8 +354,10 @@ public class Plugin : BaseUnityPlugin
                 {
                     var rng = new Random(seed + p.GetInstanceID());
                     SavedItem random = ItemRandomizer.PeekRandomItem(rng);
-                    if (random != null) Log.LogInfo($"  {original.name} (位置 {p.transform.position}) -> {random.name}");
-                    else Log.LogInfo($"  {original.name} -> 随机失败");
+                    if (random != null)
+                        Log.LogInfo($"  {original.name} (位置 {p.transform.position}) -> {random.name}");
+                    else
+                        Log.LogInfo($"  {original.name} -> 随机失败");
                 }
             }
         }

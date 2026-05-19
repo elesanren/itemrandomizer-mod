@@ -63,6 +63,14 @@ public static class TrapPreloader
         "brown_vines", "shellwood_thorns", "white_thorns"
     };
 
+    // 小平台（不缩放）
+    public static readonly HashSet<string> SmallPlatforms = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "small_grey_coral_plat",
+        "small_red_coral_plat",
+        "shell_small"
+    };
+
     public static readonly HashSet<string> LoweredSpikeTraps = new(StringComparer.OrdinalIgnoreCase)
     {
         "pilgrim_trap_spike", "organ_spikes", "cradle_spikes"
@@ -73,17 +81,36 @@ public static class TrapPreloader
         "slab_spike_ball"
     };
 
-    // 常量
+    // 常量定义（所有数值配置集中在此）
     public const string LavaTrapId = "lava_area";
     public const string FallingLavaId = "falling_lava";
-    public const float MinDistance = 8f;
-    public const float PickupSafeRadius = 7f;
-    public const int LargeTrapRadius = 7;
-    public const int ThornTrapMinWidth = 7;
+    public const float MinDistance = 8f;                 // 陷阱之间的最小距离
+
+    // 排斥距离
+    public const float PickupSafeRadius = 5f;            // 与拾取物的最小距离
+    public const float DoorSafeRadius = 7f;              // 与门的最小距离
+
+    // 大型陷阱检查半径
+    public const int LargeTrapRadius = 5;                // 原7，现5（适当收紧）
+
+    // 大型陷阱向下偏移量（原2.3f，减少到1.5f使齿轮升高0.8）
+    public const float LargeTrapYOffset = 1.5f;
+
+    // 荆棘陷阱宽度要求
+    public const int ThornTrapMinWidth = 4;              // 原7，放宽到4
+
+    // 其他偏移
     public const float SpikeYOffset = 1.8f;
     public const int HammerTrapMinHeight = 7;
 
-    // 陷阱元数据（已添加位置偏移和旋转）
+    // 墙壁分类匹配距离（暂时无用，保留）
+    public const float WallPointMatchDistance = 1f;
+
+    // 暗雷连环逻辑
+    public const float DarkThunderChainDistance = 4f;    // 暗雷之间最大距离
+    public const int MaxDarkThunderCount = 4;            // 最多生成几个暗雷
+
+    // 陷阱元数据
     public static readonly Dictionary<string, TrapMeta> TrapMetaDict = new()
     {
         ["fan_hazard"] = new TrapMeta(),
@@ -122,7 +149,6 @@ public static class TrapPreloader
         ["junk_pipe"] = new TrapMeta(new() { ["junk_pipe_terrain"] = "True" }),
         ["frost_marker"] = new TrapMeta(new() { ["frost_speed"] = "10" }),
         ["jelly_egg"] = new TrapMeta(new() { ["egg_regen"] = "-1" }),
-        // wp_trap_spikes 上移 5 格（固定规则）
         ["wp_trap_spikes"] = new TrapMeta(
             new() { ["wp_spikes_up"] = "True", ["wp_spikes_delay"] = "0", ["wp_spikes_speed"] = "1" },
             positionOffset: new Vector3(0f, 5f, 0f)
@@ -130,37 +156,31 @@ public static class TrapPreloader
         ["coral_lightning_orb"] = new TrapMeta(),
 
         ["pilgrim_trap_spike"] = new TrapMeta(needsActivator: true, activatorId: "pilgrim_trap_wire"),
-        // 碎石区上移 0.5
         ["rubble_field"] = new TrapMeta(
             needsActivator: true, activatorId: "slab_pressure_plate",
             positionOffset: new Vector3(0f, 0.5f, 0f)
         ),
-        // 腐汁陷阱向右平移 10 格
         ["bilewater_trap"] = new TrapMeta(
             needsActivator: true, activatorId: "slab_pressure_plate",
             positionOffset: new Vector3(10f, 0f, 0f)
         ),
         ["falling_spike_ball"] = new TrapMeta(needsActivator: true, activatorId: "slab_pressure_plate"),
-        // 小摇摆陷阱：激活器正上方 8 格
         ["swing_trap_small"] = new TrapMeta(
             needsActivator: true, activatorId: "slab_pressure_plate",
             positionOffset: new Vector3(0f, 8f, 0f)
         ),
-        // 大摇摆陷阱（天花板类）：激活器正上方 15 格
         ["swing_trap_spike"] = new TrapMeta(
             needsActivator: true, activatorId: "slab_pressure_plate",
             positionOffset: new Vector3(0f, 15f, 0f)
         ),
-        // 猎人地雷：逆时针旋转 180 度，同时在激活器位置下方 1 格
         ["hunter_landmine"] = new TrapMeta(
             needsActivator: true, activatorId: "hunter_trap_plate",
             positionOffset: new Vector3(0f, -1f, 0f),
             positionRotate: new Vector3(0f, 0f, 180f)
         ),
-        // 猎人镰刀：逆时针旋转 180 度，同时在激活器位置下方 1 格
         ["hunter_sickle_trap"] = new TrapMeta(
-    needsActivator: true, activatorId: "hunter_trap_plate",
-    positionOffset: new Vector3(0f, 6f, 0f)
+            needsActivator: true, activatorId: "hunter_trap_plate",
+            positionOffset: new Vector3(0f, 6f, 0f)
         ),
         ["craw_chain"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
         ["coral_spike"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
@@ -168,60 +188,76 @@ public static class TrapPreloader
         ["stomp_spire"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
     };
 
-    // 功能分类（未变动）
+    // 功能分类（墙壁已禁用）
     public static readonly Dictionary<string, List<string>> TrapCategories = new()
     {
-        ["暗雷"] = new() { "hunter_landmine", "pilgrim_trap_spike", "dust_trap_spike_plate", "slab_trap", "slab_prob_blade", "abyss_tendrils", "hunter_sickle_trap" },
-        ["跳跳乐"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5", "cradle_spikes" },
-        ["窄道"] = new() { "falling_lava", "coral_lightning_orb", "coral_lightning_rock", "steam_vent", "junk_pipe", "hot_coal" },
-        ["平台类"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5", "fan_hazard" },
-        ["墙壁"] = new() { "shellwood_thorns", "brown_vines", "white_thorns" },
-        ["天花板"] = new() { "falling_bell", "bone_boulder", "dust_trap_spike_dropper", "swing_trap_spike" },
-        ["障碍物"] = new() { "coral_crust_s", "coral_crust_m", "coral_crust_l", "voltgrass", "mill_trap" },
-        ["装饰物"] = new() { "jelly_egg", "craw_chain" },
-        ["触发型"] = new() { "wp_trap_spikes", "swing_trap_small", "coral_spike", "coral_spike_fall", "stomp_spire", "organ_spikes", "falling_spike_ball", "rubble_field", "mite_trap", "bilewater_trap" },
-        ["追逐型"] = new() { "void_wave", "wisp_flame_lantern" },
-        ["场景伤害"] = new() { },
-        ["跳跳乐1"] = new()
+        ["暗雷"] = new() { "hunter_landmine", "dust_trap_spike_plate", "slab_trap", "slab_prob_blade", "hunter_sickle_trap" },  // 移除了 pilgrim_trap_spike
+        ["跳跳乐"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5" },  // 移除了 cradle_spikes
+        ["平台类"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5", "fan_hazard", "mill_trap" },
+        ["尖刺类"] = new() { "wp_trap_spikes", "organ_spikes", "coral_spike", "pilgrim_trap_spike", "cradle_spikes", "slab_spike_ball" },  // 新增尖刺类
+        ["墙壁"] = new() { },   // 墙壁类暂时禁用，所有荆棘不再生成
+        ["天花板"] = new() { "falling_bell", "bone_boulder", "dust_trap_spike_dropper", "falling_lava", "coral_lightning_orb", "coral_lightning_rock", "steam_vent", "junk_pipe" },
+        ["障碍物"] = new()
         {
-            // 纯弹跳果实/植物
-            "march_pogo", "bounce_bloom", "wisp_bounce_pod", "sprintmaster_pod",
-            "swap_bounce_pod", "clover_pod", "abyss_pod", "celeste_bumper",
+            "coral_crust_s", "coral_crust_m", "coral_crust_l",
+            "hot_coal",
+            "march_pogo", "bounce_bloom", "wisp_bounce_pod",
+            "sprintmaster_pod", "swap_bounce_pod", "celeste_bumper"
+        },
+        ["装饰物"] = new()
+        {
+            "clover_pod", "abyss_pod",
             "lilypad", "cradle_nut",
-            // 珊瑚平台
-            "coral_plat_float", "small_grey_coral_plat", "small_red_coral_plat",
-            "mid_red_coral_plat", "large_red_coral_plat",
-            // 雕像
             "karaka_statue", "judge_statue", "clover_statue",
             "shard_statue_1", "shard_statue_2", "shard_statue_3",
             "shard_statue_4", "shard_statue_5", "flick_statue",
-            // 雪山
             "fayforn_npc", "snow_chunk", "float_crystal",
-            // 固定生物
             "white_palace_fly", "pond_skipper_body", "winged_lifeseed",
             "life_pustule", "bounce_flea", "dodge_flea",
             "hornet_cocoon", "bellbeast_child",
-            // 铃铛
             "bell_s", "bell_l", "bell_lock",
-            // 布气球
             "greymoor_balloon_small", "greymoor_balloon_mid", "greymoor_balloon_large",
-            // 深渊深巢
+            "swamp_mosquito", "swamp_mosquito_skinny", "mothleaf",
+            "imoba", "garpid",
+            "crystal_drifter", "crystal_drifter_giant",
+            "jelly_egg"
+        },
+        ["触发型"] = new() { "swing_trap_small", "coral_spike_fall", "stomp_spire", "falling_spike_ball", "rubble_field", "mite_trap", "bilewater_trap", "craw_chain", "swing_trap_spike" },  // 移除了 wp_trap_spikes, organ_spikes, coral_spike
+        ["追逐型"] = new() { "wisp_flame_lantern" },
+        ["场景伤害"] = new() { "abyss_tendrils", "voltgrass", "void_wave", "frost_marker" },
+
+        ["跳跳乐1"] = new()
+        {
+            "march_pogo", "bounce_bloom", "wisp_bounce_pod", "sprintmaster_pod",
+            "swap_bounce_pod", "clover_pod", "abyss_pod", "celeste_bumper",
+            "lilypad", "cradle_nut",
+            "karaka_statue", "judge_statue", "clover_statue",
+            "shard_statue_1", "shard_statue_2", "shard_statue_3",
+            "shard_statue_4", "shard_statue_5", "flick_statue",
+            "fayforn_npc", "snow_chunk", "float_crystal",
+            "white_palace_fly", "pond_skipper_body", "winged_lifeseed",
+            "life_pustule", "bounce_flea", "dodge_flea",
+            "hornet_cocoon", "bellbeast_child",
+            "bell_s", "bell_l", "bell_lock",
+            "greymoor_balloon_small", "greymoor_balloon_mid", "greymoor_balloon_large",
+            "swamp_mosquito", "swamp_mosquito_skinny", "mothleaf",
+            "imoba", "garpid",
+            "crystal_drifter", "crystal_drifter_giant",
+        },
+
+        ["平台类1"] = new()
+        {
+            "coral_plat_float", "small_grey_coral_plat", "small_red_coral_plat",
+            "mid_red_coral_plat", "large_red_coral_plat",
             "abyss_plat_mid", "abyss_plat_wide",
             "deepnest_platform_01", "deepnest_platform_02",
             "deepnest_platform_03", "deepnest_platform_04", "deepnest_platform_05",
-            "hive_pod", "silk_pod",
             "hive_platform_01", "hive_platform_02", "hive_platform_03",
-            // 贝壳
             "shell_small", "shell_mid", "shell_large",
-            // 动态生物
-            "swamp_mosquito", "swamp_mosquito_skinny", "mothleaf",
-            "imoba", "garpid",
-            "gloomsac", "gargant_gloom",
-            "crystal_drifter", "crystal_drifter_giant",
-        }
+        },
     };
 
-    // 难度配额（未变动）
+    // 难度配额（墙壁配额设为0）
     public static Dictionary<string, int> GetCategoryQuotas(TrapDifficulty difficulty)
     {
         switch (difficulty)
@@ -229,67 +265,68 @@ public static class TrapPreloader
             case TrapDifficulty.Beginner:
                 return new()
                 {
-                    ["暗雷"] = 1,
+                    ["暗雷"] = 2,
                     ["跳跳乐"] = 1,
-                    ["窄道"] = 1,
-                    ["平台类"] = 1,
-                    ["墙壁"] = 1,
-                    ["天花板"] = 3,
-                    ["障碍物"] = 2,
-                    ["装饰物"] = 2,
-                    ["触发型"] = 3,
+                    ["平台类"] = 2,
+                    ["尖刺类"] = 2,    // 新增
+                    ["墙壁"] = 0,
+                    ["天花板"] = 5,
+                    ["障碍物"] = 4,
+                    ["装饰物"] = 3,
+                    ["触发型"] = 5,
                     ["追逐型"] = 0,
                     ["场景伤害"] = 0
                 };
             case TrapDifficulty.Focused:
                 return new()
                 {
-                    ["暗雷"] = 3,
+                    ["暗雷"] = 4,
                     ["跳跳乐"] = 3,
-                    ["窄道"] = 3,
-                    ["平台类"] = 3,
-                    ["墙壁"] = 3,
-                    ["天花板"] = 3,
-                    ["障碍物"] = 4,
-                    ["装饰物"] = 3,
-                    ["触发型"] = 5,
+                    ["平台类"] = 4,
+                    ["尖刺类"] = 4,    // 新增
+                    ["墙壁"] = 0,
+                    ["天花板"] = 6,
+                    ["障碍物"] = 5,
+                    ["装饰物"] = 4,
+                    ["触发型"] = 6,
                     ["追逐型"] = 1,
-                    ["场景伤害"] = 0
+                    ["场景伤害"] = 1
                 };
             case TrapDifficulty.Overflow:
                 return new()
                 {
-                    ["暗雷"] = 5,
+                    ["暗雷"] = 6,
                     ["跳跳乐"] = 5,
-                    ["窄道"] = 5,
-                    ["平台类"] = 5,
-                    ["墙壁"] = 5,
-                    ["天花板"] = 5,
-                    ["障碍物"] = 5,
+                    ["平台类"] = 6,
+                    ["尖刺类"] = 6,    // 新增
+                    ["墙壁"] = 0,
+                    ["天花板"] = 8,
+                    ["障碍物"] = 6,
                     ["装饰物"] = 5,
-                    ["触发型"] = 7,
+                    ["触发型"] = 8,
                     ["追逐型"] = 2,
-                    ["场景伤害"] = 0
+                    ["场景伤害"] = 2
                 };
             default:
                 return new()
                 {
-                    ["暗雷"] = 1,
+                    ["暗雷"] = 2,
                     ["跳跳乐"] = 1,
-                    ["窄道"] = 1,
-                    ["平台类"] = 1,
-                    ["墙壁"] = 1,
-                    ["天花板"] = 3,
-                    ["障碍物"] = 2,
-                    ["装饰物"] = 2,
-                    ["触发型"] = 3,
+                    ["平台类"] = 2,
+                    ["尖刺类"] = 2,
+                    ["墙壁"] = 0,
+                    ["天花板"] = 5,
+                    ["障碍物"] = 4,
+                    ["装饰物"] = 3,
+                    ["触发型"] = 5,
                     ["追逐型"] = 0,
                     ["场景伤害"] = 0
                 };
         }
     }
 
-    public static readonly string[] CategoryOrder = { "暗雷", "跳跳乐", "窄道", "平台类", "墙壁", "天花板", "障碍物", "装饰物", "触发型", "追逐型", "场景伤害" };
+    // 分类顺序（尖刺类放在平台类之后、墙壁之前）
+    public static readonly string[] CategoryOrder = { "暗雷", "跳跳乐", "平台类", "尖刺类", "墙壁", "天花板", "障碍物", "装饰物", "触发型", "追逐型", "场景伤害" };
 
     public static double GetFrostProbability(TrapDifficulty difficulty) => difficulty switch
     {
@@ -299,14 +336,13 @@ public static class TrapPreloader
     };
 }
 
-// 元数据类（增加了 PositionOffset 和 Rotation）
 public class TrapMeta
 {
     public Dictionary<string, string> Config { get; set; }
     public bool NeedsActivator { get; set; }
     public string ActivatorId { get; set; }
-    public Vector3 PositionOffset { get; set; }   // 陷阱本体相对于激活器的偏移
-    public Vector3 PositionRotate { get; set; }   // 陷阱本体的额外旋转（欧拉角）
+    public Vector3 PositionOffset { get; set; }
+    public Vector3 PositionRotate { get; set; }
 
     public TrapMeta(Dictionary<string, string> config = null,
         bool needsActivator = false,

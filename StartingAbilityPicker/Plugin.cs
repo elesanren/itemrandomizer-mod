@@ -22,6 +22,8 @@ public class Plugin : BaseUnityPlugin
     public static bool AllowRightAttack = false;
     public static bool AllowUpwardAttack = false;
 
+    public static Plugin Instance { get; private set; }  // ★ 新增
+
     private static Dictionary<string, string> _abilityConfig = new();
 
     internal bool skillMode = false;
@@ -108,6 +110,7 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
+        Instance = this;  // ★ 新增
         Log = Logger;
         Log.LogInfo("StartingAbilityPicker loaded! Press F7 to open starting options.");
         ChosenProfiles = Config.Bind<string>("General", "ChosenProfiles", "", "已选择过开局选项的存档ID列表");
@@ -119,7 +122,7 @@ public class Plugin : BaseUnityPlugin
         LoadAbilityConfig();
         SceneManager.sceneLoaded += OnSceneLoaded;
         Harmony.CreateAndPatchAll(typeof(AttackPatch));
-        StartCoroutine(LoadAllImages()); // ★ 加载所有面板图片
+        StartCoroutine(LoadAllImages());
     }
 
     // ★ 协程：同时加载背景图和难度图标
@@ -181,6 +184,15 @@ public class Plugin : BaseUnityPlugin
             AllowUpwardAttack = _abilityConfig.TryGetValue("AllowUpwardAttack", out string up) && string.Equals(up, "true", StringComparison.OrdinalIgnoreCase);
             AllowLeftAttack = _abilityConfig.TryGetValue("AllowLeftAttack", out string left) && string.Equals(left, "true", StringComparison.OrdinalIgnoreCase);
             AllowRightAttack = _abilityConfig.TryGetValue("AllowRightAttack", out string right) && string.Equals(right, "true", StringComparison.OrdinalIgnoreCase);
+
+            // 如果 PlayerData 中已有解锁，保留解锁状态，防止被配置文件覆盖
+            var pd = PlayerData.instance;
+            if (pd != null)
+            {
+                if (pd.GetBool("AllowUpwardAttack")) AllowUpwardAttack = true;
+                if (pd.GetBool("AllowLeftAttack")) AllowLeftAttack = true;
+                if (pd.GetBool("AllowRightAttack")) AllowRightAttack = true;
+            }
         }
         catch (Exception ex) { Log.LogError($"加载配置失败: {ex}"); }
     }
@@ -197,6 +209,37 @@ public class Plugin : BaseUnityPlugin
             File.WriteAllText(AbilityConfigPath, JsonConvert.SerializeObject(_abilityConfig, Formatting.Indented));
         }
         catch (Exception ex) { Log.LogError($"保存配置失败: {ex}"); }
+    }
+
+    /// <summary>
+    /// 完整保存攻击方向设置（PlayerData + ability_config.json + BepInEx Config）
+    /// 供外部（如 SilksongItemRandomizer）调用，确保切换场景后设置不丢失
+    /// </summary>
+    public static void SaveAttackDirections()
+    {
+        try
+        {
+            // 1. 写入 PlayerData
+            PlayerData pd = PlayerData.instance;
+            if (pd != null)
+            {
+                pd.SetBool("AllowUpwardAttack", AllowUpwardAttack);
+                pd.SetBool("AllowLeftAttack", AllowLeftAttack);
+                pd.SetBool("AllowRightAttack", AllowRightAttack);
+            }
+
+            // 2. 保存 ability_config.json
+            Instance.SaveAbilityConfig();
+
+            // 3. 保存 BepInEx 配置
+            Instance.Config.Save();
+
+            Log.LogInfo("攻击方向配置已完整保存（PlayerData + ability_config.json + BepInEx Config）");
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"SaveAttackDirections 失败: {ex}");
+        }
     }
 
     private void EnsureRandomSeed()

@@ -7,6 +7,9 @@ namespace StartingAbilityPicker;
 
 public static class PanelRenderer
 {
+    // 冷白色，用于所有文字
+    private static readonly Color BrightWhite = new Color(0.95f, 0.97f, 1.0f);
+
     // 反射缓存（陷阱相关）
     private static Type _trapType;
     private static PropertyInfo _trapEnabledProp;
@@ -41,6 +44,15 @@ public static class PanelRenderer
     // ===== 左侧面板 =====
     public static void DrawLeftPanel(Plugin p)
     {
+        // 备份原有颜色
+        Color originalLabelColor = GUI.skin.label.normal.textColor;
+        // 全部改为冷白
+        GUI.skin.label.normal.textColor = BrightWhite;
+        GUI.skin.toggle.normal.textColor = BrightWhite;
+        GUI.skin.button.normal.textColor = BrightWhite;
+        GUI.skin.horizontalSlider.normal.textColor = BrightWhite;
+        GUI.skin.textField.normal.textColor = BrightWhite;
+
         GUI.skin.label.fontSize = 20; GUI.skin.toggle.fontSize = 20; GUI.skin.button.fontSize = 24;
         GUI.skin.horizontalSlider.fontSize = 18; GUI.skin.textField.fontSize = 18;
 
@@ -82,15 +94,29 @@ public static class PanelRenderer
         GUILayout.Space(15);
         int originalFontSize = GUI.skin.label.fontSize; GUI.skin.label.fontSize = 26; GUI.color = Color.yellow;
         GUILayout.Label(Locale.Get("提示: 按 F7 呼出此窗口"), GUILayout.Height(40));
-        GUI.color = Color.white; GUI.skin.label.fontSize = originalFontSize;
+        GUI.color = BrightWhite;
+        GUI.skin.label.fontSize = originalFontSize;
+
+        // 恢复颜色（备份原来的颜色，可能是别的，但不用改回蓝色）
+        GUI.skin.label.normal.textColor = originalLabelColor;
+        GUI.skin.toggle.normal.textColor = originalLabelColor;
+        GUI.skin.button.normal.textColor = originalLabelColor;
+        GUI.skin.horizontalSlider.normal.textColor = originalLabelColor;
+        GUI.skin.textField.normal.textColor = originalLabelColor;
     }
 
     // ===== 右侧面板 =====
     public static void DrawScenePanel(Plugin p)
     {
+        Color originalLabelColor = GUI.skin.label.normal.textColor;
+        GUI.skin.label.normal.textColor = BrightWhite;
+        GUI.skin.button.normal.textColor = BrightWhite;
+        GUI.skin.toggle.normal.textColor = BrightWhite;
+
         if (!p.SceneRandomAvailable)
         {
             GUILayout.Label(Locale.Get("场景随机未加载"), GUILayout.Height(30));
+            GUI.skin.label.normal.textColor = originalLabelColor;
             return;
         }
 
@@ -109,7 +135,6 @@ public static class PanelRenderer
         DrawTrapToggle(p);
         DrawTrapDifficulty(p);
 
-        // ★ 关键修复：在难度下方单独一行放置“陷阱生命化”按钮
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
@@ -121,7 +146,7 @@ public static class PanelRenderer
         GUI.skin.label.fontSize = 20;
         GUI.color = Color.yellow;
         GUILayout.Label(Locale.Get("陷阱、房间随机建议丝之心，疾跑和上冲"), GUILayout.Height(60));
-        GUI.color = Color.white;
+        GUI.color = BrightWhite;
         GUI.skin.label.fontSize = prevFont;
         GUILayout.Space(5);
 
@@ -140,6 +165,10 @@ public static class PanelRenderer
         DrawTeleporter(p);
         GUILayout.Space(20);
         DrawDisplayToggles(p);
+
+        GUI.skin.label.normal.textColor = originalLabelColor;
+        GUI.skin.button.normal.textColor = originalLabelColor;
+        GUI.skin.toggle.normal.textColor = originalLabelColor;
     }
 
     // ===== 子模块 =====
@@ -178,11 +207,12 @@ public static class PanelRenderer
         bool newUp = DrawModeButton(Locale.Get("上劈"), p.allowUpward, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newUp != p.allowUpward && !alreadyChosen) p.allowUpward = newUp;
 
-        bool newLeft = DrawModeButton(Locale.Get("左劈"), p.allowLeft, 18, GUILayout.Width(220), GUILayout.Height(60));
-        if (newLeft != p.allowLeft && !alreadyChosen) p.allowLeft = newLeft;
+        // ★ 交换左右劈绑定：左劈按钮控制 allowRight，右劈按钮控制 allowLeft
+        bool newLeft = DrawModeButton(Locale.Get("左劈"), p.allowRight, 18, GUILayout.Width(220), GUILayout.Height(60));
+        if (newLeft != p.allowRight && !alreadyChosen) p.allowRight = newLeft;
 
-        bool newRight = DrawModeButton(Locale.Get("右劈"), p.allowRight, 18, GUILayout.Width(220), GUILayout.Height(60));
-        if (newRight != p.allowRight && !alreadyChosen) p.allowRight = newRight;
+        bool newRight = DrawModeButton(Locale.Get("右劈"), p.allowLeft, 18, GUILayout.Width(220), GUILayout.Height(60));
+        if (newRight != p.allowLeft && !alreadyChosen) p.allowLeft = newRight;
     }
 
     private static void DrawSkillModeButtons(Plugin p, bool alreadyChosen)
@@ -254,15 +284,15 @@ public static class PanelRenderer
         GUILayout.EndHorizontal();
         GUILayout.Space(5);
 
-        GUI.color = p.resetPickups ? Color.red : Color.white;
+        GUI.color = p.resetPickups ? Color.red : BrightWhite;
         bool newReset = GUILayout.Toggle(p.resetPickups, Locale.Get("重置种子世界（含技能触发器）"), GUILayout.Height(40));
         if (newReset != p.resetPickups && !alreadyChosen) p.resetPickups = newReset;
-        GUI.color = Color.white;
+        GUI.color = BrightWhite;
         if (p.resetPickups)
         {
             GUI.color = Color.yellow;
             GUILayout.Label(Locale.Get("警告：重置后当前种子世界将重新生成，所有拾取点会重生，技能触发器也会重置。"), GUILayout.Height(70));
-            GUI.color = Color.white;
+            GUI.color = BrightWhite;
         }
         GUILayout.Space(35);
     }
@@ -274,7 +304,8 @@ public static class PanelRenderer
         {
             typeof(Plugin).GetMethod("ApplySettings", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(p, null);
         }
-        GUI.backgroundColor = Color.white; GUI.enabled = true;
+        GUI.backgroundColor = Color.white;
+        GUI.enabled = true;
         GUI.backgroundColor = new Color(0.8f, 0.2f, 0.2f);
         if (GUILayout.Button(Locale.Get("关闭"), GUILayout.Height(40))) p.ShowUI = false;
         GUI.backgroundColor = Color.white;
@@ -320,7 +351,6 @@ public static class PanelRenderer
         Sprite[] icons = { Plugin.BeginnerIcon, Plugin.FocusedIcon, Plugin.OverflowIcon };
         string[] diffNames = { "初猎", "专注", "满溢" };
 
-        // 以 3 号图片的显示高度作为所有按钮的统一高度
         float btnHeight = 50f;
         if (Plugin.OverflowIcon != null && Plugin.OverflowIcon.texture != null)
         {
@@ -329,20 +359,20 @@ public static class PanelRenderer
             btnHeight = 90f * (h / w);
         }
 
-        // 文字样式（复制 DrawModeButton 的样式）
+        // 文字样式全部改为冷白
         GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
         {
             alignment = TextAnchor.UpperCenter,
             fontSize = 14,
             fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.white }
+            normal = { textColor = BrightWhite }
         };
         GUIStyle statusStyle = new GUIStyle(GUI.skin.label)
         {
             alignment = TextAnchor.LowerCenter,
             fontSize = 11,
             fontStyle = FontStyle.Normal,
-            normal = { textColor = Color.white }
+            normal = { textColor = BrightWhite }
         };
 
         for (int i = 0; i < 3; i++)
@@ -350,37 +380,46 @@ public static class PanelRenderer
             bool isOn = (currentDiff == i);
             Sprite icon = icons[i];
 
-            // 按钮区域，高度统一
             Rect btnRect = GUILayoutUtility.GetRect(90f, btnHeight, GUILayout.Width(90), GUILayout.Height(btnHeight));
 
-            // 1. 先画背景色（选中绿，未选中灰）
             Color bgColor = isOn ? new Color(0.2f, 1.0f, 0.2f) : new Color(0.6f, 0.6f, 0.6f);
             Color oldBg = GUI.backgroundColor;
             GUI.backgroundColor = bgColor;
-            GUI.Box(btnRect, "");   // 画一个纯色底
+            GUI.Box(btnRect, "");
             GUI.backgroundColor = oldBg;
 
-            // 2. 在底色之上画图片（宽度固定 90，水平居中，垂直居中）
             if (icon != null && icon.texture != null)
             {
                 float imgW = icon.rect.width;
                 float imgH = icon.rect.height;
-                float drawW = 90f;
-                float drawH = drawW * (imgH / imgW);
-                float offsetX = btnRect.x + (btnRect.width - drawW) / 2f;
-                float offsetY = btnRect.y + (btnRect.height - drawH) / 2f;
+                float drawW, drawH;
+                float offsetX, offsetY;
+
+                if (i == 0)
+                {
+                    drawH = btnRect.height;
+                    drawW = drawH * (imgW / imgH);
+                    offsetX = btnRect.x + (btnRect.width - drawW) / 2f;
+                    offsetY = btnRect.y;
+                }
+                else
+                {
+                    drawW = 90f;
+                    drawH = drawW * (imgH / imgW);
+                    offsetX = btnRect.x + (btnRect.width - drawW) / 2f;
+                    offsetY = btnRect.y + (btnRect.height - drawH) / 2f;
+                }
+
                 Rect imgRect = new Rect(offsetX, offsetY, drawW, drawH);
                 GUI.DrawTexture(imgRect, icon.texture, ScaleMode.StretchToFill);
             }
 
-            // 3. 透明按钮（接收点击）
             if (GUI.Button(btnRect, "", GUIStyle.none))
             {
                 SetTrapDifficulty(i);
                 if (GetTrapEnabled()) { TriggerTrapClear(); TriggerTrapSpawn(); }
             }
 
-            // 4. 最顶层：文字
             Rect titleRect = new Rect(btnRect.x, btnRect.y, btnRect.width, btnRect.height / 2f);
             Rect statusRect = new Rect(btnRect.x, btnRect.y + btnRect.height / 2f, btnRect.width, btnRect.height / 2f);
             GUI.Label(titleRect, Locale.Get(diffNames[i]), titleStyle);
@@ -461,22 +500,22 @@ public static class PanelRenderer
         GUILayout.Label(Locale.Get("显示选项:"), GUILayout.Height(25));
         GUILayout.Space(4);
 
-        GUI.color = showSceneLabel ? Color.green : Color.white;
+        GUI.color = showSceneLabel ? Color.green : BrightWhite;
         if (GUILayout.Toggle(showSceneLabel, Locale.Get("显示当前场景名"), GUILayout.Height(30)))
         {
             if (!showSceneLabel) p.SetShowSceneLabel(true);
         }
         else { if (showSceneLabel) p.SetShowSceneLabel(false); }
-        GUI.color = Color.white;
+        GUI.color = BrightWhite;
         GUILayout.Space(6);
 
-        GUI.color = showSeedLabel ? Color.green : Color.white;
+        GUI.color = showSeedLabel ? Color.green : BrightWhite;
         if (GUILayout.Toggle(showSeedLabel, Locale.Get("显示当前种子"), GUILayout.Height(30)))
         {
             if (!showSeedLabel) p.SetShowSceneLabel(true, isSeed: true);
         }
         else { if (showSeedLabel) p.SetShowSceneLabel(false, isSeed: true); }
-        GUI.color = Color.white;
+        GUI.color = BrightWhite;
     }
 
     private static bool DrawModeButton(string label, bool isOn, int titleFontSize = 18, params GUILayoutOption[] options)
@@ -489,19 +528,20 @@ public static class PanelRenderer
         bool clicked = GUILayout.Button("", options);
         Rect buttonRect = GUILayoutUtility.GetLastRect();
 
+        // 按钮文字全部改为冷白
         GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
         {
             alignment = TextAnchor.UpperCenter,
             fontSize = titleFontSize,
             fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.white }
+            normal = { textColor = BrightWhite }
         };
         GUIStyle statusStyle = new GUIStyle(GUI.skin.label)
         {
             alignment = TextAnchor.LowerCenter,
             fontSize = titleFontSize - 3,
             fontStyle = FontStyle.Normal,
-            normal = { textColor = isOn ? Color.white : new Color(0.9f, 0.9f, 0.9f) }
+            normal = { textColor = BrightWhite }
         };
 
         GUI.Label(new Rect(buttonRect.x, buttonRect.y, buttonRect.width, buttonRect.height / 2), label, titleStyle);

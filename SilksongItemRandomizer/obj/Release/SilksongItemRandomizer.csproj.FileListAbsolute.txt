@@ -3,6 +3,7 @@ D:\code\mod\SilksongItemRandomizer\bin\Release\SilksongItemRandomizer.pdb
 D:\code\mod\SilksongItemRandomizer\bin\Release\0Harmony.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\Architect.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\Assembly-CSharp.dll
+D:\code\mod\SilksongItemRandomizer\bin\Release\Benchwarp.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\BepInEx.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\netstandard.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\Newtonsoft.Json.dll
@@ -13,6 +14,7 @@ D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.IMGUIModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.InputLegacyModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.Physics2DModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.TextRenderingModule.dll
+D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.UIModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\MonoMod.Utils.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\MonoMod.RuntimeDetour.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.UI.dll
@@ -25,7 +27,6 @@ D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.Localization.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.UnityWebRequestModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.VideoModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.ParticleSystemModule.dll
-D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.UIModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\UnityEngine.AnimationModule.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.Splines.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\TeamCherry.SharedUtils.dll
@@ -101,6 +102,7 @@ D:\code\mod\SilksongItemRandomizer\bin\Release\SharpDX.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\Unity.Burst.Unsafe.dll
 D:\code\mod\SilksongItemRandomizer\bin\Release\0Harmony.xml
 D:\code\mod\SilksongItemRandomizer\bin\Release\Architect.pdb
+D:\code\mod\SilksongItemRandomizer\bin\Release\Benchwarp.pdb
 D:\code\mod\SilksongItemRandomizer\bin\Release\BepInEx.xml
 D:\code\mod\SilksongItemRandomizer\bin\Release\Newtonsoft.Json.xml
 D:\code\mod\SilksongItemRandomizer\bin\Release\MonoMod.Utils.xml

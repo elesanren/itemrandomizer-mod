@@ -626,10 +626,10 @@ public class RandomSceneLoader : BaseUnityPlugin
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F5))
-            LoadRandomScene();
-        if (Input.GetKeyDown(KeyCode.F6))
-            LoadRandomUniqueScene();
+        //if (Input.GetKeyDown(KeyCode.F5))
+        //    LoadRandomScene();
+        //if (Input.GetKeyDown(KeyCode.F6))
+        //    LoadRandomUniqueScene();
         if (Input.GetKeyDown(KeyCode.F7))
             DiscoverGatesInCurrentScene();
 

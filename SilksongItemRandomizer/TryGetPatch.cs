@@ -61,7 +61,7 @@ public class TryGetPatch
         if (!hasLeft) missing.Add("left");
         if (!hasRight) missing.Add("right");
 
-        if (missing.Count == 0 || ItemRandomizer.Rng == null || ItemRandomizer.Rng.NextDouble() > 0.05)
+        if (missing.Count == 0 || ItemRandomizer.Rng == null || ItemRandomizer.Rng.NextDouble() > 0.10)
             return;
 
         string chosen = missing[ItemRandomizer.Rng.Next(missing.Count)];
@@ -73,18 +73,33 @@ public class TryGetPatch
             case "upward":
                 upwardField.SetValue(null, true);
                 pd.SetBool("AllowUpwardAttack", true);
+                Plugin.ShowNotification("获得攻击方向: 上劈");
                 Plugin.Log.LogInfo("Attack direction unlocked via item: upward (saved to PlayerData)");
                 break;
             case "left":
                 leftField.SetValue(null, true);
                 pd.SetBool("AllowLeftAttack", true);
+                Plugin.ShowNotification("获得攻击方向: 左劈");
                 Plugin.Log.LogInfo("Attack direction unlocked via item: left (saved to PlayerData)");
                 break;
             case "right":
                 rightField.SetValue(null, true);
                 pd.SetBool("AllowRightAttack", true);
+                Plugin.ShowNotification("获得攻击方向: 右劈");
                 Plugin.Log.LogInfo("Attack direction unlocked via item: right (saved to PlayerData)");
                 break;
+        }
+
+        // ★ 关键修复：完整保存攻击方向配置（PlayerData + ability_config.json + Config.Save）
+        MethodInfo saveAllMethod = type.GetMethod("SaveAttackDirections", BindingFlags.Public | BindingFlags.Static);
+        if (saveAllMethod != null)
+        {
+            saveAllMethod.Invoke(null, null);
+            Plugin.Log.LogInfo("攻击方向配置已通过 SaveAttackDirections 完整保存");
+        }
+        else
+        {
+            Plugin.Log.LogError("未找到 SaveAttackDirections 方法，请确保 StartingAbilityPicker 已更新");
         }
     }
 }
