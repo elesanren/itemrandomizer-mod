@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using HutongGames.PlayMaker;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = System.Random;
@@ -22,7 +23,7 @@ public class Plugin : BaseUnityPlugin
     public static bool AllowRightAttack = false;
     public static bool AllowUpwardAttack = false;
 
-    public static Plugin Instance { get; private set; }  // ★ 新增
+    public static Plugin Instance { get; private set; }
 
     private static Dictionary<string, string> _abilityConfig = new();
 
@@ -35,7 +36,6 @@ public class Plugin : BaseUnityPlugin
 
     private bool _lastSceneWasMenu = true;
     private bool showUI = false;
-    private Rect uiWindowRect;
     internal bool allowUpward = false, allowLeft = false, allowRight = false;
     internal int itemCount = 0;
     internal bool resetPickups = false;
@@ -46,20 +46,157 @@ public class Plugin : BaseUnityPlugin
     private static float _notificationEndTime = 0.0f;
     private static GUIStyle _notificationStyle;
 
-    // ★ 面板背景图 + 难度图标
     private static Sprite _backgroundSprite;
     private static Sprite _beginnerIcon;
     private static Sprite _focusedIcon;
     private static Sprite _overflowIcon;
     private static bool _bgLoaded = false;
 
+    // 窗口矩形（支持拖动）
+    private static Rect _windowRect;
+    private static float _lastScreenHeight;
+
     public static ConfigEntry<string> ChosenProfiles { get; private set; }
     public static ConfigEntry<int> StartingSkillCount { get; private set; }
     public static ConfigEntry<int> StartingItemCount { get; private set; }
     public static ConfigEntry<int> RandomSeed { get; private set; }
 
+    public static ConfigEntry<bool> CfgCrestCurseEnabled { get; private set; }
+    internal bool crestCurseEnabled = false;
+
+    // 按存档存储完成度显示开关
+    private static readonly string CompletionConfigPath = Path.Combine(Paths.ConfigPath, "StartingAbilityPicker", "completion_per_profile.json");
+    private static Dictionary<int, bool> _profileCompletionDisplay = new Dictionary<int, bool>();
+
+    public bool GetCrestCurseEnabled() => crestCurseEnabled;
+    public void SetCrestCurseEnabled(bool value)
+    {
+        crestCurseEnabled = value;
+        CfgCrestCurseEnabled.Value = value;
+        try
+        {
+            Type effectType = Type.GetType("SilksongItemRandomizer.ToolEffectRandomizer, SilksongItemRandomizer");
+            effectType?.GetMethod("SetEnabled", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, new object[] { value });
+        }
+        catch { }
+        Log.LogInfo($"纹章诅咒开关: {(value ? "启用" : "禁用")}");
+    }
+
+    public bool GetForceCompletionDisplay()
+    {
+        int pid = currentProfileID;
+        if (pid == -1) return true;
+        if (_profileCompletionDisplay.TryGetValue(pid, out bool value))
+            return value;
+        return true;
+    }
+
+    public void SetForceCompletionDisplay(bool value)
+    {
+        int pid = currentProfileID;
+        if (pid == -1) return;
+
+        bool current = GetForceCompletionDisplay();
+        if (current == value) return;
+
+        _profileCompletionDisplay[pid] = value;
+        SaveCompletionConfig();
+        Log.LogInfo($"强制完成度显示开关 (存档 {pid}): {(value ? "启用（显示）" : "禁用（隐藏）")}");
+
+        var pd = PlayerData.instance;
+        if (pd != null)
+        {
+            if (value)
+            {
+                pd.ConstructedFarsight = true;
+                RefreshCompletionUI(true);
+            }
+            else
+            {
+                ClearFsmCompletionVariables();
+            }
+        }
+    }
+
+    private void RefreshCompletionUI(bool forceShow = false)
+    {
+        if (!GetForceCompletionDisplay() && !forceShow)
+        {
+            ClearFsmCompletionVariables();
+            return;
+        }
+
+        var pd = PlayerData.instance;
+        if (pd == null) return;
+
+        string percentStr = Mathf.RoundToInt(pd.completionPercentage) + "%";
+        string[] panelNames = { "Inv", "Tools", "Journal", "Quests" };
+        foreach (string name in panelNames)
+        {
+            GameObject go = GameObject.Find(name);
+            if (go == null) continue;
+            PlayMakerFSM fsm = go.GetComponent<PlayMakerFSM>();
+            if (fsm == null) continue;
+            var fsmString = fsm.FsmVariables.FindFsmString("Completion Percentage Str");
+            if (fsmString != null)
+                fsmString.Value = percentStr;
+        }
+    }
+
+    private void LoadCompletionConfig()
+    {
+        try
+        {
+            if (File.Exists(CompletionConfigPath))
+            {
+                string json = File.ReadAllText(CompletionConfigPath);
+                _profileCompletionDisplay = JsonConvert.DeserializeObject<Dictionary<int, bool>>(json) ?? new Dictionary<int, bool>();
+            }
+            else
+            {
+                _profileCompletionDisplay.Clear();
+            }
+        }
+        catch (Exception ex) { Log.LogWarning($"加载完成度配置失败: {ex}"); }
+    }
+
+    private void SaveCompletionConfig()
+    {
+        try
+        {
+            string dir = Path.GetDirectoryName(CompletionConfigPath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            File.WriteAllText(CompletionConfigPath, JsonConvert.SerializeObject(_profileCompletionDisplay, Formatting.Indented));
+        }
+        catch (Exception ex) { Log.LogWarning($"保存完成度配置失败: {ex}"); }
+    }
+
+    private void ClearFsmCompletionVariables()
+    {
+        try
+        {
+            string[] panelNames = { "Inv", "Tools", "Journal", "Quests" };
+            foreach (string name in panelNames)
+            {
+                GameObject go = GameObject.Find(name);
+                if (go == null) continue;
+                PlayMakerFSM fsm = go.GetComponent<PlayMakerFSM>();
+                if (fsm == null) continue;
+
+                foreach (var sv in fsm.FsmVariables.StringVariables)
+                {
+                    if (sv.Name.IndexOf("Completion", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        sv.Value = "";
+                    }
+                }
+            }
+        }
+        catch (Exception ex) { Log.LogWarning($"清空完成度变量失败: {ex}"); }
+    }
+
     private static string AbilityConfigPath => Path.Combine(Paths.ConfigPath, "StartingAbilityPicker", "ability_config.json");
-    private int currentProfileID => GameManager.instance?.profileID ?? -1;
+    private int currentProfileID => PlayerData.instance?.profileID ?? -1;
 
     private bool _sceneRandomAvailable = false;
     private object _sceneLoader;
@@ -74,7 +211,6 @@ public class Plugin : BaseUnityPlugin
     private bool _pendingTeleport = false;
     private string _pendingTeleportScene = "";
 
-    // ===== 公开访问器 =====
     public bool ShowUI { get => showUI; set => showUI = value; }
     public string SceneSeedInput { get => sceneSeedInput; set => sceneSeedInput = value; }
     public string SceneTeleportInput { get => sceneTeleportInput; set => sceneTeleportInput = value; }
@@ -87,7 +223,6 @@ public class Plugin : BaseUnityPlugin
     public static int MaxSpecialDynamic => MaxSpecial;
     public static int MaxAttackDynamic => MaxAttack;
 
-    // ★ 难度图标公开属性，供 PanelRenderer 使用
     public static Sprite BeginnerIcon => _beginnerIcon;
     public static Sprite FocusedIcon => _focusedIcon;
     public static Sprite OverflowIcon => _overflowIcon;
@@ -110,27 +245,41 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        Instance = this;  // ★ 新增
+        Instance = this;
         Log = Logger;
         Log.LogInfo("StartingAbilityPicker loaded! Press F7 to open starting options.");
         ChosenProfiles = Config.Bind<string>("General", "ChosenProfiles", "", "已选择过开局选项的存档ID列表");
         StartingSkillCount = Config.Bind<int>("General", "StartingSkillCount", 0, "开局随机技能数量 (0-5)");
         StartingItemCount = Config.Bind<int>("General", "StartingItemCount", 0, "开局随机物品数量 (0-5)");
         RandomSeed = Config.Bind<int>("General", "RandomSeed", 0, "随机种子 (0 表示随机)");
+
+        CfgCrestCurseEnabled = Config.Bind<bool>("General", "CrestCurseEnabled", false, "启用纹章诅咒（每个纹章带有偏科效果）");
+        crestCurseEnabled = CfgCrestCurseEnabled.Value;
+        try
+        {
+            Type effectType = Type.GetType("SilksongItemRandomizer.ToolEffectRandomizer, SilksongItemRandomizer");
+            effectType?.GetMethod("SetEnabled", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, new object[] { crestCurseEnabled });
+        }
+        catch { }
+
+        LoadCompletionConfig();
         LoadChosenProfiles();
         EnsureRandomSeed();
         LoadAbilityConfig();
         SceneManager.sceneLoaded += OnSceneLoaded;
         Harmony.CreateAndPatchAll(typeof(AttackPatch));
+        Harmony.CreateAndPatchAll(typeof(SaveStats_GetCompletionPercentage_Patch));
+        Harmony.CreateAndPatchAll(typeof(SaveStats_UnlockedCompletionRate_Patch));
+        Harmony.CreateAndPatchAll(typeof(PlayerData_CountGameCompletion_Patch));
+        Harmony.CreateAndPatchAll(typeof(ConvertFloatToString_Patch));
+        Harmony.CreateAndPatchAll(typeof(BuildString_Patch));
         StartCoroutine(LoadAllImages());
     }
 
-    // ★ 协程：同时加载背景图和难度图标
     private IEnumerator LoadAllImages()
     {
         string folder = Path.Combine(Paths.PluginPath, "elesanren-Hard_Item_Randomizer", "nandu");
 
-        // 背景图
         string bgPath = Path.Combine(folder, "4.png");
         if (File.Exists(bgPath))
         {
@@ -144,7 +293,6 @@ public class Plugin : BaseUnityPlugin
             }
         }
 
-        // 三个难度图标
         string[] iconFiles = { "1.png", "2.png", "3.png" };
         for (int i = 0; i < 3; i++)
         {
@@ -185,7 +333,6 @@ public class Plugin : BaseUnityPlugin
             AllowLeftAttack = _abilityConfig.TryGetValue("AllowLeftAttack", out string left) && string.Equals(left, "true", StringComparison.OrdinalIgnoreCase);
             AllowRightAttack = _abilityConfig.TryGetValue("AllowRightAttack", out string right) && string.Equals(right, "true", StringComparison.OrdinalIgnoreCase);
 
-            // 如果 PlayerData 中已有解锁，保留解锁状态，防止被配置文件覆盖
             var pd = PlayerData.instance;
             if (pd != null)
             {
@@ -211,15 +358,10 @@ public class Plugin : BaseUnityPlugin
         catch (Exception ex) { Log.LogError($"保存配置失败: {ex}"); }
     }
 
-    /// <summary>
-    /// 完整保存攻击方向设置（PlayerData + ability_config.json + BepInEx Config）
-    /// 供外部（如 SilksongItemRandomizer）调用，确保切换场景后设置不丢失
-    /// </summary>
     public static void SaveAttackDirections()
     {
         try
         {
-            // 1. 写入 PlayerData
             PlayerData pd = PlayerData.instance;
             if (pd != null)
             {
@@ -227,19 +369,11 @@ public class Plugin : BaseUnityPlugin
                 pd.SetBool("AllowLeftAttack", AllowLeftAttack);
                 pd.SetBool("AllowRightAttack", AllowRightAttack);
             }
-
-            // 2. 保存 ability_config.json
             Instance.SaveAbilityConfig();
-
-            // 3. 保存 BepInEx 配置
             Instance.Config.Save();
-
-            Log.LogInfo("攻击方向配置已完整保存（PlayerData + ability_config.json + BepInEx Config）");
+            Log.LogInfo("攻击方向配置已完整保存");
         }
-        catch (Exception ex)
-        {
-            Log.LogError($"SaveAttackDirections 失败: {ex}");
-        }
+        catch (Exception ex) { Log.LogError($"SaveAttackDirections 失败: {ex}"); }
     }
 
     private void EnsureRandomSeed()
@@ -260,8 +394,22 @@ public class Plugin : BaseUnityPlugin
             LoadAbilityConfig();
             LoadPlayerDataSettings();
             InitSceneRandomRefs();
+
+            if (GetForceCompletionDisplay())
+            {
+                var pd = PlayerData.instance;
+                if (pd != null && !pd.ConstructedFarsight)
+                {
+                    pd.ConstructedFarsight = true;
+                    Log.LogInfo($"已强制解锁完成度显示 (ConstructedFarsight) for profile {currentProfileID}");
+                }
+                RefreshCompletionUI(true);
+            }
         }
         else if (scene.name == "Menu_Title" || scene.name == "Menu") _lastSceneWasMenu = true;
+
+        if (!GetForceCompletionDisplay())
+            ClearFsmCompletionVariables();
     }
 
     private void LoadPlayerDataSettings()
@@ -345,6 +493,11 @@ public class Plugin : BaseUnityPlugin
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.Tab) && !GetForceCompletionDisplay())
+        {
+            ClearFsmCompletionVariables();
+        }
+
         if (_pendingTeleport)
         {
             _pendingTeleport = false;
@@ -370,9 +523,23 @@ public class Plugin : BaseUnityPlugin
     {
         if (showUI)
         {
-            uiWindowRect = new Rect(20f, (Screen.height - 950) / 2, 950f, 1200f);
-            uiWindowRect = GUILayout.Window(100, uiWindowRect, DrawUIWindow, "开局选项 & 场景随机");
+            // 初始化窗口位置（仅首次或屏幕高度变化时）
+            if (_windowRect.width == 0 || Mathf.Abs(Screen.height - _lastScreenHeight) > 1f)
+            {
+                float screenH = Screen.height;
+                float winH = 1080f;          // 原 1200 * 0.9
+                float winW = 925f;           // 原 950 * 0.9
+                float bottomMargin = screenH / 8f;   // 底部留空 1/16
+                float y = screenH - winH - bottomMargin;
+                if (y < 0) y = 0;
+                _windowRect = new Rect(20f, y, winW, winH);
+                _lastScreenHeight = screenH;
+            }
+
+            _windowRect = GUILayout.Window(100, _windowRect, DrawUIWindow, "开局选项 & 场景随机");
         }
+
+        // 通知消息
         if (_notificationMessage != null && Time.time <= _notificationEndTime)
         {
             if (_notificationStyle == null)
@@ -389,25 +556,26 @@ public class Plugin : BaseUnityPlugin
 
     private void DrawUIWindow(int windowID)
     {
-        // ★ 绘制背景图（如果已加载），否则用黑色
+        // 绘制背景（使用当前窗口矩形的尺寸）
         if (_backgroundSprite != null && _backgroundSprite.texture != null)
         {
-            GUI.DrawTexture(new Rect(0, 0, uiWindowRect.width, uiWindowRect.height), _backgroundSprite.texture, ScaleMode.StretchToFill);
+            GUI.DrawTexture(new Rect(0, 0, _windowRect.width, _windowRect.height), _backgroundSprite.texture, ScaleMode.StretchToFill);
         }
         else
         {
             Color originalColor = GUI.color;
             GUI.color = Color.black;
-            GUI.DrawTexture(new Rect(0, 0, uiWindowRect.width, uiWindowRect.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, 0, _windowRect.width, _windowRect.height), Texture2D.whiteTexture);
             GUI.color = originalColor;
         }
 
+        // 内部布局（按比例缩小后的宽度）
         GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical(GUILayout.Width(620));
+        GUILayout.BeginVertical(GUILayout.Width(558));   // 原 620 * 0.9
         DrawLeftPanel();
         GUILayout.EndVertical();
 
-        GUILayout.BeginVertical(GUILayout.Width(300));
+        GUILayout.BeginVertical(GUILayout.Width(270));   // 原 300 * 0.9
         DrawSceneRandomPanel();
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
@@ -415,18 +583,9 @@ public class Plugin : BaseUnityPlugin
         GUI.DragWindow();
     }
 
-    // ===== 面板转发 =====
-    private void DrawLeftPanel()
-    {
-        PanelRenderer.DrawLeftPanel(this);
-    }
+    private void DrawLeftPanel() => PanelRenderer.DrawLeftPanel(this);
+    private void DrawSceneRandomPanel() => PanelRenderer.DrawScenePanel(this);
 
-    private void DrawSceneRandomPanel()
-    {
-        PanelRenderer.DrawScenePanel(this);
-    }
-
-    // ===== 确认按钮逻辑 =====
     private void ApplySettings()
     {
         AllowUpwardAttack = allowUpward; AllowLeftAttack = allowLeft; AllowRightAttack = allowRight;
@@ -520,7 +679,7 @@ public class Plugin : BaseUnityPlugin
             {
                 var field = _seedManager.GetType().GetField("cfgShowSeedOnScreen", BindingFlags.Instance | BindingFlags.NonPublic);
                 var entry = field.GetValue(_seedManager);
-                entry.GetType().GetProperty("Value").SetValue(entry, value, null);
+                entry?.GetType().GetProperty("Value")?.SetValue(entry, value, null);
             }
         }
         catch { }
@@ -536,7 +695,6 @@ public class Plugin : BaseUnityPlugin
         catch { return true; }
     }
 
-    // ===== 种子重置 =====
     private void ResetSeedWorld()
     {
         if (!int.TryParse(seedInput, out int inputSeed) || inputSeed == RandomSeed.Value)
@@ -600,7 +758,6 @@ public class Plugin : BaseUnityPlugin
         catch { }
     }
 
-    // ===== 物品随机开关接口 =====
     public bool GetItemRandomEnabled()
     {
         try
@@ -622,5 +779,69 @@ public class Plugin : BaseUnityPlugin
             prop?.SetValue(null, value);
         }
         catch { }
+    }
+}
+
+// ================== 完成度显示补丁（存档界面） ==================
+[HarmonyPatch(typeof(SaveStats), "GetCompletionPercentage")]
+public static class SaveStats_GetCompletionPercentage_Patch
+{
+    [HarmonyPostfix]
+    private static void Postfix(ref string __result)
+    {
+        if (Plugin.Instance != null && !Plugin.Instance.GetForceCompletionDisplay())
+            __result = "";
+    }
+}
+
+[HarmonyPatch(typeof(SaveStats), "get_UnlockedCompletionRate")]
+public static class SaveStats_UnlockedCompletionRate_Patch
+{
+    [HarmonyPostfix]
+    private static void Postfix(ref bool __result)
+    {
+        if (Plugin.Instance != null && !Plugin.Instance.GetForceCompletionDisplay())
+            __result = false;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerData), "CountGameCompletion")]
+public static class PlayerData_CountGameCompletion_Patch
+{
+    [HarmonyPrefix]
+    private static bool Prefix()
+    {
+        return !(Plugin.Instance != null && !Plugin.Instance.GetForceCompletionDisplay());
+    }
+}
+
+// ================== 拦截背包完成度字符串赋值 ==================
+[HarmonyPatch(typeof(HutongGames.PlayMaker.Actions.ConvertFloatToString), "OnEnter")]
+public static class ConvertFloatToString_Patch
+{
+    private static void Postfix(HutongGames.PlayMaker.Actions.ConvertFloatToString __instance)
+    {
+        if (Plugin.Instance != null && !Plugin.Instance.GetForceCompletionDisplay())
+        {
+            if (__instance.stringVariable != null && __instance.stringVariable.Name == "Completion Percentage Str")
+            {
+                __instance.stringVariable.Value = "";
+            }
+        }
+    }
+}
+
+[HarmonyPatch(typeof(HutongGames.PlayMaker.Actions.BuildString), "OnEnter")]
+public static class BuildString_Patch
+{
+    private static void Postfix(HutongGames.PlayMaker.Actions.BuildString __instance)
+    {
+        if (Plugin.Instance != null && !Plugin.Instance.GetForceCompletionDisplay())
+        {
+            if (__instance.storeResult != null && __instance.storeResult.Name == "Completion Percentage Str")
+            {
+                __instance.storeResult.Value = "";
+            }
+        }
     }
 }

@@ -56,6 +56,7 @@ public static class TrapPreloader
         "spike_cog_2", "spike_cog_3", "spike_cog_1", "spike_cog_4", "spike_cog_5", "voltgrass",
         "junk_pipe"
     };
+
     public static List<string> TrapPoolNoLava => TrapPool.Where(t => t != LavaTrapId).ToList();
 
     public static readonly HashSet<string> ThornTraps = new(StringComparer.OrdinalIgnoreCase)
@@ -81,121 +82,91 @@ public static class TrapPreloader
         "slab_spike_ball"
     };
 
-    // 常量定义（所有数值配置集中在此）
+    // 常量
     public const string LavaTrapId = "lava_area";
     public const string FallingLavaId = "falling_lava";
-    public const float MinDistance = 8f;                 // 陷阱之间的最小距离
-
-    // 排斥距离
-    public const float PickupSafeRadius = 5f;            // 与拾取物的最小距离
-    public const float DoorSafeRadius = 7f;              // 与门的最小距离
-
-    // 大型陷阱检查半径
-    public const int LargeTrapRadius = 5;                // 原7，现5（适当收紧）
-
-    // 大型陷阱向下偏移量（原2.3f，减少到1.5f使齿轮升高0.8）
+    public const float MinDistance = 8f;
+    public const float PickupSafeRadius = 5f;
+    public const float DoorSafeRadius = 7f;
+    public const int LargeTrapRadius = 5;
     public const float LargeTrapYOffset = 1.5f;
-
-    // 荆棘陷阱宽度要求
-    public const int ThornTrapMinWidth = 4;              // 原7，放宽到4
-
-    // 其他偏移
+    public const int ThornTrapMinWidth = 4;
     public const float SpikeYOffset = 1.8f;
     public const int HammerTrapMinHeight = 7;
-
-    // 墙壁分类匹配距离（暂时无用，保留）
     public const float WallPointMatchDistance = 1f;
-
-    // 暗雷连环逻辑
-    public const float DarkThunderChainDistance = 4f;    // 暗雷之间最大距离
-    public const int MaxDarkThunderCount = 4;            // 最多生成几个暗雷
+    public const float DarkThunderChainDistance = 4f;
+    public const int MaxDarkThunderCount = 4;
 
     // 陷阱元数据
     public static readonly Dictionary<string, TrapMeta> TrapMetaDict = new()
     {
-        ["fan_hazard"] = new TrapMeta(),
-        ["spike_cog_1"] = new TrapMeta(),
-        ["spike_cog_2"] = new TrapMeta(),
-        ["spike_cog_3"] = new TrapMeta(),
-        ["spike_cog_4"] = new TrapMeta(),
-        ["spike_cog_5"] = new TrapMeta(),
-        ["hot_coal"] = new TrapMeta(),
-        ["lava_area"] = new TrapMeta(),
-        ["falling_lava"] = new TrapMeta(),
-        ["voltgrass"] = new TrapMeta(),
-        ["steam_vent"] = new TrapMeta(),
-        ["slab_trap"] = new TrapMeta(),
-        ["slab_prob_blade"] = new TrapMeta(),
-        ["slab_spike_ball"] = new TrapMeta(),
-        ["dust_trap_spike_plate"] = new TrapMeta(),
-        ["dust_trap_spike_dropper"] = new TrapMeta(),
-        ["mite_trap"] = new TrapMeta(),
-        ["organ_spikes"] = new TrapMeta(),
-        ["cradle_spikes"] = new TrapMeta(),
-        ["mill_trap"] = new TrapMeta(),
-        ["coral_lightning_rock"] = new TrapMeta(),
-        ["coral_crust_s"] = new TrapMeta(),
-        ["coral_crust_m"] = new TrapMeta(),
-        ["coral_crust_l"] = new TrapMeta(),
-        ["abyss_tendrils"] = new TrapMeta(),
-        ["bone_boulder"] = new TrapMeta(),
-        ["void_wave"] = new TrapMeta(),
+        // 无特殊配置的陷阱
+        ["fan_hazard"] = new(),
+        ["spike_cog_1"] = new(),
+        ["spike_cog_2"] = new(),
+        ["spike_cog_3"] = new(),
+        ["spike_cog_4"] = new(),
+        ["spike_cog_5"] = new(),
+        ["hot_coal"] = new(),
+        ["lava_area"] = new(),
+        ["falling_lava"] = new(),
+        ["voltgrass"] = new(),
+        ["steam_vent"] = new(),
+        ["slab_trap"] = new(),
+        ["slab_prob_blade"] = new(),
+        ["slab_spike_ball"] = new(),
+        ["dust_trap_spike_plate"] = new(),
+        ["dust_trap_spike_dropper"] = new(),
+        ["mite_trap"] = new(),
+        ["organ_spikes"] = new(),
+        ["cradle_spikes"] = new(),
+        ["mill_trap"] = new(),
+        ["coral_lightning_rock"] = new(),
+        ["coral_crust_s"] = new(),
+        ["coral_crust_m"] = new(),
+        ["coral_crust_l"] = new(),
+        ["abyss_tendrils"] = new(),
+        ["bone_boulder"] = new(),
+        ["void_wave"] = new(),
+        ["coral_lightning_orb"] = new(),
 
-        ["wisp_flame_lantern"] = new TrapMeta(new() { ["breakable_on"] = "True" }),
-        ["falling_bell"] = new TrapMeta(new() { ["bell_reset"] = "1" }),
-        ["shellwood_thorns"] = new TrapMeta(new() { ["vines_hurt_player"] = "True" }),
-        ["brown_vines"] = new TrapMeta(new() { ["vines_hurt_player"] = "True" }),
-        ["white_thorns"] = new TrapMeta(new() { ["vines_hurt_player"] = "True" }),
-        ["junk_pipe"] = new TrapMeta(new() { ["junk_pipe_terrain"] = "True" }),
-        ["frost_marker"] = new TrapMeta(new() { ["frost_speed"] = "10" }),
-        ["jelly_egg"] = new TrapMeta(new() { ["egg_regen"] = "-1" }),
-        ["wp_trap_spikes"] = new TrapMeta(
+        // 有配置的陷阱
+        ["wisp_flame_lantern"] = new(new() { ["breakable_on"] = "True" }),
+        ["falling_bell"] = new(new() { ["bell_reset"] = "1" }),
+        ["shellwood_thorns"] = new(new() { ["vines_hurt_player"] = "True" }),
+        ["brown_vines"] = new(new() { ["vines_hurt_player"] = "True" }),
+        ["white_thorns"] = new(new() { ["vines_hurt_player"] = "True" }),
+        ["junk_pipe"] = new(new() { ["junk_pipe_terrain"] = "True" }),
+        ["frost_marker"] = new(new() { ["frost_speed"] = "10" }),
+        ["jelly_egg"] = new(new() { ["egg_regen"] = "-1" }),
+        ["wp_trap_spikes"] = new(
             new() { ["wp_spikes_up"] = "True", ["wp_spikes_delay"] = "0", ["wp_spikes_speed"] = "1" },
             positionOffset: new Vector3(0f, 5f, 0f)
         ),
-        ["coral_lightning_orb"] = new TrapMeta(),
 
-        ["pilgrim_trap_spike"] = new TrapMeta(needsActivator: true, activatorId: "pilgrim_trap_wire"),
-        ["rubble_field"] = new TrapMeta(
-            needsActivator: true, activatorId: "slab_pressure_plate",
-            positionOffset: new Vector3(0f, 0.5f, 0f)
-        ),
-        ["bilewater_trap"] = new TrapMeta(
-            needsActivator: true, activatorId: "slab_pressure_plate",
-            positionOffset: new Vector3(10f, 0f, 0f)
-        ),
-        ["falling_spike_ball"] = new TrapMeta(needsActivator: true, activatorId: "slab_pressure_plate"),
-        ["swing_trap_small"] = new TrapMeta(
-            needsActivator: true, activatorId: "slab_pressure_plate",
-            positionOffset: new Vector3(0f, 8f, 0f)
-        ),
-        ["swing_trap_spike"] = new TrapMeta(
-            needsActivator: true, activatorId: "slab_pressure_plate",
-            positionOffset: new Vector3(0f, 15f, 0f)
-        ),
-        ["hunter_landmine"] = new TrapMeta(
-            needsActivator: true, activatorId: "hunter_trap_plate",
-            positionOffset: new Vector3(0f, -1f, 0f),
-            positionRotate: new Vector3(0f, 0f, 180f)
-        ),
-        ["hunter_sickle_trap"] = new TrapMeta(
-            needsActivator: true, activatorId: "hunter_trap_plate",
-            positionOffset: new Vector3(0f, 6f, 0f)
-        ),
-        ["craw_chain"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
-        ["coral_spike"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
-        ["coral_spike_fall"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
-        ["stomp_spire"] = new TrapMeta(needsActivator: true, activatorId: "trigger_zone"),
+        // 需要触发器的陷阱
+        ["pilgrim_trap_spike"] = new(needsActivator: true, activatorId: "pilgrim_trap_wire"),
+        ["rubble_field"] = new(needsActivator: true, activatorId: "slab_pressure_plate", positionOffset: new Vector3(0f, 0.5f, 0f)),
+        ["bilewater_trap"] = new(needsActivator: true, activatorId: "slab_pressure_plate", positionOffset: new Vector3(10f, 0f, 0f)),
+        ["falling_spike_ball"] = new(needsActivator: true, activatorId: "slab_pressure_plate"),
+        ["swing_trap_small"] = new(needsActivator: true, activatorId: "slab_pressure_plate", positionOffset: new Vector3(0f, 8f, 0f)),
+        ["swing_trap_spike"] = new(needsActivator: true, activatorId: "slab_pressure_plate", positionOffset: new Vector3(0f, 15f, 0f)),
+        ["hunter_landmine"] = new(needsActivator: true, activatorId: "hunter_trap_plate", positionOffset: new Vector3(0f, -1f, 0f), positionRotate: new Vector3(0f, 0f, 180f)),
+        ["hunter_sickle_trap"] = new(needsActivator: true, activatorId: "hunter_trap_plate", positionOffset: new Vector3(0f, 6f, 0f)),
+        ["craw_chain"] = new(needsActivator: true, activatorId: "trigger_zone"),
+        ["coral_spike"] = new(needsActivator: true, activatorId: "trigger_zone"),
+        ["coral_spike_fall"] = new(needsActivator: true, activatorId: "trigger_zone"),
+        ["stomp_spire"] = new(needsActivator: true, activatorId: "trigger_zone"),
     };
 
     // 功能分类（墙壁已禁用）
     public static readonly Dictionary<string, List<string>> TrapCategories = new()
     {
-        ["暗雷"] = new() { "hunter_landmine", "dust_trap_spike_plate", "slab_trap", "slab_prob_blade", "hunter_sickle_trap" },  // 移除了 pilgrim_trap_spike
-        ["跳跳乐"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5" },  // 移除了 cradle_spikes
+        ["暗雷"] = new() { "hunter_landmine", "dust_trap_spike_plate", "slab_trap", "slab_prob_blade", "hunter_sickle_trap" },
+        ["跳跳乐"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5" },
         ["平台类"] = new() { "spike_cog_1", "spike_cog_2", "spike_cog_3", "spike_cog_4", "spike_cog_5", "fan_hazard", "mill_trap" },
-        ["尖刺类"] = new() { "wp_trap_spikes", "organ_spikes", "coral_spike", "pilgrim_trap_spike", "cradle_spikes", "slab_spike_ball" },  // 新增尖刺类
-        ["墙壁"] = new() { },   // 墙壁类暂时禁用，所有荆棘不再生成
+        ["尖刺类"] = new() { "wp_trap_spikes", "organ_spikes", "coral_spike", "pilgrim_trap_spike", "cradle_spikes", "slab_spike_ball" },
+        ["墙壁"] = new(),
         ["天花板"] = new() { "falling_bell", "bone_boulder", "dust_trap_spike_dropper", "falling_lava", "coral_lightning_orb", "coral_lightning_rock", "steam_vent", "junk_pipe" },
         ["障碍物"] = new()
         {
@@ -220,9 +191,9 @@ public static class TrapPreloader
             "swamp_mosquito", "swamp_mosquito_skinny", "mothleaf",
             "imoba", "garpid",
             "crystal_drifter", "crystal_drifter_giant",
-            "jelly_egg"
+            "stilkin", "stilkin_trapper", "dock_bomber"
         },
-        ["触发型"] = new() { "swing_trap_small", "coral_spike_fall", "stomp_spire", "falling_spike_ball", "rubble_field", "mite_trap", "bilewater_trap", "craw_chain", "swing_trap_spike" },  // 移除了 wp_trap_spikes, organ_spikes, coral_spike
+        ["触发型"] = new() { "swing_trap_small", "coral_spike_fall", "stomp_spire", "falling_spike_ball", "rubble_field", "mite_trap", "bilewater_trap", "craw_chain", "swing_trap_spike" },
         ["追逐型"] = new() { "wisp_flame_lantern" },
         ["场景伤害"] = new() { "abyss_tendrils", "voltgrass", "void_wave", "frost_marker" },
 
@@ -242,7 +213,7 @@ public static class TrapPreloader
             "greymoor_balloon_small", "greymoor_balloon_mid", "greymoor_balloon_large",
             "swamp_mosquito", "swamp_mosquito_skinny", "mothleaf",
             "imoba", "garpid",
-            "crystal_drifter", "crystal_drifter_giant",
+            "crystal_drifter", "crystal_drifter_giant","stilkin", "stilkin_trapper", "dock_bomber"
         },
 
         ["平台类1"] = new()
@@ -257,83 +228,71 @@ public static class TrapPreloader
         },
     };
 
-    // 难度配额（墙壁配额设为0）
+    // 难度配额
+    private static readonly Dictionary<TrapDifficulty, Dictionary<string, int>> Quotas = new()
+    {
+        [TrapDifficulty.Beginner] = new()
+        {
+            ["暗雷"] = 2,
+            ["跳跳乐"] = 1,
+            ["平台类"] = 2,
+            ["尖刺类"] = 2,
+            ["墙壁"] = 0,
+            ["天花板"] = 5,
+            ["障碍物"] = 4,
+            ["装饰物"] = 3,
+            ["触发型"] = 5,
+            ["追逐型"] = 0,
+            ["场景伤害"] = 0
+        },
+        [TrapDifficulty.Focused] = new()
+        {
+            ["暗雷"] = 4,
+            ["跳跳乐"] = 3,
+            ["平台类"] = 4,
+            ["尖刺类"] = 4,
+            ["墙壁"] = 0,
+            ["天花板"] = 6,
+            ["障碍物"] = 5,
+            ["装饰物"] = 4,
+            ["触发型"] = 6,
+            ["追逐型"] = 1,
+            ["场景伤害"] = 1
+        },
+        [TrapDifficulty.Overflow] = new()
+        {
+            ["暗雷"] = 6,
+            ["跳跳乐"] = 5,
+            ["平台类"] = 6,
+            ["尖刺类"] = 6,
+            ["墙壁"] = 0,
+            ["天花板"] = 8,
+            ["障碍物"] = 6,
+            ["装饰物"] = 5,
+            ["触发型"] = 8,
+            ["追逐型"] = 2,
+            ["场景伤害"] = 2
+        }
+    };
+
     public static Dictionary<string, int> GetCategoryQuotas(TrapDifficulty difficulty)
     {
-        switch (difficulty)
-        {
-            case TrapDifficulty.Beginner:
-                return new()
-                {
-                    ["暗雷"] = 2,
-                    ["跳跳乐"] = 1,
-                    ["平台类"] = 2,
-                    ["尖刺类"] = 2,    // 新增
-                    ["墙壁"] = 0,
-                    ["天花板"] = 5,
-                    ["障碍物"] = 4,
-                    ["装饰物"] = 3,
-                    ["触发型"] = 5,
-                    ["追逐型"] = 0,
-                    ["场景伤害"] = 0
-                };
-            case TrapDifficulty.Focused:
-                return new()
-                {
-                    ["暗雷"] = 4,
-                    ["跳跳乐"] = 3,
-                    ["平台类"] = 4,
-                    ["尖刺类"] = 4,    // 新增
-                    ["墙壁"] = 0,
-                    ["天花板"] = 6,
-                    ["障碍物"] = 5,
-                    ["装饰物"] = 4,
-                    ["触发型"] = 6,
-                    ["追逐型"] = 1,
-                    ["场景伤害"] = 1
-                };
-            case TrapDifficulty.Overflow:
-                return new()
-                {
-                    ["暗雷"] = 6,
-                    ["跳跳乐"] = 5,
-                    ["平台类"] = 6,
-                    ["尖刺类"] = 6,    // 新增
-                    ["墙壁"] = 0,
-                    ["天花板"] = 8,
-                    ["障碍物"] = 6,
-                    ["装饰物"] = 5,
-                    ["触发型"] = 8,
-                    ["追逐型"] = 2,
-                    ["场景伤害"] = 2
-                };
-            default:
-                return new()
-                {
-                    ["暗雷"] = 2,
-                    ["跳跳乐"] = 1,
-                    ["平台类"] = 2,
-                    ["尖刺类"] = 2,
-                    ["墙壁"] = 0,
-                    ["天花板"] = 5,
-                    ["障碍物"] = 4,
-                    ["装饰物"] = 3,
-                    ["触发型"] = 5,
-                    ["追逐型"] = 0,
-                    ["场景伤害"] = 0
-                };
-        }
+        return Quotas.TryGetValue(difficulty, out var quota) ? new Dictionary<string, int>(quota) : new Dictionary<string, int>(Quotas[TrapDifficulty.Beginner]);
     }
 
-    // 分类顺序（尖刺类放在平台类之后、墙壁之前）
-    public static readonly string[] CategoryOrder = { "暗雷", "跳跳乐", "平台类", "尖刺类", "墙壁", "天花板", "障碍物", "装饰物", "触发型", "追逐型", "场景伤害" };
-
-    public static double GetFrostProbability(TrapDifficulty difficulty) => difficulty switch
+    // 分类顺序
+    public static readonly string[] CategoryOrder =
     {
-        TrapDifficulty.Focused => 0.10,
-        TrapDifficulty.Overflow => 0.20,
-        _ => 0.0,
+        "暗雷", "跳跳乐", "平台类", "尖刺类", "墙壁", "天花板", "障碍物", "装饰物", "触发型", "追逐型", "场景伤害"
     };
+
+    public static double GetFrostProbability(TrapDifficulty difficulty) =>
+        difficulty switch
+        {
+            TrapDifficulty.Focused => 0.10,
+            TrapDifficulty.Overflow => 0.20,
+            _ => 0.0
+        };
 }
 
 public class TrapMeta
@@ -344,13 +303,14 @@ public class TrapMeta
     public Vector3 PositionOffset { get; set; }
     public Vector3 PositionRotate { get; set; }
 
-    public TrapMeta(Dictionary<string, string> config = null,
+    public TrapMeta(
+        Dictionary<string, string> config = null,
         bool needsActivator = false,
         string activatorId = null,
         Vector3? positionOffset = null,
         Vector3? positionRotate = null)
     {
-        Config = config;
+        Config = config ?? new Dictionary<string, string>();
         NeedsActivator = needsActivator;
         ActivatorId = activatorId;
         PositionOffset = positionOffset ?? Vector3.zero;

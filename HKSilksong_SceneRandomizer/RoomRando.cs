@@ -25,89 +25,66 @@ public class RoomRando : MonoBehaviour
     // ★ 排除门黑名单：这些出口无法正常使用，随机连接时必须跳过
     private static readonly HashSet<string> BlacklistedExits = new(StringComparer.OrdinalIgnoreCase)
     {
-        // ---- 已确认 (1-10) ----
-        "Bone_11_top1",             // Bone_11 的上
-        "Bellshrine_right1",        // Bellshrine 的右
-        "Bellshrine_05_right1",     // Bellshrine_05 右
-        "Dock_06_Church_right1",    // Dock_06_Church 右
-        "Bone_East_09_top1",        // Bone_East_09 上
-        "Bellshrine_02_left1",      // Bellshrine_02 左
-        "Dust_04_right1",           // Dust_04 右下
-        "Dust_05_right1",           // Dust_05 右
-        "Dust_06_left1",            // Dust_06 左中
-        "Shadow_20_bot1",           // Shadow_20 下
-
-        // ---- 已确认 (11-28) ----
-        "Bellshrine_03_right1",     // Bellshrine_03 右
-        "Shellwood_19_left1",       // bellwood19 左
-        "Shellwood_01b_right2",     // shellwood01b 右边第二个
-        "Bellshrine_02_right1",     // Bellshrine_02 右
-        "Dust_06_right1",           // Dust_06 右
-        "Mosstown_03_top1",         // mosstown零三上
-        "Coral_10_left1",           // coral10 左
-        "Song_27_left1",            // song27 左
-        "Dock_01_right1",           // Dock_01 的右上
-        "Dock_01_right2",           // Dock_01 的右上
-        "Bone_East_14_right1",      // Bone_East_14 右
-        "Bone_East_14_right2",      // Bone_East_14 右
-        "Greymoor_01_right1",       // Greymoor_01 右中
-        "Greymoor_01_right2",       // Greymoor_01 右中
-        "Dust_02_right1",           // Dust_02 右中
-        "Dust_02_right2",           // Dust_02 右中
-        "Dust_04_left1",            // Dust_04 左中
-        "Dust_04_left2",            // Dust_04 左中
-
-        // ---- 已确认 (29-37) ----
-        "Song_25_top1",             // song25上 (两个上出口)
-        "Song_25_top2",             // song25上
-        "Arborium_05_top1",         // arbroium05上
-        "Hang_07_top1",             // hang07上
-        "Hang_07_left1",            // hang07左
-        "Slab_02_left1",            // slab02左
-        "Slab_05_right1",           // slab05右
-        "Cog_06_right1",            // cog06右
-        "Library_11b_right1",       // library11b右
-
-        // ---- 已确认 (38-53) ----
-        "Dock_03_bot1",             // Dock_03 右下
-        "Dock_03c_top1",            // Dock_03c 左中向上的口子
-        "Dock_03c_left2",           // Dock_03c 左下
-        "Dock_02_left1",            // Dock_02 左上
-        "Shellwood_02_right2",      // sherwood02 右下
-        "Shellwood_01_left2",       // sherwood01 左下
-        "Dust_Chef_left1",          // Dust_Chef 左下
-        "Song_11_left4",            // song11左墙未破 (左侧四个中确认 left4)
-        "Slab_03_right1",           // slab03右 (第一个)
-        "Slab_03_right2",           // slab03右 (第二个)
-        "Slab_03_right5",           // slab03右 (第三个)
-        "Slab_03_right7",           // slab03右 (第四个)
-        "Slab_03_left6",            // slab03左
-        "Under_05_left2",           // under05左下
-        "Under_02_right4",          // under02右下
-        "Under_02_left1",           // under02左下
-
-        // ---- 已确认 (54-62) ----
-        "Bone_East_12_right1",      // Bone_East_12 的右
-        "Shadow_27_right1",         // Shadow_27 的右
-        "Halfway_01_right1",        // Halfway_01 的右
-        "Wisp_03_top1",             // Wisp_03 的上
-        "Arborium_01_right1",       // arborium01上右 (确认 right1)
-        "Arborium_04_left1",        // arborium04 左
-        "Library_13_left1",         // library13 左
-        "Hang_03_right2",           // hang03 右下 (确认 right2)
-        "Aqueduct_02_right3",       // Aqueduct_02 右中 (确认 right3)
-        "Song_19_entrance_left1",   // song19entrance左
-        "Weave_04_right2",          // weave04右
-        "Slab_16_right1",           // slab16右
-        "Bone_East_04_left1",       // boneeast04左
+        "Bone_11_top1", "Bellshrine_right1", "Bellshrine_05_right1", "Dock_06_Church_right1",
+        "Bone_East_09_top1", "Bellshrine_02_left1", "Dust_04_right1", "Dust_05_right1",
+        "Dust_06_left1", "Shadow_20_bot1", "Bellshrine_03_right1", "Shellwood_19_left1",
+        "Shellwood_01b_right2", "Bellshrine_02_right1", "Dust_06_right1", "Mosstown_03_top1",
+        "Coral_10_left1", "Song_27_left1", "Dock_01_right1", "Dock_01_right2", "Bone_East_14_right1",
+        "Bone_East_14_right2", "Greymoor_01_right1", "Greymoor_01_right2", "Dust_02_right1",
+        "Dust_02_right2", "Dust_04_left1", "Dust_04_left2", "Song_25_top1", "Song_25_top2",
+        "Arborium_05_top1", "Hang_07_top1", "Hang_07_left1", "Slab_02_left1", "Slab_05_right1",
+        "Cog_06_right1", "Library_11b_right1", "Dock_03_bot1", "Dock_03c_top1", "Dock_03c_left2",
+        "Dock_02_left1", "Shellwood_02_right2", "Shellwood_01_left2", "Dust_Chef_left1",
+        "Song_11_left4", "Slab_03_right1", "Slab_03_right2", "Slab_03_right5", "Slab_03_right7",
+        "Slab_03_left6", "Under_05_left2", "Under_02_right4", "Under_02_left1", "Bone_East_12_right1",
+        "Shadow_27_right1", "Halfway_01_right1", "Wisp_03_top1", "Arborium_01_right1",
+        "Arborium_04_left1", "Library_13_left1", "Hang_03_right2", "Aqueduct_02_right3",
+        "Song_19_entrance_left1", "Weave_04_right2", "Slab_16_right1", "Bone_East_04_left1","Bone_East_10_right1",
+        "Bone_East_18c_left1","Greymoor_05_left1","Hang_08_left1","Arborium_08_left1"
     };
 
-    // 记录多出口场景已配对的单出口数量，用于配额限制
+    private static readonly HashSet<string> SkipExits = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "Bone_01_bot1", "Bone_01_left4", "Bone_01_right3", "Aspid_01_bot8", "Aspid_01_left2",
+        "Aspid_01_right4", "Crawl_03b_right1", "Shellwood_10_left3", "Shellwood_10_right3",
+        "Dust_02_left2", "Dust_02_right2", "Coral_24_left1", "Coral_24_right1", "Coral_35b_bot1",
+        "Coral_35b_left5", "Coral_35b_right2", "Peak_07_bot5", "Peak_07_top2", "Peak_01_left4",
+        "Peak_01_right4", "Peak_01_top4", "Peak_02_left3", "Peak_02_right4", "Peak_04_left1",
+        "Peak_04_right1", "Peak_05_bot1", "Peak_05_right3", "Peak_05_top2", "Peak_05c_left2",
+        "Peak_05c_right1", "Peak_05e_left1", "Peak_05e_right2", "Song_05_left5", "Song_05_right4",
+        "Song_11_right3","Song_01c"
+    };
+
     private static readonly Dictionary<string, int> SingleExitPairedCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+    // ★ 高房间列表
+    private static readonly HashSet<string> HighPriorityRooms = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "Bonegrave", "Shellwood_04c", "Coral_02", "Coral_35", "Coral_32", "Coral_24", "Coral_23", "Coral_25",
+        "Dust_03", "Dust_06", "Shadow_05", "Shadow_08", "Shadow_09", "Shadow_16", "Shadow_10", "Shadow_19", "Shadow_24",
+        "Shadow_01", "Shadow_14", "Aqueduct_04", "Aqueduct_03", "Aqueduct_01", "Arborium_11", "Arborium_09", "Arborium_05",
+        "Song_Enclave", "Song_09b", "Song_11", "Song_01", "Song_19_entrance", "Under_02", "Under_07c", "Under_27",
+        "Under_17", "Under_10", "Under_19c", "Library_11", "Library_12", "Library_12b", "Library_02", "Song_20b", "Song_20", "Library_03",
+        "Slab_06", "Slab_05", "Slab_19b", "Slab_15", "Coral_27", "Coral_44", "Abyss_13", "Abyss_01", "Cog_08", "Cog_09","Ward_02","Wisp_05",
+        "Wisp_08","Slab_07","Weave_08","Song_03","Abyss_05", "Cradle_02","Hang_02", "Hang_03", "Hang_13","Hang_10","Hang_16", "Bone_East_15","Cog_04"
+        , "Arborium_08", "Under_23","Bellway_03", "Dock_15", "Dust_04"
+    };
 
     public void Initialize(RandomSceneLoader loader)
     {
         sceneLoader = loader;
+        if (sceneLoader != null)
+        {
+            foreach (var scene in sceneLoader.sceneConfigs.Keys)
+            {
+                if (scene.StartsWith("Peak_", StringComparison.OrdinalIgnoreCase))
+                    HighPriorityRooms.Add(scene);
+                if (scene.StartsWith("Ward_", StringComparison.OrdinalIgnoreCase))
+                    HighPriorityRooms.Add(scene);
+                if (scene.StartsWith("Clover_", StringComparison.OrdinalIgnoreCase))
+                    HighPriorityRooms.Add(scene);
+            }
+        }
         InitializeRoomRando();
     }
 
@@ -136,7 +113,6 @@ public class RoomRando : MonoBehaviour
 
         if (TryLoadConnectionsFromFile())
         {
-            // ★ 全面检查旧连接是否违反当前所有规则（黑名单 + 单出口规则 + 配额限制）
             bool hasConflict = false;
             foreach (var kv in connections)
             {
@@ -147,7 +123,6 @@ public class RoomRando : MonoBehaviour
                     string exitA = kv.Key.Substring(keyPos + 1);
                     string sceneB = kv.Value.targetScene;
                     string exitB = kv.Value.targetGate;
-
                     if (!IsConnectionAllowed(sceneA, exitA, sceneB, exitB))
                     {
                         hasConflict = true;
@@ -176,16 +151,37 @@ public class RoomRando : MonoBehaviour
             TryGenerateMap();
     }
 
+    // ★ 两步随机法主函数（已加入单出口房间排除）
     private void GenerateAllConnectionsAtStart()
     {
         int num1 = generationSeed == 0 ? Environment.TickCount : generationSeed;
         int finalConnectionCount = 0;
-        List<string> scenesWithExits = availableScenes.Where(s =>
+        List<string> allScenesWithExits = availableScenes.Where(s =>
         {
             RandomSceneLoader.SceneConfig sceneConfig;
             return sceneLoader != null && sceneLoader.sceneConfigs.TryGetValue(s, out sceneConfig) && sceneConfig.Exits != null && sceneConfig.Exits.Count > 0;
         }).ToList();
-        Debug.Log($"RoomRando: {scenesWithExits.Count} scenes have defined exits");
+
+        // 分类：有效出口数 > 1 才参与随机；有效出口数 == 1 的不参与
+        List<string> normalScenes = new List<string>();
+        List<string> highScenes = new List<string>();
+        List<string> singleExitScenes = new List<string>();
+
+        foreach (string scene in allScenesWithExits)
+        {
+            int actualExits = GetActualExitCount(scene);
+            if (actualExits == 1)
+            {
+                singleExitScenes.Add(scene);
+                continue;
+            }
+            if (HighPriorityRooms.Contains(scene))
+                highScenes.Add(scene);
+            else
+                normalScenes.Add(scene);
+        }
+
+        Debug.Log($"RoomRando: 普通房间(>1出口)数量: {normalScenes.Count}, 高房间(>1出口)数量: {highScenes.Count}, 单出口房间数量: {singleExitScenes.Count}");
 
         bool success = false;
         int attempts = forceExactSeed ? 1 : 8;
@@ -199,79 +195,63 @@ public class RoomRando : MonoBehaviour
 
             InitializePredefinedConnections();
 
-            Dictionary<string, List<string>> freeExits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in scenesWithExits)
-                freeExits[key] = new List<string>(sceneLoader.sceneConfigs[key].Exits);
-
-            // ★ 生成时排除黑名单 (源头过滤)
-            foreach (string entry in BlacklistedExits)
-            {
-                int sep = entry.LastIndexOf('_');
-                if (sep > 0)
-                {
-                    string scene = entry.Substring(0, sep);
-                    string exit = entry.Substring(sep + 1);
-                    if (freeExits.ContainsKey(scene))
-                        freeExits[scene].Remove(exit);
-                }
-            }
-
-            // 清除已配对的单出口计数
+            // ========== 第一阶段：普通房间 ==========
+            Dictionary<string, List<string>> freeExitsNormal = BuildFreeExits(normalScenes);
             SingleExitPairedCounts.Clear();
 
+            // 预定义连接移除已用出口
             foreach (var kv in connections.ToList())
             {
-                string key = kv.Key;
-                int pos = key.LastIndexOf('_');
+                int pos = kv.Key.LastIndexOf('_');
                 if (pos > 0)
                 {
-                    string scene = key.Substring(0, pos);
-                    string exit = key.Substring(pos + 1);
-                    if (freeExits.ContainsKey(scene))
-                        freeExits[scene].Remove(exit);
+                    string scene = kv.Key.Substring(0, pos);
+                    string exit = kv.Key.Substring(pos + 1);
+                    if (freeExitsNormal.ContainsKey(scene))
+                        freeExitsNormal[scene].Remove(exit);
                 }
             }
 
+            // 优先连接
             try
             {
                 foreach (var (a, b) in precedencePairs)
                 {
-                    if (!string.IsNullOrEmpty(a) && !string.IsNullOrEmpty(b) && freeExits.ContainsKey(a) && freeExits.ContainsKey(b) && freeExits[a].Count > 0 && freeExits[b].Count > 0)
-                        ConnectScenes(a, b);
+                    if (!string.IsNullOrEmpty(a) && !string.IsNullOrEmpty(b) && freeExitsNormal.ContainsKey(a) && freeExitsNormal.ContainsKey(b) && freeExitsNormal[a].Count > 0 && freeExitsNormal[b].Count > 0)
+                        ConnectScenesWithFreeExits(a, b, freeExitsNormal);
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"RoomRando: failed applying precedence pairs: {ex.Message}");
-            }
+            catch (Exception ex) { Debug.LogWarning($"precedencePairs error: {ex.Message}"); }
 
-            List<string> shuffled = scenesWithExits.OrderBy(_ => rng.Next()).ToList();
-            for (int i = 1; i < shuffled.Count; i++)
+            // 顺序连接相邻配对
+            List<string> shuffledNormal = normalScenes.OrderBy(_ => rng.Next()).ToList();
+            for (int i = 1; i < shuffledNormal.Count; i++)
             {
-                string a = null;
-                string b = null;
+                string a = null, b = null;
                 for (int j = i - 1; j >= 0; j--)
-                    if (freeExits[shuffled[j]].Count > 0) { a = shuffled[j]; break; }
-                for (int j = i; j < shuffled.Count; j++)
-                    if (freeExits[shuffled[j]].Count > 0) { b = shuffled[j]; break; }
+                    if (freeExitsNormal[shuffledNormal[j]].Count > 0) { a = shuffledNormal[j]; break; }
+                for (int j = i; j < shuffledNormal.Count; j++)
+                    if (freeExitsNormal[shuffledNormal[j]].Count > 0) { b = shuffledNormal[j]; break; }
                 if (a != null && b != null && !string.Equals(a, b, StringComparison.OrdinalIgnoreCase))
-                    ConnectScenes(a, b);
+                    ConnectScenesWithFreeExits(a, b, freeExitsNormal);
             }
 
+            // 构建邻接图
             Dictionary<string, HashSet<string>> neighbors = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             foreach (var kv in connections)
             {
                 int pos = kv.Key.LastIndexOf('_');
                 if (pos > 0)
-                    AddNeighborEdge(kv.Key.Substring(0, pos), kv.Value.targetScene);
+                    AddNeighborEdge(neighbors, kv.Key.Substring(0, pos), kv.Value.targetScene);
             }
 
-            List<(string, string)> remaining = freeExits.SelectMany(kv => kv.Value.Select(e => (kv.Key, e))).ToList();
-            bool pairingSuccess = false;
+            // 智能配对剩余出口
+            List<(string, string)> remainingNormal = freeExitsNormal.SelectMany(kv => kv.Value.Select(e => (kv.Key, e))).ToList();
+            bool normalPairingSuccess = false;
             int pairingAttempts = 6;
-            for (int innerAttempt = 0; innerAttempt < pairingAttempts && !pairingSuccess; innerAttempt++)
+            for (int inner = 0; inner < pairingAttempts && !normalPairingSuccess; inner++)
             {
-                List<(string, string)> shuffledPairs = remaining.OrderBy(_ => rng.Next()).ToList();
+                List<(string, string)> shuffledPairs = remainingNormal.OrderBy(_ => rng.Next()).ToList();
                 HashSet<int> used = new HashSet<int>();
                 List<((string, string), (string, string))> pairs = new List<((string, string), (string, string))>();
                 bool conflict = false;
@@ -280,7 +260,7 @@ public class RoomRando : MonoBehaviour
                 {
                     if (used.Contains(i)) continue;
                     var p1 = shuffledPairs[i];
-                    int bestIndex = -1;
+                    int bestIdx = -1;
                     int bestScore = int.MinValue;
 
                     for (int j = i + 1; j < shuffledPairs.Count; j++)
@@ -296,30 +276,21 @@ public class RoomRando : MonoBehaviour
 
                         neighbors.TryGetValue(p1.Item1, out var n1);
                         neighbors.TryGetValue(p2.Item1, out var n2);
-                        int leafCount1 = n1?.Count(n => IsLeaf(n)) ?? 0;
-                        int leafCount2 = n2?.Count(n => IsLeaf(n)) ?? 0;
-                        bool p2Leaf = IsLeaf(p2.Item1);
-                        bool p1Leaf = IsLeaf(p1.Item1);
+                        int leafCount1 = n1?.Count(n => IsLeaf(neighbors, n)) ?? 0;
+                        int leafCount2 = n2?.Count(n => IsLeaf(neighbors, n)) ?? 0;
+                        bool p2Leaf = IsLeaf(neighbors, p2.Item1);
+                        bool p1Leaf = IsLeaf(neighbors, p1.Item1);
 
                         if (leafCount1 + (p2Leaf ? 1 : 0) > 1) score -= 50;
                         if (leafCount2 + (p1Leaf ? 1 : 0) > 1) score -= 50;
 
-                        if (score > bestScore)
-                        {
-                            bestScore = score;
-                            bestIndex = j;
-                        }
+                        if (score > bestScore) { bestScore = score; bestIdx = j; }
                     }
 
-                    if (bestIndex < 0)
-                    {
-                        conflict = true;
-                        break;
-                    }
-                    used.Add(i);
-                    used.Add(bestIndex);
-                    pairs.Add((shuffledPairs[i], shuffledPairs[bestIndex]));
-                    AddNeighborEdge(shuffledPairs[i].Item1, shuffledPairs[bestIndex].Item1);
+                    if (bestIdx < 0) { conflict = true; break; }
+                    used.Add(i); used.Add(bestIdx);
+                    pairs.Add((shuffledPairs[i], shuffledPairs[bestIdx]));
+                    AddNeighborEdge(neighbors, shuffledPairs[i].Item1, shuffledPairs[bestIdx].Item1);
                 }
 
                 if (conflict)
@@ -328,54 +299,51 @@ public class RoomRando : MonoBehaviour
                     foreach (var kv in connections)
                     {
                         int pos = kv.Key.LastIndexOf('_');
-                        if (pos > 0) AddNeighborEdge(kv.Key.Substring(0, pos), kv.Value.targetScene);
+                        if (pos > 0) AddNeighborEdge(neighbors, kv.Key.Substring(0, pos), kv.Value.targetScene);
                     }
+                    continue;
                 }
-                else
+
+                bool invalid = false;
+                foreach (var (a, b) in pairs)
+                    if (IsOriginalSingle(a.Item1) && IsOriginalSingle(b.Item1)) { invalid = true; break; }
+
+                Dictionary<string, int> leafCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kv in neighbors)
+                    leafCounts[kv.Key] = kv.Value.Count(n => IsLeaf(neighbors, n));
+                if (leafCounts.Values.Any(c => c > 1)) invalid = true;
+
+                if (invalid)
                 {
-                    bool invalid = false;
-                    foreach (var (a, b) in pairs)
-                        if (IsOriginalSingle(a.Item1) && IsOriginalSingle(b.Item1)) { invalid = true; break; }
-
-                    Dictionary<string, int> leafCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var kv in neighbors)
-                        leafCounts[kv.Key] = kv.Value.Count(n => IsLeaf(n));
-                    foreach (var count in leafCounts.Values)
-                        if (count > 1) { invalid = true; break; }
-
-                    if (invalid)
+                    neighbors.Clear();
+                    foreach (var kv in connections)
                     {
-                        neighbors.Clear();
-                        foreach (var kv in connections)
-                        {
-                            int pos = kv.Key.LastIndexOf('_');
-                            if (pos > 0) AddNeighborEdge(kv.Key.Substring(0, pos), kv.Value.targetScene);
-                        }
+                        int pos = kv.Key.LastIndexOf('_');
+                        if (pos > 0) AddNeighborEdge(neighbors, kv.Key.Substring(0, pos), kv.Value.targetScene);
                     }
-                    else
+                    continue;
+                }
+
+                foreach (var (p1, p2) in pairs)
+                {
+                    string key1 = MakeKey(p1.Item1, p1.Item2);
+                    string key2 = MakeKey(p2.Item1, p2.Item2);
+                    if (!connections.ContainsKey(key1) && !connections.ContainsKey(key2))
                     {
-                        foreach (var (p1, p2) in pairs)
-                        {
-                            string key1 = MakeKey(p1.Item1, p1.Item2);
-                            string key2 = MakeKey(p2.Item1, p2.Item2);
-                            if (!connections.ContainsKey(key1) && !connections.ContainsKey(key2))
-                            {
-                                connections[key1] = (p2.Item1, p2.Item2);
-                                connections[key2] = (p1.Item1, p1.Item2);
-                                freeExits[p1.Item1].Remove(p1.Item2);
-                                freeExits[p2.Item1].Remove(p2.Item2);
-                                finalConnectionCount++;
-                            }
-                        }
-                        pairingSuccess = true;
+                        connections[key1] = (p2.Item1, p2.Item2);
+                        connections[key2] = (p1.Item1, p1.Item2);
+                        freeExitsNormal[p1.Item1].Remove(p1.Item2);
+                        freeExitsNormal[p2.Item1].Remove(p2.Item2);
+                        finalConnectionCount++;
                     }
                 }
+                normalPairingSuccess = true;
             }
 
-            if (!pairingSuccess)
+            if (!normalPairingSuccess)
             {
-                Debug.LogWarning("RoomRando: intelligent pairing failed to satisfy constraints; falling back to greedy pairing");
-                List<(string, string)> greedy = remaining.OrderBy(_ => rng.Next()).ToList();
+                Debug.LogWarning("第一阶段智能配对失败，使用贪心配对");
+                List<(string, string)> greedy = remainingNormal.OrderBy(_ => rng.Next()).ToList();
                 for (int i = 0; i + 1 < greedy.Count; i += 2)
                 {
                     var a = greedy[i];
@@ -389,111 +357,188 @@ public class RoomRando : MonoBehaviour
                             connections[keyA] = (b.Item1, b.Item2);
                             connections[keyB] = (a.Item1, a.Item2);
                             finalConnectionCount++;
+                            freeExitsNormal[a.Item1].Remove(a.Item2);
+                            freeExitsNormal[b.Item1].Remove(b.Item2);
                         }
                     }
                 }
             }
 
+            // 收集第一阶段未配对的出口
+            List<(string scene, string exit)> leftoverNormal = freeExitsNormal.SelectMany(kv => kv.Value.Select(e => (kv.Key, e))).ToList();
+            if (leftoverNormal.Count > 0)
+                Debug.LogWarning($"第一阶段剩余 {leftoverNormal.Count} 个未配对出口");
+
+            // ========== 第二阶段：混合配对 ==========
+            Dictionary<string, List<string>> freeExitsHigh = BuildFreeExits(highScenes);
+            List<(string scene, string exit)> phase2Pool = new List<(string, string)>();
+            phase2Pool.AddRange(leftoverNormal);
+            foreach (var kv in freeExitsHigh)
+                foreach (var ex in kv.Value)
+                    phase2Pool.Add((kv.Key, ex));
+
+            if (phase2Pool.Count > 0)
+            {
+                Debug.Log($"第二阶段开始，共 {phase2Pool.Count} 个出口");
+                PairExitsSimple(phase2Pool);
+            }
+
+            // 验证 hub 叶子节点数量
             neighbors.Clear();
             foreach (var kv in connections)
             {
                 int pos = kv.Key.LastIndexOf('_');
-                if (pos > 0) AddNeighborEdge(kv.Key.Substring(0, pos), kv.Value.targetScene);
+                if (pos > 0)
+                    AddNeighborEdge(neighbors, kv.Key.Substring(0, pos), kv.Value.targetScene);
             }
 
             bool hubIssue = false;
             foreach (var kv in neighbors)
-            {
-                if (kv.Value.Count(n => IsLeaf(n)) > 3)
-                {
-                    hubIssue = true;
-                    break;
-                }
-            }
+                if (kv.Value.Count(n => IsLeaf(neighbors, n)) > 3) { hubIssue = true; break; }
 
             if (!hubIssue)
             {
                 success = true;
                 generationSeed = seed;
-                Debug.Log($"RoomRando: generation succeeded with seed={seed}");
+                Debug.Log($"成功，种子={seed}");
             }
             else
-                Debug.LogWarning($"RoomRando: generation attempt {attempt + 1} produced hubs with too many leaf neighbors; retrying");
+                Debug.LogWarning($"尝试 {attempt + 1} 失败：叶子节点过多");
 
-            void ConnectScenes(string a, string b)
+            // 局部辅助函数
+            void ConnectScenesWithFreeExits(string scA, string scB, Dictionary<string, List<string>> freeExits)
             {
-                if (!freeExits.ContainsKey(a) || !freeExits.ContainsKey(b) || freeExits[a].Count == 0 || freeExits[b].Count == 0)
+                if (!freeExits.ContainsKey(scA) || !freeExits.ContainsKey(scB) || freeExits[scA].Count == 0 || freeExits[scB].Count == 0)
                     return;
-                string exit1 = freeExits[a][rng.Next(freeExits[a].Count)];
-                string exit2 = freeExits[b][rng.Next(freeExits[b].Count)];
-
-                // ★ 统一规则检查
-                if (!IsConnectionAllowed(a, exit1, b, exit2))
-                    return;
-
-                string key1 = MakeKey(a, exit1);
-                string key2 = MakeKey(b, exit2);
-                if (connections.ContainsKey(key1) || connections.ContainsKey(key2))
-                    return;
-                connections[key1] = (b, exit2);
-                connections[key2] = (a, exit1);
-                freeExits[a].Remove(exit1);
-                freeExits[b].Remove(exit2);
+                string exitA = freeExits[scA][rng.Next(freeExits[scA].Count)];
+                string exitB = freeExits[scB][rng.Next(freeExits[scB].Count)];
+                if (!IsConnectionAllowed(scA, exitA, scB, exitB)) return;
+                string keyA = MakeKey(scA, exitA);
+                string keyB = MakeKey(scB, exitB);
+                if (connections.ContainsKey(keyA) || connections.ContainsKey(keyB)) return;
+                connections[keyA] = (scB, exitB);
+                connections[keyB] = (scA, exitA);
+                freeExits[scA].Remove(exitA);
+                freeExits[scB].Remove(exitB);
                 finalConnectionCount++;
-
-                // ★ 更新单出口配对计数（配额管理）
-                UpdateSingleExitCount(a, b);
+                UpdateSingleExitCount(scA, scB);
             }
 
-            void AddNeighborEdge(string s1, string s2)
+            void AddNeighborEdge(Dictionary<string, HashSet<string>> graph, string s1, string s2)
             {
-                if (string.Equals(s1, s2, StringComparison.OrdinalIgnoreCase))
-                    return;
-                if (!neighbors.ContainsKey(s1)) neighbors[s1] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (!neighbors.ContainsKey(s2)) neighbors[s2] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                neighbors[s1].Add(s2);
-                neighbors[s2].Add(s1);
+                if (string.Equals(s1, s2, StringComparison.OrdinalIgnoreCase)) return;
+                if (!graph.ContainsKey(s1)) graph[s1] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!graph.ContainsKey(s2)) graph[s2] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                graph[s1].Add(s2);
+                graph[s2].Add(s1);
             }
 
-            bool IsLeaf(string scene)
+            bool IsLeaf(Dictionary<string, HashSet<string>> graph, string scene)
             {
-                HashSet<string> set;
-                return neighbors.TryGetValue(scene, out set) && set.Count == 1;
+                return graph.TryGetValue(scene, out var set) && set.Count == 1;
             }
 
             bool IsOriginalSingle(string scene)
             {
-                RandomSceneLoader.SceneConfig cfg;
-                if (sceneLoader.sceneConfigs.TryGetValue(scene, out cfg))
-                    return cfg.Exits != null && cfg.Exits.Count == 1;
-                return false;
+                return sceneLoader.sceneConfigs.TryGetValue(scene, out var cfg) && cfg.Exits != null && cfg.Exits.Count == 1;
             }
         }
 
         if (!success)
-            Debug.LogWarning($"RoomRando: all {attempts} generation attempts failed to fully satisfy constraints; using last attempt's map and seed={generationSeed}");
-
-        Debug.Log($"RoomRando: Generated {finalConnectionCount} bidirectional connection pairs ({connections.Count} total directional connections)");
+            Debug.LogWarning($"所有尝试失败，使用最后一次结果，种子={generationSeed}");
+        Debug.Log($"生成了 {finalConnectionCount} 对双向连接 ({connections.Count} 条单向)");
     }
 
-    /// <summary>
-    /// 统一规则检查：是否允许从场景 A 的出口 exitA 连接到场景 B 的出口 exitB。
-    /// 所有自定义连接规则均在此维护，方便扩展。
-    /// </summary>
-    /// <summary>
-    /// 统一规则检查：是否允许从场景 A 的出口 exitA 连接到场景 B 的出口 exitB。
-    /// 所有自定义连接规则均在此维护，方便扩展。
-    /// </summary>
+    // ★ 构建 freeExits 字典
+    private Dictionary<string, List<string>> BuildFreeExits(List<string> scenes)
+    {
+        var dict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (string scene in scenes)
+        {
+            var exits = new List<string>(sceneLoader.sceneConfigs[scene].Exits);
+            foreach (string entry in BlacklistedExits)
+            {
+                int sep = entry.LastIndexOf('_');
+                if (sep > 0)
+                {
+                    string blackScene = entry.Substring(0, sep);
+                    string blackExit = entry.Substring(sep + 1);
+                    if (string.Equals(blackScene, scene, StringComparison.OrdinalIgnoreCase))
+                        exits.Remove(blackExit);
+                }
+            }
+            dict[scene] = exits;
+        }
+        return dict;
+    }
+
+    // ★ 第二阶段简单配对（无图约束）
+    private void PairExitsSimple(List<(string scene, string exit)> exitPool)
+    {
+        var shuffled = exitPool.OrderBy(_ => rng.Next()).ToList();
+        HashSet<int> used = new HashSet<int>();
+
+        for (int idxA = 0; idxA < shuffled.Count; idxA++)
+        {
+            if (used.Contains(idxA)) continue;
+            var exitA = shuffled[idxA];
+            int matchIdx = -1;
+            for (int idxB = idxA + 1; idxB < shuffled.Count; idxB++)
+            {
+                if (used.Contains(idxB)) continue;
+                var exitB2 = shuffled[idxB];
+                if (string.Equals(exitA.scene, exitB2.scene, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if ((exitA.scene == "Tut_01" && HighPriorityRooms.Contains(exitB2.scene)) ||
+                    (exitB2.scene == "Tut_01" && HighPriorityRooms.Contains(exitA.scene)))
+                    continue;
+                matchIdx = idxB;
+                break;
+            }
+            if (matchIdx < 0) continue;
+
+            used.Add(idxA);
+            used.Add(matchIdx);
+            var pairedExit = shuffled[matchIdx];
+
+            string key1 = MakeKey(exitA.scene, exitA.exit);
+            string key2 = MakeKey(pairedExit.scene, pairedExit.exit);
+            if (!connections.ContainsKey(key1) && !connections.ContainsKey(key2))
+            {
+                connections[key1] = (pairedExit.scene, pairedExit.exit);
+                connections[key2] = (exitA.scene, exitA.exit);
+            }
+        }
+
+        if ((shuffled.Count - used.Count) > 0)
+            Debug.LogWarning($"第二阶段配对后剩余 {shuffled.Count - used.Count} 个未配对出口");
+    }
+
+    // ★ 计算有效出口数（排除黑名单后）
+    private int GetActualExitCount(string scene)
+    {
+        var cfg = sceneLoader.sceneConfigs[scene];
+        int blacklisted = cfg.Exits.Count(e => BlacklistedExits.Contains(MakeKey(scene, e)));
+        return cfg.Exits.Count - blacklisted;
+    }
+
+    // ★ IsConnectionAllowed 增加 Tut_01 禁止连接高房间
     private bool IsConnectionAllowed(string sceneA, string exitA, string sceneB, string exitB)
     {
-        // 规则1：黑名单过滤（出口级别）
+        // 禁止自己连自己
+        if (string.Equals(sceneA, sceneB, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // Tut_01 禁止连接到高房间
+        if ((sceneA == "Tut_01" && HighPriorityRooms.Contains(sceneB)) ||
+            (sceneB == "Tut_01" && HighPriorityRooms.Contains(sceneA)))
+            return false;
+
         string keyA = MakeKey(sceneA, exitA);
         string keyB = MakeKey(sceneB, exitB);
         if (BlacklistedExits.Contains(keyA) || BlacklistedExits.Contains(keyB))
             return false;
 
-        // 规则2：单出口房间必须连接多出口房间（≥3个出口）
-        // ★ 改用实际可用出口数（原始出口数 - 黑名单排除数）
         int origA = sceneLoader.sceneConfigs[sceneA].Exits.Count;
         int origB = sceneLoader.sceneConfigs[sceneB].Exits.Count;
 
@@ -505,7 +550,6 @@ public class RoomRando : MonoBehaviour
         if (actualA == 1 && actualB < 3) return false;
         if (actualB == 1 && actualA < 3) return false;
 
-        // 规则3：多出口房间最多允许连接 (n-2) 个单出口
         if (actualA == 1 && actualB >= 3)
         {
             int used = SingleExitPairedCounts.TryGetValue(sceneB, out int c) ? c : 0;
@@ -516,28 +560,18 @@ public class RoomRando : MonoBehaviour
             int used = SingleExitPairedCounts.TryGetValue(sceneA, out int c) ? c : 0;
             if (used >= actualA - 2) return false;
         }
-        // 规则4：Tut_01_left3 特殊限制
-        // 开局无能力时，从此出口出去若进入特定出口会卡死，额外限制
+
         if (keyA == "Tut_01_left3" || keyB == "Tut_01_left3")
         {
             string otherScene = keyA == "Tut_01_left3" ? sceneB : sceneA;
             string otherExit = keyA == "Tut_01_left3" ? exitB : exitA;
             string otherKey = keyA == "Tut_01_left3" ? keyB : keyA;
 
-            // 4a. 禁止连接单出口房间
             int otherActual = keyA == "Tut_01_left3" ? actualB : actualA;
             if (otherActual == 1)
                 return false;
 
-            // ★ Tut_01_left3 专用黑名单（独立于全局 BlacklistedExits）
-            // 以下出口即使不在全局黑名单中，也不得与 Tut_01_left3 相连
-            // 待确认后逐条填入
-            HashSet<string> tutRestricted = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                // "SceneName_exitName",
-                // "SceneName_exitName",
-            };
-
+            HashSet<string> tutRestricted = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { };
             if (tutRestricted.Contains(otherKey))
                 return false;
         }

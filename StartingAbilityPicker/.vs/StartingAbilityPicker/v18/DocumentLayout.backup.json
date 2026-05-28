@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "D:\\code\\mod\\StartingAbilityPicker\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|d:\\code\\mod\\startingabilitypicker\\plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:plugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|d:\\code\\mod\\startingabilitypicker\\panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:panelrenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -15,12 +15,12 @@
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:locale.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\roomrandommode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:roomrandommode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\crazyrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -31,12 +31,12 @@
       "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:attackpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\roomrandommode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:roomrandommode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:itemrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:skillrandomizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|solutionrelative:debugattackui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2FFDF1CB-66BF-4588-95EC-0DED85BB675C}|StartingAbilityPicker.csproj|D:\\code\\mod\\StartingAbilityPicker\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -50,19 +50,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PanelRenderer.cs",
-              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs",
-              "RelativeDocumentMoniker": "PanelRenderer.cs",
-              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs*",
-              "RelativeToolTip": "PanelRenderer.cs*",
-              "ViewState": "AgIAAKgBAAAAAAAAAAAowHMCAAABAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "Plugin.cs",
+              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
+              "RelativeDocumentMoniker": "Plugin.cs",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
+              "RelativeToolTip": "Plugin.cs",
+              "ViewState": "AgIAAP0BAAAAAAAAAAAswBUCAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T08:11:35.133Z",
+              "WhenOpened": "2026-04-22T02:59:10.259Z",
               "EditorCaption": ""
             },
             {
@@ -73,33 +73,21 @@
               "RelativeDocumentMoniker": "Locale.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Locale.cs",
               "RelativeToolTip": "Locale.cs",
-              "ViewState": "AgIAAHIAAAAAAAAAAAAAAIYAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAuwFwAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T09:14:27.681Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ItemRandomizer.cs",
-              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\ItemRandomizer.cs",
-              "RelativeDocumentMoniker": "ItemRandomizer.cs",
-              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\ItemRandomizer.cs",
-              "RelativeToolTip": "ItemRandomizer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAaAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "PanelRenderer.cs",
+              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs",
+              "RelativeDocumentMoniker": "PanelRenderer.cs",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\PanelRenderer.cs",
+              "RelativeToolTip": "PanelRenderer.cs",
+              "ViewState": "AgIAAMsAAAAAAAAAAAA9wGsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T02:58:57.722Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Plugin.cs",
-              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs",
-              "RelativeDocumentMoniker": "Plugin.cs",
-              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\Plugin.cs*",
-              "RelativeToolTip": "Plugin.cs*",
-              "ViewState": "AgIAAEsCAAAAAAAAAAAuwGgCAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T02:59:10.259Z",
+              "WhenOpened": "2026-04-29T08:11:35.133Z",
               "EditorCaption": ""
             },
             {
@@ -110,13 +98,13 @@
               "RelativeDocumentMoniker": "CrazyRandomizer.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\CrazyRandomizer.cs",
               "RelativeToolTip": "CrazyRandomizer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAuwDUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-26T09:47:57.326Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "DebugAttackUI.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\DebugAttackUI.cs",
               "RelativeDocumentMoniker": "DebugAttackUI.cs",
@@ -134,33 +122,45 @@
               "RelativeDocumentMoniker": "AttackPatch.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\AttackPatch.cs",
               "RelativeToolTip": "AttackPatch.cs",
-              "ViewState": "AgIAAFEAAAAAAAAAAAAAAGIAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAADkAAAAAAAAAAAAuwF8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T02:57:17.811Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 3,
               "Title": "RoomRandomMode.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\RoomRandomMode.cs",
               "RelativeDocumentMoniker": "RoomRandomMode.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\RoomRandomMode.cs",
               "RelativeToolTip": "RoomRandomMode.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAuwDYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-28T10:05:05.832Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 4,
               "Title": "SkillRandomizer.cs",
               "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\SkillRandomizer.cs",
               "RelativeDocumentMoniker": "SkillRandomizer.cs",
               "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\SkillRandomizer.cs",
               "RelativeToolTip": "SkillRandomizer.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAAwC4AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T03:01:18.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ItemRandomizer.cs",
+              "DocumentMoniker": "D:\\code\\mod\\StartingAbilityPicker\\ItemRandomizer.cs",
+              "RelativeDocumentMoniker": "ItemRandomizer.cs",
+              "ToolTip": "D:\\code\\mod\\StartingAbilityPicker\\ItemRandomizer.cs",
+              "RelativeToolTip": "ItemRandomizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-22T02:58:57.722Z"
             },
             {
               "$type": "Bookmark",

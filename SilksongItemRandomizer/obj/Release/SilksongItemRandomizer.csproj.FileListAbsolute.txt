@@ -112,3 +112,5 @@ D:\code\mod\SilksongItemRandomizer\obj\Release\SilksongItemRandomizer.csproj.Cor
 D:\code\mod\SilksongItemRandomizer\obj\Release\Silksong.C63B72E6.Up2Date
 D:\code\mod\SilksongItemRandomizer\obj\Release\SilksongItemRandomizer.dll
 D:\code\mod\SilksongItemRandomizer\obj\Release\SilksongItemRandomizer.pdb
+D:\code\mod\SilksongItemRandomizer\bin\Release\SkillRandomizerMod.dll
+D:\code\mod\SilksongItemRandomizer\bin\Release\SkillRandomizerMod.pdb

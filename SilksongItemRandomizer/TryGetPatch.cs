@@ -1,13 +1,13 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 
 namespace SilksongItemRandomizer;
 
 [HarmonyPatch(typeof(SavedItem), "TryGet")]
-public class TryGetPatch
+public static class TryGetPatch
 {
     private static bool _isProcessing;
 
@@ -15,8 +15,7 @@ public class TryGetPatch
     {
         try
         {
-            if (_isProcessing || !__result)
-                return;
+            if (_isProcessing || !__result) return;
 
             if (__instance.name != "Rosary_Set_Frayed")
                 RecentItemsUI.AddItem(__instance);
@@ -28,7 +27,7 @@ public class TryGetPatch
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error unlocking attack: {ex}");
+                Plugin.Log.LogError($"解锁攻击方向时出错: {ex}");
             }
             finally
             {
@@ -37,26 +36,26 @@ public class TryGetPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Unhandled exception in TryGetPatch.Postfix: {ex}");
+            Plugin.Log.LogError($"TryGetPatch.Postfix 未处理异常: {ex}");
         }
     }
 
     private static void UnlockRandomAttack()
     {
-        Type type = Type.GetType("StartingAbilityPicker.Plugin, StartingAbilityPicker");
-        if (type == null) return;
+        var pluginType = Type.GetType("StartingAbilityPicker.Plugin, StartingAbilityPicker");
+        if (pluginType == null) return;
 
-        FieldInfo upwardField = type.GetField("AllowUpwardAttack", BindingFlags.Public | BindingFlags.Static);
-        FieldInfo leftField = type.GetField("AllowLeftAttack", BindingFlags.Public | BindingFlags.Static);
-        FieldInfo rightField = type.GetField("AllowRightAttack", BindingFlags.Public | BindingFlags.Static);
+        var upwardField = pluginType.GetField("AllowUpwardAttack", BindingFlags.Public | BindingFlags.Static);
+        var leftField = pluginType.GetField("AllowLeftAttack", BindingFlags.Public | BindingFlags.Static);
+        var rightField = pluginType.GetField("AllowRightAttack", BindingFlags.Public | BindingFlags.Static);
 
         if (upwardField == null || leftField == null || rightField == null) return;
 
-        bool hasUpward = (bool)upwardField.GetValue(null);
-        bool hasLeft = (bool)leftField.GetValue(null);
-        bool hasRight = (bool)rightField.GetValue(null);
+        var hasUpward = (bool)upwardField.GetValue(null);
+        var hasLeft = (bool)leftField.GetValue(null);
+        var hasRight = (bool)rightField.GetValue(null);
 
-        List<string> missing = new();
+        var missing = new List<string>();
         if (!hasUpward) missing.Add("upward");
         if (!hasLeft) missing.Add("left");
         if (!hasRight) missing.Add("right");
@@ -64,34 +63,30 @@ public class TryGetPatch
         if (missing.Count == 0 || ItemRandomizer.Rng == null || ItemRandomizer.Rng.NextDouble() > 0.10)
             return;
 
-        string chosen = missing[ItemRandomizer.Rng.Next(missing.Count)];
-        PlayerData pd = PlayerData.instance;
-        if (pd == null) return;
+        var chosen = missing[ItemRandomizer.Rng.Next(missing.Count)];
+        var playerData = PlayerData.instance;
+        if (playerData == null) return;
 
         switch (chosen)
         {
             case "upward":
                 upwardField.SetValue(null, true);
-                pd.SetBool("AllowUpwardAttack", true);
-                Plugin.ShowNotification("获得攻击方向: 上劈");
-                Plugin.Log.LogInfo("Attack direction unlocked via item: upward (saved to PlayerData)");
+                playerData.SetBool("AllowUpwardAttack", true);
+                ShowAttackNotification("上劈");
                 break;
             case "left":
                 leftField.SetValue(null, true);
-                pd.SetBool("AllowLeftAttack", true);
-                Plugin.ShowNotification("获得攻击方向: 左劈");
-                Plugin.Log.LogInfo("Attack direction unlocked via item: left (saved to PlayerData)");
+                playerData.SetBool("AllowLeftAttack", true);
+                ShowAttackNotification("左劈");
                 break;
             case "right":
                 rightField.SetValue(null, true);
-                pd.SetBool("AllowRightAttack", true);
-                Plugin.ShowNotification("获得攻击方向: 右劈");
-                Plugin.Log.LogInfo("Attack direction unlocked via item: right (saved to PlayerData)");
+                playerData.SetBool("AllowRightAttack", true);
+                ShowAttackNotification("右劈");
                 break;
         }
 
-        // ★ 关键修复：完整保存攻击方向配置（PlayerData + ability_config.json + Config.Save）
-        MethodInfo saveAllMethod = type.GetMethod("SaveAttackDirections", BindingFlags.Public | BindingFlags.Static);
+        var saveAllMethod = pluginType.GetMethod("SaveAttackDirections", BindingFlags.Public | BindingFlags.Static);
         if (saveAllMethod != null)
         {
             saveAllMethod.Invoke(null, null);
@@ -101,5 +96,11 @@ public class TryGetPatch
         {
             Plugin.Log.LogError("未找到 SaveAttackDirections 方法，请确保 StartingAbilityPicker 已更新");
         }
+    }
+
+    private static void ShowAttackNotification(string direction)
+    {
+        Plugin.ShowNotification($"获得攻击方向: {direction}");
+        Plugin.Log.LogInfo($"Attack direction unlocked via item: {direction} (saved to PlayerData)");
     }
 }

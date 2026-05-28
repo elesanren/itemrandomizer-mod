@@ -3,80 +3,90 @@ using System;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SilksongItemRandomizer;
+
+public static class ShopSlotHelper
+{
+    private static FieldInfo _spawnedStockField;
+
+    static ShopSlotHelper()
+    {
+        _spawnedStockField = AccessTools.Field(typeof(ShopMenuStock), "spawnedStock");
+    }
+
+    public static string GetSlotId(ShopItemStats stats)
+    {
+        var shop = stats.GetComponentInParent<ShopMenuStock>();
+        if (shop == null || _spawnedStockField == null) return null;
+        var spawnedStock = _spawnedStockField.GetValue(shop) as IList;
+        if (spawnedStock == null) return null;
+        int index = spawnedStock.IndexOf(stats);
+        if (index < 0) return null;
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        return $"{sceneName}_{index}";
+    }
+}
 
 [HarmonyPatch(typeof(ShopItemStats), "SetPurchased")]
 public static class ShopItemStats_Purchase_Patch
 {
-    private static void Prefix()
+    private static MethodInfo _buildItemListMethod;
+
+    static ShopItemStats_Purchase_Patch()
     {
-        try
-        {
-            ToolUnlockPatch.IsShopPurchase = true;
-        }
-        catch { }
+        _buildItemListMethod = typeof(ShopMenuStock).GetMethod("BuildItemList", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
     }
 
+    [HarmonyPrefix]
+    private static bool Prefix(ShopItemStats __instance, Action onComplete, int subItemIndex)
+    {
+        if (!Plugin.ItemRandomEnabled.Value) return true;
+
+        string permanentId = ShopSlotHelper.GetSlotId(__instance);
+        if (string.IsNullOrEmpty(permanentId)) return true;
+
+        if (ShopMenuStock_BuildItemList_Patch.GetCount(permanentId) <= 0)
+            return false; // 阻止重复购买
+
+        ShopMenuStock_BuildItemList_Patch.SetCount(permanentId, 0);
+        return true;
+    }
+
+    [HarmonyPostfix]
     private static void Postfix(ShopItemStats __instance)
     {
-        try
-        {
-            ToolUnlockPatch.IsShopPurchase = false;
-
-            if (__instance?.Item == null)
-            {
-                Plugin.Log.LogWarning("购买实例或物品为空，跳过处理");
-                return;
-            }
-
-            string name = __instance.Item.name;
-            if (string.IsNullOrEmpty(name) || !name.Contains("_"))
-            {
-                Plugin.Log.LogWarning($"永久ID格式错误: {name}，仅隐藏物体");
-                __instance.gameObject.SetActive(false);
-                return;
-            }
-
-            ShopMenuStock_BuildItemList_Patch.SetCount(name, 0);
-            ShopMenuStock shop = __instance.GetComponentInParent<ShopMenuStock>();
-            if (shop == null)
-            {
-                Plugin.Log.LogError("无法获取 ShopMenuStock");
-                return;
-            }
-
-            __instance.gameObject.SetActive(false);
-            shop.StartCoroutine(DelayedRebuild(shop));
-            Plugin.Log.LogInfo($"永久ID {name} 已购买，触发商店重建");
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.LogError($"购买后处理异常: {ex}");
-            if (__instance != null)
-                __instance.gameObject.SetActive(false);
-        }
+        if (!Plugin.ItemRandomEnabled.Value) return;
+        var shop = __instance.GetComponentInParent<ShopMenuStock>();
+        if (shop != null)
+            shop.StartCoroutine(DelayedRebuildAndLayout(shop));
     }
 
-    private static IEnumerator DelayedRebuild(ShopMenuStock shop)
+    private static IEnumerator DelayedRebuildAndLayout(ShopMenuStock shop)
     {
         yield return null;
         try
         {
-            MethodInfo buildMethod = typeof(ShopMenuStock).GetMethod("BuildItemList", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            if (buildMethod != null)
-            {
-                buildMethod.Invoke(shop, null);
-                Plugin.Log.LogInfo("商店重建完成");
-            }
-            else
-            {
-                Plugin.Log.LogError("未找到 BuildItemList 方法");
-            }
+            _buildItemListMethod?.Invoke(shop, null);
+            var layout = shop.GetComponent<LayoutGroup>();
+            if (layout != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(layout.GetComponent<RectTransform>());
         }
-        catch (Exception ex)
-        {
-            Plugin.Log.LogError($"商店重建异常: {ex}");
-        }
+        catch (Exception) { }
+    }
+}
+
+[HarmonyPatch(typeof(ShopItemStats), "IsAvailable", MethodType.Getter)]
+public static class ShopItemStats_IsAvailable_Patch
+{
+    [HarmonyPrefix]
+    private static bool Prefix(ShopItemStats __instance, ref bool __result)
+    {
+        if (!Plugin.ItemRandomEnabled.Value) return true;
+        string permanentId = ShopSlotHelper.GetSlotId(__instance);
+        if (string.IsNullOrEmpty(permanentId)) return true;
+        __result = ShopMenuStock_BuildItemList_Patch.GetCount(permanentId) > 0;
+        return false;
     }
 }

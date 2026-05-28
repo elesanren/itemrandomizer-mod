@@ -9,12 +9,24 @@ namespace SilksongItemRandomizer;
 [HarmonyPatch(typeof(HeroController), "SetBenchRespawn", new Type[] { typeof(RespawnMarker), typeof(string), typeof(int) })]
 public static class BenchRespawnPatch
 {
+    private static Coroutine _activeCoroutine = null;
+    private static float _lastExecutionTime = 0f;
+    private const float MinInterval = 10f;
+
     private static void Postfix(HeroController __instance)
     {
         try
         {
             if (__instance == null || PlayerData.instance == null) return;
-            __instance.StartCoroutine(DelayedCrestRefresh(__instance));
+            if (_activeCoroutine != null) return;
+            if (Time.time - _lastExecutionTime < MinInterval) return;
+
+            string originalCrestId = PlayerData.instance.CurrentCrestID;
+            if (string.IsNullOrEmpty(originalCrestId)) return;
+
+            Plugin.Log.LogInfo($"重生触发: 延迟7秒处理纹章 {originalCrestId}");
+            // 使用 Plugin.Instance 启动协程，确保能够运行
+            _activeCoroutine = Plugin.Instance.StartCoroutine(DelayedReplace(originalCrestId, __instance));
         }
         catch (Exception ex)
         {
@@ -22,42 +34,34 @@ public static class BenchRespawnPatch
         }
     }
 
-    private static IEnumerator DelayedCrestRefresh(HeroController hero)
+    private static IEnumerator DelayedReplace(string originalCrestId, HeroController hero)
     {
-        yield return new WaitForSeconds(15f);
+        yield return new WaitForSeconds(7f);
+        _activeCoroutine = null;
 
-        try
+        string targetCrest = CrestRandomizer.LastUnlockedCrest;
+        if (string.IsNullOrEmpty(targetCrest))
         {
-            string currentCrest = PlayerData.instance.CurrentCrestID;
-            if (string.IsNullOrEmpty(currentCrest)) yield break;
-
-            // ★ 只检查当前纹章是不是某个“源”——如果是，就换到它的目标
-            string sourceMapped = CrestRandomizer.GetMappedCrestName(currentCrest);
-            if (sourceMapped == currentCrest)
-            {
-                // 当前纹章没有映射记录，说明它不是源，什么都不做
-                yield break;
-            }
-
-            // 当前纹章是“源”，需要换成目标
-            Plugin.Log.LogInfo($"长椅刷新: {currentCrest} -> {sourceMapped}");
-
-            MethodInfo setEquippedMethod = typeof(ToolItemManager).GetMethod("SetEquippedCrest", new[] { typeof(string) });
-            setEquippedMethod?.Invoke(null, new object[] { sourceMapped });
-
-            if (hero != null)
-                hero.ResetAllCrestState();
-
-            Plugin.Log.LogInfo($"长椅刷新完成，当前装备: {sourceMapped}");
+            Plugin.Log.LogInfo("没有最后解锁的纹章记录，跳过重生替换");
+            yield break;
         }
-        catch (Exception ex)
-        {
-            Plugin.Log.LogError($"DelayedCrestRefresh异常: {ex}");
-        }
+
+        Plugin.Log.LogInfo($"重生强制替换: {originalCrestId} -> {targetCrest}");
+        typeof(ToolItemManager).GetMethod("SetEquippedCrest", new[] { typeof(string) })
+            ?.Invoke(null, new object[] { targetCrest });
+        hero?.ResetAllCrestState();
+
+        yield return null;
+        ToolItemManager.SendEquippedChangedEvent(true);
+
+        _lastExecutionTime = Time.time;
+        Plugin.Log.LogInfo($"替换完成，当前装备: {targetCrest}");
     }
 
     public static void ResetCooldown()
     {
-        // 保持接口不变
+        if (_activeCoroutine != null)
+            _activeCoroutine = null;
+        _lastExecutionTime = 0f;
     }
 }

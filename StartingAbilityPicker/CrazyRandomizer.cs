@@ -1,72 +1,54 @@
 ﻿using System;
-using Random = System.Random;
 
-namespace StartingAbilityPicker
+namespace StartingAbilityPicker;
+
+public static class CrazyRandomizer
 {
-    public static class CrazyRandomizer
+    private static readonly Random GlobalRng = new Random();
+
+    public static void Apply(Plugin plugin)
     {
-        public static void Apply(Plugin plugin)
+        // 攻击方向随机
+        plugin.allowUpward = GlobalRng.Next(2) == 1;
+        plugin.allowLeft = GlobalRng.Next(2) == 1;
+        plugin.allowRight = GlobalRng.Next(2) == 1;
+
+        // 进入分类随机模式
+        plugin.skillMode = true;
+
+        plugin.skillV = WeightedRandom(Plugin.MaxVertical, GlobalRng);
+        plugin.skillH = WeightedRandom(Plugin.MaxHorizontal, GlobalRng);
+        plugin.skillS = WeightedRandom(Plugin.MaxSpecial, GlobalRng);
+        plugin.skillA = WeightedRandom(Plugin.MaxAttack, GlobalRng);
+
+        // 保底：至少一个垂直和水平技能
+        if (plugin.skillV == 0) plugin.skillV = 1;
+        if (plugin.skillH == 0) plugin.skillH = 1;
+
+        plugin.itemCount = WeightedRandom(10, GlobalRng);
+        plugin.seedInput = GlobalRng.Next(1, int.MaxValue).ToString();
+    }
+
+    private static int WeightedRandom(int max, Random rng)
+    {
+        if (max <= 0) return 0;
+        // 预计算权重和
+        int totalWeight = 0;
+        for (int i = 0; i <= max; i++)
         {
-            var rng = new Random();
-
-            // 攻击方向随机
-            plugin.allowUpward = rng.Next(2) == 1;
-            plugin.allowLeft = rng.Next(2) == 1;
-            plugin.allowRight = rng.Next(2) == 1;
-
-            // 进入分类随机模式
-            plugin.skillMode = true;
-
-            int maxV = Plugin.MaxVertical;
-            int maxH = Plugin.MaxHorizontal;
-            int maxS = Plugin.MaxSpecial;
-            int maxA = Plugin.MaxAttack;
-
-            // 二次方衰减权重
-            int v = WeightedRandom(maxV, rng);
-            int h = WeightedRandom(maxH, rng);
-            int s = WeightedRandom(maxS, rng);
-            int a = WeightedRandom(maxA, rng);
-
-            // 保底
-            if (v == 0) v = 1;
-            if (h == 0) h = 1;
-
-            plugin.skillV = v;
-            plugin.skillH = h;
-            plugin.skillS = s;
-            plugin.skillA = a;
-
-            // 物品数量
-            plugin.itemCount = WeightedRandom(10, rng);
-
-            // 种子随机
-            plugin.seedInput = rng.Next(1, int.MaxValue).ToString();
-
-            // 重置种子世界：不随机，保持原样
+            int w = max - i + 1;
+            totalWeight += w * w;
         }
 
-        private static int WeightedRandom(int max, Random rng)
+        int roll = rng.Next(totalWeight);
+        int cumulative = 0;
+        for (int i = 0; i <= max; i++)
         {
-            if (max <= 0) return 0;
-
-            int totalWeight = 0;
-            for (int i = 0; i <= max; i++)
-            {
-                int w = max - i + 1;
-                totalWeight += w * w;
-            }
-
-            int roll = rng.Next(totalWeight);
-            int cumulative = 0;
-            for (int i = 0; i <= max; i++)
-            {
-                int w = max - i + 1;
-                cumulative += w * w;
-                if (roll < cumulative)
-                    return i;
-            }
-            return 0;
+            int w = max - i + 1;
+            cumulative += w * w;
+            if (roll < cumulative)
+                return i;
         }
+        return 0;
     }
 }

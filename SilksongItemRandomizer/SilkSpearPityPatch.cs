@@ -13,11 +13,23 @@ public static class SilkSpearPityPatch
 {
     private static int _silkSpearAttempts;
     private static bool _silkSpearGiven;
-    private const int SILK_SPEAR_PITY = 200;
+    private const int SilkSpearPity = 200;
     private static SavedItem _silkSpearItem;
-    public static bool IsGivingSilkSpear;   // 保留原字段，虽然不再用于随机拦截
 
     private static string SilkSpearGivenFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "silkspear_given.txt");
+
+    static SilkSpearPityPatch()
+    {
+        LoadBoolFromFile(SilkSpearGivenFilePath, ref _silkSpearGiven);
+
+        _silkSpearItem = Resources.FindObjectsOfTypeAll<SavedItem>()
+            .FirstOrDefault(item => item.name == "Silk Spear");
+
+        if (_silkSpearItem == null)
+            Plugin.Log.LogWarning("[丝矛独立补丁] 未找到丝矛物品，保底将禁用。");
+        else
+            Plugin.Log.LogInfo("[丝矛独立补丁] 丝矛物品已找到: " + _silkSpearItem.name);
+    }
 
     private static void LoadBoolFromFile(string path, ref bool target)
     {
@@ -33,7 +45,7 @@ public static class SilkSpearPityPatch
     {
         try
         {
-            string dir = Path.GetDirectoryName(path);
+            var dir = Path.GetDirectoryName(path);
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             File.WriteAllText(path, value ? "true" : "false");
         }
@@ -44,22 +56,8 @@ public static class SilkSpearPityPatch
     {
         _silkSpearAttempts = 0;
         _silkSpearGiven = false;
-        string path = SilkSpearGivenFilePath;
-        if (File.Exists(path)) File.Delete(path);
+        if (File.Exists(SilkSpearGivenFilePath)) File.Delete(SilkSpearGivenFilePath);
         Plugin.Log.LogInfo("[丝矛独立补丁] 保底状态已重置");
-    }
-
-    static SilkSpearPityPatch()
-    {
-        LoadBoolFromFile(SilkSpearGivenFilePath, ref _silkSpearGiven);
-
-        _silkSpearItem = Resources.FindObjectsOfTypeAll<SavedItem>()
-            .FirstOrDefault(item => item.name == "Silk Spear");
-
-        if (_silkSpearItem == null)
-            Plugin.Log.LogWarning("[丝矛独立补丁] 未找到丝矛物品，保底将禁用。");
-        else
-            Plugin.Log.LogInfo("[丝矛独立补丁] 丝矛物品已找到: " + _silkSpearItem.name);
     }
 
     public static void ResetCounter()
@@ -71,20 +69,17 @@ public static class SilkSpearPityPatch
 
     private static void Postfix(bool __result)
     {
-        if (!__result || _silkSpearItem == null || _silkSpearGiven)
-            return;
+        if (!__result || _silkSpearItem == null || _silkSpearGiven) return;
 
         _silkSpearAttempts++;
-
-        if (_silkSpearGiven || _silkSpearAttempts < SILK_SPEAR_PITY)
-            return;
+        if (_silkSpearAttempts < SilkSpearPity) return;
 
         Plugin.Log.LogInfo($"[丝矛独立补丁] 保底触发（第{_silkSpearAttempts}次）");
 
-        ToolUnlockPatch.IsGivingPityItem = true;
+        // 直接给予丝矛，不再需要 ToolUnlockPatch 标志
         try
         {
-            PlayerData pd = PlayerData.instance;
+            var pd = PlayerData.instance;
             var field = typeof(PlayerData).GetField("hasSilkSpear", BindingFlags.Instance | BindingFlags.Public);
             if (pd != null && field != null && field.FieldType == typeof(bool))
             {
@@ -100,10 +95,6 @@ public static class SilkSpearPityPatch
         catch (Exception ex)
         {
             Plugin.Log.LogError($"[丝矛独立补丁] 直接写入hasSilkSpear异常: {ex}");
-        }
-        finally
-        {
-            ToolUnlockPatch.IsGivingPityItem = false;
         }
 
         _silkSpearGiven = true;

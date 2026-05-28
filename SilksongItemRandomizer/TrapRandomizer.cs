@@ -27,12 +27,8 @@ public static class TrapRandomizer
     private static int _masterSeed;
     private static bool _enabled;
     private static bool _movementEnabled = true;
-
-    // 墙面点缓存（暂时禁用）
     private static List<Vector3> _wallPoints = new();
-    private static int _chasingTrapsInScene = 0;
-
-    // 冰冻间隔记录（每个房间上次是否有冰冻）
+    private static int _chasingTrapsInScene;
     private static Dictionary<string, bool> _lastSceneFrostRecord = new();
 
     private static string EnabledFilePath => Path.Combine(Paths.ConfigPath, "SilksongItemRandomizer", "trap_enabled.txt");
@@ -87,7 +83,7 @@ public static class TrapRandomizer
             {
                 var parts = File.ReadAllText(EnabledFilePath).Trim().Split('|');
                 if (parts.Length >= 1) _enabled = parts[0] == "true";
-                if (parts.Length >= 2 && Enum.TryParse<TrapPreloader.TrapDifficulty>(parts[1], out var diff)) CurrentDifficulty = diff;
+                if (parts.Length >= 2 && Enum.TryParse(parts[1], out TrapPreloader.TrapDifficulty diff)) CurrentDifficulty = diff;
             }
         }
         catch { _enabled = false; }
@@ -142,8 +138,8 @@ public static class TrapRandomizer
         foreach (var p in Resources.FindObjectsOfTypeAll<CollectableItemPickup>())
         {
             if (!p || !p.gameObject.scene.isLoaded) continue;
-            var c = p.GetComponent<Collider2D>();
-            _pickupData.Add((p.transform.position, c ? c.bounds : (Bounds?)null));
+            var collider = p.GetComponent<Collider2D>();
+            _pickupData.Add((p.transform.position, collider ? collider.bounds : (Bounds?)null));
         }
     }
 
@@ -154,32 +150,38 @@ public static class TrapRandomizer
         var hero = HeroController.instance;
         var center = hero ? (Vector2)hero.transform.position : Vector2.zero;
         var scene = GameManager.instance?.sceneName ?? "";
-        bool isLarge = TrapPreloader.LargeRooms.Contains(scene);
-        float sw = isLarge ? 60f : 120f, sh = isLarge ? 120f : 80f;
+        var isLarge = TrapPreloader.LargeRooms.Contains(scene);
+        var sw = isLarge ? 60f : 120f;
+        var sh = isLarge ? 120f : 80f;
         var min = center + new Vector2(-sw, -sh);
         var max = center + new Vector2(sw, sh);
         var cols = Physics2D.OverlapAreaAll(min, max, LayerMask.GetMask("Terrain"));
+        var terrainMask = LayerMask.GetMask("Terrain");
+
         foreach (var col in cols)
         {
-            var b = col.bounds;
-            if (b.size.y > b.size.x * 2f || b.min.y > center.y + 120f) continue;
-            for (float x = b.min.x + 0.5f; x <= b.max.x - 0.5f; x += 1f)
-            {
-                var sPt = new Vector2(x, b.max.y + 0.5f);
-                if (Physics2D.Raycast(sPt, Vector2.up, 1.5f, LayerMask.GetMask("Terrain")).collider) continue;
-                if (Physics2D.Raycast(sPt, Vector2.down, 0.5f, LayerMask.GetMask("Terrain")).collider != col) continue;
-                _surfacePoints.Add(new Vector3(x, b.max.y + 0.5f, 0));
+            var bounds = col.bounds;
+            if (bounds.size.y > bounds.size.x * 2f || bounds.min.y > center.y + 120f) continue;
 
-                var cPt = new Vector2(x, b.min.y - 0.5f);
-                if (Physics2D.Raycast(cPt, Vector2.up, 0.5f, LayerMask.GetMask("Terrain")).collider != col) continue;
-                if (Physics2D.Raycast(cPt, Vector2.down, 1.5f, LayerMask.GetMask("Terrain")).collider) continue;
-                _ceilingPoints.Add(new Vector3(x, b.min.y - 0.5f, 0));
+            for (var x = bounds.min.x + 0.5f; x <= bounds.max.x - 0.5f; x += 1f)
+            {
+                var surfacePoint = new Vector2(x, bounds.max.y + 0.5f);
+                if (Physics2D.Raycast(surfacePoint, Vector2.up, 1.5f, terrainMask).collider) continue;
+                if (Physics2D.Raycast(surfacePoint, Vector2.down, 0.5f, terrainMask).collider != col) continue;
+                _surfacePoints.Add(new Vector3(x, bounds.max.y + 0.5f, 0));
+
+                var ceilingPoint = new Vector2(x, bounds.min.y - 0.5f);
+                if (Physics2D.Raycast(ceilingPoint, Vector2.up, 0.5f, terrainMask).collider != col) continue;
+                if (Physics2D.Raycast(ceilingPoint, Vector2.down, 1.5f, terrainMask).collider) continue;
+                _ceilingPoints.Add(new Vector3(x, bounds.min.y - 0.5f, 0));
             }
         }
-        _doorPositions.Clear();
-        foreach (var tp in UnityEngine.Object.FindObjectsOfType<TransitionPoint>()) _doorPositions.Add(tp.transform.position);
-        ScanPickups();
 
+        _doorPositions.Clear();
+        foreach (var tp in UnityEngine.Object.FindObjectsOfType<TransitionPoint>())
+            _doorPositions.Add(tp.transform.position);
+
+        ScanPickups();
         _lastScene = scene;
     }
 
@@ -190,41 +192,47 @@ public static class TrapRandomizer
         {
             var col = w.GetComponent<BoxCollider2D>();
             if (!col) continue;
-            var b = col.bounds;
-            _waterRegions.Add((new Vector3((b.min.x + b.max.x) / 2, w.transform.position.y + 0.4f, 0), b.min.x, b.max.x, w.transform.position.y + 0.4f));
+            var bounds = col.bounds;
+            _waterRegions.Add((new Vector3((bounds.min.x + bounds.max.x) / 2, w.transform.position.y + 0.4f, 0),
+                bounds.min.x, bounds.max.x, w.transform.position.y + 0.4f));
         }
     }
 
     private static float GetPlatformWidth(Vector2 pt)
     {
-        float checkY = pt.y - 0.2f, left = pt.x;
-        for (int i = 0; i < 20; i++)
+        var checkY = pt.y - 0.2f;
+        var left = pt.x;
+        for (var i = 0; i < 20; i++)
         {
             var hit = Physics2D.Raycast(new Vector2(left - 0.5f, checkY), Vector2.down, 1f, LayerMask.GetMask("Terrain"));
-            if (hit.collider) left -= 0.5f; else break;
+            if (hit.collider) left -= 0.5f;
+            else break;
         }
-        float right = pt.x;
-        for (int i = 0; i < 20; i++)
+        var right = pt.x;
+        for (var i = 0; i < 20; i++)
         {
             var hit = Physics2D.Raycast(new Vector2(right + 0.5f, checkY), Vector2.down, 1f, LayerMask.GetMask("Terrain"));
-            if (hit.collider) right += 0.5f; else break;
+            if (hit.collider) right += 0.5f;
+            else break;
         }
         return right - left;
     }
 
     private static bool IsTooCloseToPickup(Vector3 p) => _pickupData.Any(x => Vector2.Distance(p, x.pos) < TrapPreloader.PickupSafeRadius);
     private static bool IsInsidePickupBounds(Vector3 p) => _pickupData.Any(x => x.bounds.HasValue && x.bounds.Value.Contains(p));
+
     private static bool CanPlaceLargeTrap(Vector2 origin)
     {
         var floor = Physics2D.Raycast(origin, Vector2.down, 2f, LayerMask.GetMask("Terrain")).collider;
         var hits = Physics2D.OverlapCircleAll(origin, TrapPreloader.LargeTrapRadius, LayerMask.GetMask("Terrain"));
-        bool upper = false, lower = false;
+        var upper = false;
+        var lower = false;
         foreach (var c in hits)
         {
             if (c == floor) continue;
-            var b = c.bounds;
-            if (b.max.y > origin.y) upper = true;
-            if (b.min.y < origin.y) lower = true;
+            var bounds = c.bounds;
+            if (bounds.max.y > origin.y) upper = true;
+            if (bounds.min.y < origin.y) lower = true;
             if (upper && lower) return false;
         }
         return !(upper && lower);
@@ -232,17 +240,12 @@ public static class TrapRandomizer
 
     private static bool IsTrapAllowed(string id, Vector3 pos, string scene, float minY, bool isCeiling, string category)
     {
-        // ★ 排除 Bonetown 的剧情矩形区域 (45,3) 到 (82,14)
+        // 排除 Bonetown 的剧情矩形区域 (45,3) 到 (82,14)
         if (scene == "Bonetown" && pos.x >= 45f && pos.x <= 82f && pos.y >= 3f && pos.y <= 14f)
-        {
             return false;
-        }
 
         if (id == TrapPreloader.LavaTrapId && TrapPreloader.NoLavaScenes.Contains(scene)) return false;
-        if (id == TrapPreloader.LavaTrapId)
-        {
-            if (_waterRegions.Count == 0) return false;
-        }
+        if (id == TrapPreloader.LavaTrapId && _waterRegions.Count == 0) return false;
         if (id == TrapPreloader.FallingLavaId && _doorPositions.Any(d => Mathf.Abs(pos.x - d.x) < 9f)) return false;
         if (id == "frost_marker" && FrostBannedScenes.Contains(scene)) return false;
         if (TrapPreloader.LargeTraps.Contains(id) && !CanPlaceLargeTrap(pos)) return false;
@@ -250,13 +253,13 @@ public static class TrapRandomizer
 
         if (category != "墙壁" && TrapPreloader.ThornTraps.Contains(id))
         {
-            if (GetPlatformWidth(pos) < TrapPreloader.ThornTrapMinWidth || !CanPlaceLargeTrap(pos) || IsInsidePickupBounds(pos)) return false;
+            if (GetPlatformWidth(pos) < TrapPreloader.ThornTrapMinWidth || !CanPlaceLargeTrap(pos) || IsInsidePickupBounds(pos))
+                return false;
         }
 
         if (id == "cradle_spikes" && GetPlatformWidth(pos) < 9f) return false;
         if (category == "天花板" && !isCeiling) return false;
         if (category != "天花板" && isCeiling) return false;
-
         return true;
     }
 
@@ -266,119 +269,86 @@ public static class TrapRandomizer
         var hero = HeroController.instance;
         if (!hero) return;
         var scene = GameManager.instance?.sceneName ?? "";
-        if (TrapPreloader.ExcludedScenes.Contains(scene)) { _cachedTraps.Remove(scene); return; }
+        if (TrapPreloader.ExcludedScenes.Contains(scene))
+        {
+            _cachedTraps.Remove(scene);
+            return;
+        }
 
         ClearAll();
-
-        if ((_surfacePoints.Count == 0 && _ceilingPoints.Count == 0) || _lastScene != scene) { ScanSceneSurfaces(); ScanWaterRegions(); }
+        if ((_surfacePoints.Count == 0 && _ceilingPoints.Count == 0) || _lastScene != scene)
+        {
+            ScanSceneSurfaces();
+            ScanWaterRegions();
+        }
 
         var rng = new Random(_masterSeed ^ scene.GetHashCode());
-        float minY = _surfacePoints.Count > 0 ? _surfacePoints.Min(p => p.y) : 0f;
-        double frostProb = TrapPreloader.GetFrostProbability(CurrentDifficulty);
-
+        var minY = _surfacePoints.Count > 0 ? _surfacePoints.Min(p => p.y) : 0f;
+        var frostProb = TrapPreloader.GetFrostProbability(CurrentDifficulty);
         _chasingTrapsInScene = 0;
 
         var allPoints = new List<(Vector3 pt, bool isCeiling)>();
-        foreach (var p in _surfacePoints) allPoints.Add((p, false));
-        foreach (var p in _ceilingPoints) allPoints.Add((p, true));
+        allPoints.AddRange(_surfacePoints.Select(p => (p, false)));
+        allPoints.AddRange(_ceilingPoints.Select(p => (p, true)));
 
         var quotas = TrapPreloader.GetCategoryQuotas(CurrentDifficulty);
 
-        // ========== 冰冻交替决策 ==========
-        bool hasFrostInCache = _cachedTraps.TryGetValue(scene, out var cachedTrapsForScene) && cachedTrapsForScene.Any(c => c.Item2 == "frost_marker");
-
+        // 冰冻交替决策
+        var hasFrostInCache = _cachedTraps.TryGetValue(scene, out var cachedTrapsForScene) && cachedTrapsForScene.Any(c => c.Item2 == "frost_marker");
         bool allowFrostThisTime;
         if (hasFrostInCache)
         {
-            bool lastHadFrost = _lastSceneFrostRecord.ContainsKey(scene) && _lastSceneFrostRecord[scene];
+            var lastHadFrost = _lastSceneFrostRecord.ContainsKey(scene) && _lastSceneFrostRecord[scene];
             allowFrostThisTime = !lastHadFrost;
         }
         else
         {
-            if (_lastSceneFrostRecord.ContainsKey(scene))
-            {
-                allowFrostThisTime = false;
-            }
-            else
-            {
-                allowFrostThisTime = frostProb > 0 && !FrostBannedScenes.Contains(scene) && rng.NextDouble() < frostProb;
-            }
+            allowFrostThisTime = !_lastSceneFrostRecord.ContainsKey(scene) && frostProb > 0 && !FrostBannedScenes.Contains(scene) && rng.NextDouble() < frostProb;
         }
 
-        // ---------- 缓存陷阱 ----------
+        // 缓存陷阱
         if (_cachedTraps.TryGetValue(scene, out var cacheFromDict))
         {
-            var filteredCache = allowFrostThisTime
-                ? cacheFromDict
-                : cacheFromDict.Where(c => c.Item2 != "frost_marker").ToList();
-
+            var filteredCache = allowFrostThisTime ? cacheFromDict : cacheFromDict.Where(c => c.Item2 != "frost_marker").ToList();
             var validated = new List<(Vector3 pos, string trapId)>();
             var tempUsed = new List<Vector3>();
-            bool frostActuallyGenerated = false;
+            var frostActuallyGenerated = false;
 
             foreach (var (pos, trapId) in filteredCache)
             {
-                bool isCeiling = _ceilingPoints.Any(p => Vector3.Distance(p, pos) < 0.5f);
-                string cat = "";
-                foreach (var c in TrapPreloader.CategoryOrder)
-                    if (TrapPreloader.TrapCategories.TryGetValue(c, out var pool) && pool.Contains(trapId))
-                    { cat = c; break; }
-                if (tempUsed.Any(u => Vector3.Distance(pos, u) < TrapPreloader.MinDistance))
-                    continue;
-                if (_doorPositions.Any(d => Vector2.Distance(pos, d) < TrapPreloader.DoorSafeRadius))
-                    continue;
-                if (!IsTrapAllowed(trapId, pos, scene, minY, isCeiling, cat))
-                    continue;
+                var isCeiling = _ceilingPoints.Any(p => Vector3.Distance(p, pos) < 0.5f);
+                var cat = GetCategoryForTrapId(trapId);
+                if (tempUsed.Any(u => Vector3.Distance(pos, u) < TrapPreloader.MinDistance)) continue;
+                if (_doorPositions.Any(d => Vector2.Distance(pos, d) < TrapPreloader.DoorSafeRadius)) continue;
+                if (!IsTrapAllowed(trapId, pos, scene, minY, isCeiling, cat)) continue;
                 validated.Add((pos, trapId));
                 tempUsed.Add(pos);
                 if (trapId == "frost_marker") frostActuallyGenerated = true;
             }
 
-            int totalQuota = 0;
-            foreach (var cat in TrapPreloader.CategoryOrder)
-            {
-                if (cat == "场景伤害") continue;
-                totalQuota += quotas.ContainsKey(cat) ? quotas[cat] : 0;
-            }
-
+            var totalQuota = TrapPreloader.CategoryOrder.Where(c => c != "场景伤害").Sum(c => quotas.ContainsKey(c) ? quotas[c] : 0);
             if (validated.Count >= totalQuota * 0.8f)
             {
-                for (int i = validated.Count - 1; i > 0; i--)
-                {
-                    int j = rng.Next(i + 1);
-                    var tmp = validated[i];
-                    validated[i] = validated[j];
-                    validated[j] = tmp;
-                }
-
+                ShuffleList(validated, rng);
                 foreach (var (pos, trapId) in validated)
-                {
                     ArchitectSpawn(trapId, pos);
-                }
-
                 _lastSceneFrostRecord[scene] = frostActuallyGenerated;
-
                 SpawnBounceObjects(rng, scene);
                 SpawnPlatforms(rng, scene);
                 return;
             }
-            else
-            {
-                _cachedTraps.Remove(scene);
-            }
+            _cachedTraps.Remove(scene);
         }
 
-        // ---------- 全新生成陷阱 ----------
+        // 全新生成陷阱
         var selected = new List<(string trapId, string category)>();
         foreach (var cat in TrapPreloader.CategoryOrder)
         {
             if (!TrapPreloader.TrapCategories.TryGetValue(cat, out var pool) || pool.Count == 0) continue;
-            int quota = quotas.ContainsKey(cat) ? quotas[cat] : 0;
+            var quota = quotas.ContainsKey(cat) ? quotas[cat] : 0;
+            if (cat == "追逐型" && _chasingTrapsInScene >= 1) continue;
 
-            if (cat == "追逐型" && _chasingTrapsInScene >= 1)
-                continue;
-
-            for (int i = 0; i < quota; i++)
+            for (var i = 0; i < quota; i++)
             {
                 if (cat == "场景伤害" && _waterRegions.Count == 0) continue;
                 string trapId;
@@ -388,58 +358,39 @@ public static class TrapRandomizer
                     trapId = pool[rng.Next(pool.Count)];
                 }
                 else if (rng.NextDouble() < 0.7)
+                {
                     trapId = pool[rng.Next(pool.Count)];
+                }
                 else
+                {
                     trapId = TrapPreloader.TrapPoolNoLava[rng.Next(TrapPreloader.TrapPoolNoLava.Count)];
+                }
 
-                if (trapId == "frost_marker")
-                {
-                    if (allowFrostThisTime)
-                        selected.Add((trapId, cat));
-                }
-                else
-                {
-                    selected.Add((trapId, cat));
-                }
+                if (trapId == "frost_marker" && !allowFrostThisTime) continue;
+                selected.Add((trapId, cat));
             }
         }
 
         if (_waterRegions.Count > 0 && rng.NextDouble() < 0.3 && !TrapPreloader.NoLavaScenes.Contains(scene))
             selected.Add((TrapPreloader.LavaTrapId, "场景伤害"));
 
-        for (int i = selected.Count - 1; i > 0; i--)
-        {
-            int j = rng.Next(i + 1);
-            var tmp = selected[i];
-            selected[i] = selected[j];
-            selected[j] = tmp;
-        }
+        ShuffleList(selected, rng);
 
         var usedPositions = new List<Vector3>();
         var darkThunderPositions = new List<Vector3>();
         var newCache = new List<(Vector3, string)>();
-        bool newFrostActuallyGenerated = false;
+        var newFrostActuallyGenerated = false;
 
         foreach (var (trapId, category) in selected)
         {
-            if (category == "暗雷" && darkThunderPositions.Count >= TrapPreloader.MaxDarkThunderCount)
-                continue;
+            if (category == "暗雷" && darkThunderPositions.Count >= TrapPreloader.MaxDarkThunderCount) continue;
 
-            List<Vector3> candidatePoints = new List<Vector3>();
-            bool isCeilingTrap = (category == "天花板");
-
-            if (category == "墙壁")
+            var candidatePoints = new List<Vector3>();
+            var isCeilingTrap = category == "天花板";
+            foreach (var (pt, isCeil) in allPoints)
             {
-                continue;
-            }
-            else
-            {
-                foreach (var (pt, isCeil) in allPoints)
-                {
-                    if (isCeilingTrap && !isCeil) continue;
-                    if (!isCeilingTrap && isCeil) continue;
-                    candidatePoints.Add(pt);
-                }
+                if (isCeilingTrap != isCeil) continue;
+                candidatePoints.Add(pt);
             }
 
             if (category == "暗雷" && darkThunderPositions.Count > 0)
@@ -447,11 +398,7 @@ public static class TrapRandomizer
                 var nearbyPoints = new List<Vector3>();
                 foreach (var darkPos in darkThunderPositions)
                 {
-                    foreach (var pt in candidatePoints)
-                    {
-                        if (Vector2.Distance(pt, darkPos) <= TrapPreloader.DarkThunderChainDistance)
-                            nearbyPoints.Add(pt);
-                    }
+                    nearbyPoints.AddRange(candidatePoints.Where(pt => Vector2.Distance(pt, darkPos) <= TrapPreloader.DarkThunderChainDistance));
                 }
                 candidatePoints = nearbyPoints.Distinct().ToList();
             }
@@ -459,49 +406,53 @@ public static class TrapRandomizer
             var validPoints = new List<Vector3>();
             foreach (var pt in candidatePoints)
             {
-                if (_doorPositions.Any(d => Vector2.Distance(pt, d) < TrapPreloader.DoorSafeRadius))
-                    continue;
-                if (IsTooCloseToPickup(pt))
-                    continue;
-
-                bool isCeil = _ceilingPoints.Any(cp => Vector2.Distance(cp, pt) < 0.5f);
-                if (!IsTrapAllowed(trapId, pt, scene, minY, isCeil, category))
-                    continue;
-
-                if (usedPositions.Any(u => Vector2.Distance(pt, u) < TrapPreloader.MinDistance))
-                    continue;
-
+                if (_doorPositions.Any(d => Vector2.Distance(pt, d) < TrapPreloader.DoorSafeRadius)) continue;
+                if (IsTooCloseToPickup(pt)) continue;
+                var isCeil = _ceilingPoints.Any(cp => Vector2.Distance(cp, pt) < 0.5f);
+                if (!IsTrapAllowed(trapId, pt, scene, minY, isCeil, category)) continue;
+                if (usedPositions.Any(u => Vector2.Distance(pt, u) < TrapPreloader.MinDistance)) continue;
                 validPoints.Add(pt);
             }
 
             if (validPoints.Count == 0) continue;
-
             var chosen = validPoints[rng.Next(validPoints.Count)];
-
             if (trapId == TrapPreloader.LavaTrapId && _waterRegions.Count > 0)
             {
                 var water = _waterRegions.FirstOrDefault(w => chosen.x >= w.minX && chosen.x <= w.maxX);
-                if (water != default)
-                    chosen.y = water.waterY - 3f;
-                else
-                    chosen.y = _waterRegions[0].waterY - 3f;
+                chosen.y = (water != default) ? water.waterY - 3f : _waterRegions[0].waterY - 3f;
             }
 
             ArchitectSpawn(trapId, chosen);
             usedPositions.Add(chosen);
-            if (category == "暗雷")
-                darkThunderPositions.Add(chosen);
+            if (category == "暗雷") darkThunderPositions.Add(chosen);
             newCache.Add((chosen, trapId));
             if (trapId == "frost_marker") newFrostActuallyGenerated = true;
             if (category == "追逐型") _chasingTrapsInScene++;
         }
 
         if (newCache.Count > 0) _cachedTraps[scene] = newCache;
-
         _lastSceneFrostRecord[scene] = newFrostActuallyGenerated;
-
         SpawnBounceObjects(rng, scene);
         SpawnPlatforms(rng, scene);
+    }
+
+    private static string GetCategoryForTrapId(string trapId)
+    {
+        foreach (var c in TrapPreloader.CategoryOrder)
+        {
+            if (TrapPreloader.TrapCategories.TryGetValue(c, out var pool) && pool.Contains(trapId))
+                return c;
+        }
+        return "";
+    }
+
+    private static void ShuffleList<T>(IList<T> list, Random rng)
+    {
+        for (var i = list.Count - 1; i > 0; i--)
+        {
+            var j = rng.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     // ========== 弹跳物生成 ==========
@@ -520,22 +471,17 @@ public static class TrapRandomizer
         var sourceTraps = new List<GameObject>(ActiveTraps);
         var usedPositions = new List<Vector3>();
         var newCache = new List<(Vector3, string)>();
-        int terrainMask = LayerMask.GetMask("Terrain");
+        var terrainMask = LayerMask.GetMask("Terrain");
 
         foreach (var trap in sourceTraps)
         {
             if (trap == null) continue;
-            Vector3 trapPos = trap.transform.position;
-            bool placed = false;
-
-            for (int attempt = 0; attempt < 10 && !placed; attempt++)
-            {
+            var trapPos = trap.transform.position;
+            var placed = false;
+            for (var attempt = 0; attempt < 10 && !placed; attempt++)
                 placed = TryPlaceBounceObject(trapPos, rng, bouncePool, usedPositions, terrainMask, 0f, 30f, newCache);
-            }
-            for (int attempt = 0; attempt < 10 && !placed; attempt++)
-            {
+            for (var attempt = 0; attempt < 10 && !placed; attempt++)
                 placed = TryPlaceBounceObject(trapPos, rng, bouncePool, usedPositions, terrainMask, -30f, 0f, newCache);
-            }
         }
 
         if (newCache.Count > 0)
@@ -546,28 +492,23 @@ public static class TrapRandomizer
         Vector3 trapPos, Random rng, List<string> pool, List<Vector3> used,
         int terrainMask, float angleMin, float angleMax, List<(Vector3, string)> newCache)
     {
-        float angle = (float)(rng.NextDouble() * (angleMax - angleMin) + angleMin);
-        float dist = 6f;
-        float rad = angle * Mathf.Deg2Rad;
-        Vector3 targetPos = trapPos + new Vector3(Mathf.Cos(rad) * dist, Mathf.Sin(rad) * dist, 0);
-        Vector2 target2D = targetPos;
-
-        Vector2 origin2D = new(trapPos.x, trapPos.y);
-        Vector2 dir = target2D - origin2D;
+        var angle = (float)(rng.NextDouble() * (angleMax - angleMin) + angleMin);
+        var rad = angle * Mathf.Deg2Rad;
+        var targetPos = trapPos + new Vector3(Mathf.Cos(rad) * 6f, Mathf.Sin(rad) * 6f, 0);
+        var target2D = (Vector2)targetPos;
+        var origin2D = new Vector2(trapPos.x, trapPos.y);
+        var dir = target2D - origin2D;
         if (Physics2D.Raycast(origin2D, dir.normalized, dir.magnitude, terrainMask).collider != null)
             return false;
-
         if (Physics2D.OverlapCircle(target2D, 0.5f, terrainMask) != null)
             return false;
-
         var groundHit = Physics2D.Raycast(target2D + Vector2.up * 5f, Vector2.down, 10f, terrainMask);
         if (groundHit.collider == null) return false;
-        Vector3 groundedPos = new(groundHit.point.x, groundHit.point.y + 3f, targetPos.z);
-
+        var groundedPos = new Vector3(groundHit.point.x, groundHit.point.y + 3f, targetPos.z);
         if (IsTooCloseToPickup(groundedPos)) return false;
         if (used.Any(p => Vector2.Distance(p, groundedPos) < TrapPreloader.MinDistance)) return false;
 
-        string id = pool[rng.Next(pool.Count)];
+        var id = pool[rng.Next(pool.Count)];
         ArchitectSpawn(id, groundedPos);
         used.Add(groundedPos);
         newCache.Add((groundedPos, id));
@@ -590,39 +531,34 @@ public static class TrapRandomizer
         var sourceTraps = new List<GameObject>(ActiveTraps);
         var usedPositions = new List<Vector3>();
         var newCache = new List<(Vector3, string)>();
-        int terrainMask = LayerMask.GetMask("Terrain");
+        var terrainMask = LayerMask.GetMask("Terrain");
 
         foreach (var trap in sourceTraps)
         {
             if (trap == null) continue;
-            Vector3 trapPos = trap.transform.position;
-
-            int placed = 0;
-            for (int i = 0; i < 2; i++)
+            var trapPos = trap.transform.position;
+            var placedCount = 0;
+            for (var i = 0; i < 2; i++)
             {
-                bool success = false;
-                for (int attempt = 0; attempt < 15; attempt++)
+                var success = false;
+                for (var attempt = 0; attempt < 15; attempt++)
                 {
-                    float angle = (float)(rng.NextDouble() * 360.0);
-                    float dist = 6f + (float)(rng.NextDouble() * 4.0);
-                    float rad = angle * Mathf.Deg2Rad;
-                    Vector3 targetPos = trapPos + new Vector3(Mathf.Cos(rad) * dist, Mathf.Sin(rad) * dist, 0);
-                    Vector2 target2D = targetPos;
-
+                    var angle = (float)(rng.NextDouble() * 360.0);
+                    var dist = 6f + (float)rng.NextDouble() * 4f;
+                    var rad = angle * Mathf.Deg2Rad;
+                    var targetPos = trapPos + new Vector3(Mathf.Cos(rad) * dist, Mathf.Sin(rad) * dist, 0);
+                    var target2D = (Vector2)targetPos;
                     if (Physics2D.OverlapBox(target2D, new Vector2(10f, 10f), 0f, terrainMask) != null)
                         continue;
-
                     if (usedPositions.Any(p => Vector2.Distance(p, targetPos) < TrapPreloader.MinDistance))
                         continue;
-
                     if (IsTooCloseToPickup(targetPos)) continue;
-
-                    string id = platformPool[rng.Next(platformPool.Count)];
+                    var id = platformPool[rng.Next(platformPool.Count)];
                     ArchitectSpawn(id, targetPos);
                     usedPositions.Add(targetPos);
                     newCache.Add((targetPos, id));
                     success = true;
-                    placed++;
+                    placedCount++;
                     break;
                 }
                 if (!success) break;
@@ -642,11 +578,11 @@ public static class TrapRandomizer
         {
             if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
             var parts = line.Split('|');
-            if (parts.Length == 4)
-            {
-                if (parts[0].Equals(scene, StringComparison.OrdinalIgnoreCase)) conn.Add(parts[2]);
-                else if (parts[2].Equals(scene, StringComparison.OrdinalIgnoreCase)) conn.Add(parts[0]);
-            }
+            if (parts.Length != 4) continue;
+            if (parts[0].Equals(scene, StringComparison.OrdinalIgnoreCase))
+                conn.Add(parts[2]);
+            else if (parts[2].Equals(scene, StringComparison.OrdinalIgnoreCase))
+                conn.Add(parts[0]);
         }
         return conn;
     }
@@ -673,7 +609,8 @@ public static class TrapRandomizer
 
     public static void ClearAll()
     {
-        foreach (var t in ActiveTraps) if (t) UnityEngine.Object.Destroy(t);
+        foreach (var t in ActiveTraps)
+            if (t) UnityEngine.Object.Destroy(t);
         ActiveTraps.Clear();
     }
 
@@ -690,7 +627,7 @@ public static class TrapRandomizer
         {
             var meta = TrapPreloader.TrapMetaDict.TryGetValue(id, out var m) ? m : new TrapMeta();
 
-            Vector3 trapPos = pos;
+            var trapPos = pos;
             if (!meta.NeedsActivator)
             {
                 if (TrapPreloader.LoweredSpikeTraps.Contains(id)) trapPos.y -= TrapPreloader.SpikeYOffset;
@@ -701,7 +638,7 @@ public static class TrapRandomizer
 
             string uniqueEvent = null;
             Vector3 activatorPos = Vector3.zero;
-            bool hasActivator = meta.NeedsActivator && !string.IsNullOrEmpty(meta.ActivatorId);
+            var hasActivator = meta.NeedsActivator && !string.IsNullOrEmpty(meta.ActivatorId);
 
             if (hasActivator)
             {
@@ -717,7 +654,6 @@ public static class TrapRandomizer
 
                 uniqueEvent = "Activate_" + Guid.NewGuid().ToString().Substring(0, 8);
                 SpawnActivatorWithEvent(meta.ActivatorId, activatorPos, uniqueEvent);
-
                 if (meta.PositionOffset != Vector3.zero)
                     trapPos = activatorPos + meta.PositionOffset;
                 else
@@ -740,7 +676,8 @@ public static class TrapRandomizer
                     if (list.Count > 0)
                     {
                         configs = Array.CreateInstance(configValueType, list.Count);
-                        for (int i = 0; i < list.Count; i++) configs.SetValue(list[i], i);
+                        for (var i = 0; i < list.Count; i++)
+                            configs.SetValue(list[i], i);
                     }
                 }
             }
@@ -750,12 +687,13 @@ public static class TrapRandomizer
             var dict = regType?.GetField("RegisteredObjects", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as System.Collections.IDictionary;
             if (dict == null || !dict.Contains(id)) return;
             var placementType = Type.GetType("Architect.Placements.ObjectPlacement, Architect");
-            var receivers = uniqueEvent != null ? new (string, string, int)[] { (uniqueEvent, "activate_trap", 0) } : new (string, string, int)[0];
+            var receivers = uniqueEvent != null ? new (string, string, int)[] { (uniqueEvent, "activate_trap", 0) } : Array.Empty<(string, string, int)>();
 
-            var placement = Activator.CreateInstance(placementType, new object[] {
+            var placement = Activator.CreateInstance(placementType, new object[]
+            {
                 dict[id], trapPos, Guid.NewGuid().ToString().Substring(0, 8),
                 false, 0f, 1f, false, 0,
-                new (string,string)[0], receivers, configs
+                Array.Empty<(string, string)>(), receivers, configs
             });
             var spawn = placementType.GetMethod("SpawnObject");
             var obj = spawn?.Invoke(placement, new object[] { Vector3.zero, null, 0f, 1f, false }) as GameObject;
@@ -767,28 +705,18 @@ public static class TrapRandomizer
                     obj.transform.rotation *= Quaternion.Euler(meta.PositionRotate);
 
                 if (TrapPreloader.LargeTraps.Contains(id))
-                {
                     obj.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
-                }
-
                 if (TrapPreloader.ThornTraps.Contains(id))
-                {
                     obj.transform.localScale = new Vector3(0.5f, 1f, 0.33f);
-                }
 
-                // 平台缩放：属于“平台类1”且不是小平台的，缩小到 1/3
                 if (TrapPreloader.TrapCategories.TryGetValue("平台类1", out var platformList) && platformList.Contains(id))
                 {
                     if (!TrapPreloader.SmallPlatforms.Contains(id))
-                    {
                         obj.transform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
-                    }
                 }
 
                 if (id == "abyss_tendrils")
-                {
                     obj.AddComponent<OneTimeTrap>();
-                }
 
                 var pmType = Type.GetType("Architect.Placements.PlacementManager, Architect");
                 var objDict = pmType?.GetField("Objects", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as System.Collections.IDictionary;
@@ -816,13 +744,14 @@ public static class TrapRandomizer
             var placementType = Type.GetType("Architect.Placements.ObjectPlacement, Architect");
             var configValueType = Type.GetType("Architect.Config.Types.ConfigValue, Architect");
             var emptyConfigs = configValueType != null ? Array.CreateInstance(configValueType, 0) : Array.Empty<object>();
-            string triggerName = activatorId == "trigger_zone" ? "ZoneEnter" : "OnActivate";
+            var triggerName = activatorId == "trigger_zone" ? "ZoneEnter" : "OnActivate";
 
-            var placement = Activator.CreateInstance(placementType, new object[] {
+            var placement = Activator.CreateInstance(placementType, new object[]
+            {
                 dict[activatorId], pos, Guid.NewGuid().ToString().Substring(0, 8),
                 false, 0f, 1f, false, 0,
                 new (string, string)[] { (triggerName, eventName) },
-                new (string,string,int)[0], emptyConfigs
+                Array.Empty<(string, string, int)>(), emptyConfigs
             });
             var spawn = placementType.GetMethod("SpawnObject");
             var obj = spawn?.Invoke(placement, new object[] { Vector3.zero, null, 0f, 1f, false }) as GameObject;
@@ -841,30 +770,23 @@ public static class TrapRandomizer
 // ========== 一次性陷阱组件（虚空触手用） ==========
 public class OneTimeTrap : MonoBehaviour
 {
-    private bool _triggered = false;
-    private float _lifetime = 3f;
+    private bool _triggered;
+    private const float Lifetime = 3f;
 
-    private void Start()
-    {
-        Destroy(gameObject, _lifetime);
-    }
+    private void Start() => Destroy(gameObject, Lifetime);
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_triggered) return;
-        if (other.CompareTag("Player"))
-        {
-            DestroySelf();
-        }
+        if (!other.CompareTag("Player")) return;
+        DestroySelf();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (_triggered) return;
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            DestroySelf();
-        }
+        if (!collision.gameObject.CompareTag("Player")) return;
+        DestroySelf();
     }
 
     private void DestroySelf()

@@ -9,8 +9,8 @@ namespace SilksongItemRandomizer;
 
 public static class ShopRandomizer
 {
-    private static Dictionary<string, SavedItem> _shopItemCache = new();
-    private static Dictionary<string, int> _shopPriceCache = new();
+    private static readonly Dictionary<string, SavedItem> _shopItemCache = new();
+    private static readonly Dictionary<string, int> _shopPriceCache = new();
 
     public static void ResetCache()
     {
@@ -21,17 +21,27 @@ public static class ShopRandomizer
 
     public static SavedItem GetOrCreateShopItem(string permanentId, out int price)
     {
-        if (_shopItemCache.TryGetValue(permanentId, out SavedItem cachedItem) && !IsItemOwned(cachedItem))
+        if (_shopItemCache.TryGetValue(permanentId, out var cachedItem) && !IsItemOwned(cachedItem))
         {
-            price = _shopPriceCache.TryGetValue(permanentId, out int cachedPrice) ? cachedPrice : GetDefaultPrice(cachedItem);
+            if (!_shopPriceCache.TryGetValue(permanentId, out price))
+            {
+                var rng = new Random(Plugin.RandomSeed.Value ^ permanentId.GetHashCode());
+                price = GenerateRandomPrice(rng);
+                _shopPriceCache[permanentId] = price;
+            }
             return cachedItem;
         }
 
-        string[] parts = permanentId.Split('_');
-        string sceneName = string.Join("_", parts.Take(parts.Length - 1));
-        int originalIndex = int.Parse(parts.Last());
-
-        SavedItem newItem = GenerateRandomShopItem(sceneName, originalIndex, permanentId, out price);
+        var newItem = GenerateRandomShopItem(permanentId, out price);
+        if (newItem == null)
+        {
+            // 保底：从所有物品中找一个可用的
+            var allItems = ItemRandomizer.GetAllItems();
+            if (allItems != null && allItems.Count > 0)
+                newItem = allItems.FirstOrDefault(IsSafeForShop);
+            if (newItem == null)
+                return null;
+        }
         _shopItemCache[permanentId] = newItem;
         _shopPriceCache[permanentId] = price;
         return newItem;
@@ -42,10 +52,10 @@ public static class ShopRandomizer
         return GetOrCreateShopItem($"{sceneName}_{slotIndex}", out price);
     }
 
-    private static SavedItem GenerateRandomShopItem(string sceneName, int originalIndex, string permanentId, out int price)
+    private static SavedItem GenerateRandomShopItem(string permanentId, out int price)
     {
-        Random rng = new Random(Plugin.RandomSeed.Value ^ permanentId.GetHashCode());
-        List<SavedItem> allItems = ItemRandomizer.GetAllItems();
+        var rng = new Random(Plugin.RandomSeed.Value ^ permanentId.GetHashCode());
+        var allItems = ItemRandomizer.GetAllItems();
 
         if (allItems == null || allItems.Count == 0)
         {
@@ -53,44 +63,46 @@ public static class ShopRandomizer
             return null;
         }
 
-        List<SavedItem> candidates = allItems.Where(item => !IsItemOwned(item) && !(item is ToolCrest)).ToList();
+        // 筛选符合条件的物品：未拥有且不是ToolCrest且安全（有图标且不在黑名单）
+        var candidates = allItems.Where(item => !IsItemOwned(item) && IsSafeForShop(item)).ToList();
         if (candidates.Count == 0)
         {
             Plugin.Log.LogWarning($"商店随机池为空，使用所有物品中的第一个 (永久ID: {permanentId})");
-            price = GetDefaultPrice(allItems[0]);
-            return allItems[0];
+            price = GenerateRandomPrice(rng);
+            return allItems.FirstOrDefault(IsSafeForShop);
         }
 
-        int index = rng.Next(candidates.Count);
-        SavedItem selected = candidates[index];
-        price = GenerateRandomPrice(selected, rng);
+        var index = rng.Next(candidates.Count);
+        var selected = candidates[index];
+        price = GenerateRandomPrice(rng);
         return selected;
     }
 
     private static bool IsItemOwned(SavedItem item)
     {
+        try { return !item.CanGetMore(); }
+        catch { return false; }
+    }
+
+    private static bool IsSafeForShop(SavedItem item)
+    {
+        if (item == null) return false;
+        // 排除黑名单中的物品（复用 ItemRandomizer 的黑名单）
+        if (ItemRandomizer.ExcludedNames.Contains(item.name))
+            return false;
+        // 排除 ToolCrest
+        if (item is ToolCrest) return false;
+        // 排除没有图标的物品（避免黑屏）
         try
         {
-            return !item.CanGetMore();
+            if (item.GetPopupIcon() == null) return false;
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
+        return true;
     }
 
-    private static int GenerateRandomPrice(SavedItem item, Random rng)
+    private static int GenerateRandomPrice(Random rng)
     {
-        int basePrice = GetDefaultPrice(item);
-        float multiplier = (float)(rng.NextDouble() * 1.5 + 0.5);
-        return Mathf.RoundToInt(basePrice * multiplier);
-    }
-
-    private static int GetDefaultPrice(SavedItem item)
-    {
-        FieldInfo field = item.GetType().GetField("cost", BindingFlags.Instance | BindingFlags.Public);
-        if (field != null && field.FieldType == typeof(int))
-            return (int)field.GetValue(item);
-        return 100;
+        return rng.Next(2) == 0 ? rng.Next(1, 100) : rng.Next(100, 301);
     }
 }

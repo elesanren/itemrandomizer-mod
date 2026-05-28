@@ -27,62 +27,60 @@ public class TrapMover : MonoBehaviour
     public float SwingMinAngle { get; set; } = -30f;
     public float SwingMaxAngle { get; set; } = 30f;
 
-    private float currentSpeed;
-    private int cycleCount;
-    private Vector2 startPos;
-    private Vector2 leftEdge, rightEdge;
-    private int moveDir = 1;
-    private List<Vector2> path;
-    private int pathIndex;
-    private float pathProgress;
-    private float swingTimer;
-    private float startAngle;
-
-    // 新增原地运动
-    private float spinAngle;
-    private int spinDir = 1;
-    private Vector3 originalScale;
-    private float pulseTimer;
-    private SpriteRenderer spriteRenderer;
-    private float flickerTimer;
-    private bool isVisible = true;
-    private Vector3 originalPos;
-    private float jitterTimer;
-    private float bounceTimer;
+    private float _currentSpeed;
+    private int _cycleCount;
+    private Vector2 _startPos;
+    private Vector2 _leftEdge, _rightEdge;
+    private int _moveDir = 1;
+    private List<Vector2> _path;
+    private int _pathIndex;
+    private float _pathProgress;
+    private float _swingTimer;
+    private float _startAngle;
+    private float _spinAngle;
+    private int _spinDir = 1;
+    private Vector3 _originalScale;
+    private float _pulseTimer;
+    private SpriteRenderer _spriteRenderer;
+    private float _flickerTimer;
+    private bool _isVisible = true;
+    private Vector3 _originalPos;
+    private float _jitterTimer;
+    private float _bounceTimer;
 
     private void Start()
     {
-        startPos = transform.position;
-        startAngle = transform.eulerAngles.z;
-        originalScale = transform.localScale;
-        originalPos = transform.position;
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        _startPos = transform.position;
+        _startAngle = transform.eulerAngles.z;
+        _originalScale = transform.localScale;
+        _originalPos = transform.position;
+        _spriteRenderer = GetComponent<SpriteRenderer>();
 
         switch (style)
         {
             case MoveStyle.SurfacePatrol:
-                (leftEdge, rightEdge) = ScanPlatformEdges(startPos);
+                (_leftEdge, _rightEdge) = ScanPlatformEdges(_startPos);
                 break;
             case MoveStyle.ZigzagLoop:
                 if (UnityEngine.Random.value < 0.5f)
-                    path = GeneratePresetPath(startPos);
+                    _path = GeneratePresetPath(_startPos);
                 else
-                    path = GenerateZigzagLoop(startPos, 5, 10, 8f, 6f);
+                    _path = GenerateZigzagLoop(_startPos, 5, 10, 8f, 6f);
                 break;
             case MoveStyle.Spin:
-                spinDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;
+                _spinDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;
                 break;
             case MoveStyle.Pulse:
-                pulseTimer = UnityEngine.Random.Range(0f, 2f);
+                _pulseTimer = UnityEngine.Random.Range(0f, 2f);
                 break;
             case MoveStyle.Flicker:
-                flickerTimer = UnityEngine.Random.Range(0f, 3f);
+                _flickerTimer = UnityEngine.Random.Range(0f, 3f);
                 break;
             case MoveStyle.Jitter:
-                jitterTimer = UnityEngine.Random.Range(0f, 1f);
+                _jitterTimer = UnityEngine.Random.Range(0f, 1f);
                 break;
             case MoveStyle.Bounce:
-                bounceTimer = UnityEngine.Random.Range(0f, Mathf.PI * 2);
+                _bounceTimer = UnityEngine.Random.Range(0f, Mathf.PI * 2);
                 break;
         }
         UpdateSpeed();
@@ -106,45 +104,47 @@ public class TrapMover : MonoBehaviour
 
     private void UpdateSpeed()
     {
-        currentSpeed = personality switch
+        _currentSpeed = personality switch
         {
             TrapPersonality.Friendly => baseSpeed * (0.15f + UnityEngine.Random.value * 0.1f),
             TrapPersonality.Playful => baseSpeed * (0.6f + UnityEngine.Random.value * 0.4f),
             TrapPersonality.Sinister => UpdateSinisterSpeed(),
-            _ => currentSpeed
+            _ => _currentSpeed
         };
     }
 
     private float UpdateSinisterSpeed()
     {
-        cycleCount++;
-        if (cycleCount >= 180)
+        _cycleCount++;
+        if (_cycleCount >= 180)
         {
-            cycleCount = 0;
+            _cycleCount = 0;
             return baseSpeed * (UnityEngine.Random.value > 0.5f ? 0.75f : 0.15f);
         }
-        return currentSpeed;
+        return _currentSpeed;
     }
 
     private void DoSurfacePatrol()
     {
-        Vector2 target = moveDir > 0 ? rightEdge : leftEdge;
-        transform.position = Vector2.MoveTowards(transform.position, target, currentSpeed * Time.deltaTime);
-        if (Vector2.Distance(transform.position, target) < 0.1f) moveDir *= -1;
+        var target = _moveDir > 0 ? _rightEdge : _leftEdge;
+        transform.position = Vector2.MoveTowards(transform.position, target, _currentSpeed * Time.deltaTime);
+        if (Vector2.Distance(transform.position, target) < 0.1f) _moveDir *= -1;
     }
 
     private (Vector2 left, Vector2 right) ScanPlatformEdges(Vector2 origin)
     {
-        int mask = LayerMask.GetMask("Terrain");
-        float y = origin.y + 0.5f;
-        float left = origin.x, right = origin.x;
-        for (int i = 0; i < 40; i++)
+        var mask = LayerMask.GetMask("Terrain");
+        var y = origin.y + 0.5f;
+        var left = origin.x;
+        var right = origin.x;
+
+        for (var i = 0; i < 40; i++)
         {
             if (Physics2D.Raycast(new Vector2(left - 0.5f, y), Vector2.down, 1f, mask))
                 left -= 0.5f;
             else break;
         }
-        for (int i = 0; i < 40; i++)
+        for (var i = 0; i < 40; i++)
         {
             if (Physics2D.Raycast(new Vector2(right + 0.5f, y), Vector2.down, 1f, mask))
                 right += 0.5f;
@@ -155,157 +155,209 @@ public class TrapMover : MonoBehaviour
 
     private void DoZigzagLoop()
     {
-        if (path == null || path.Count < 2) return;
-        pathProgress += currentSpeed * Time.deltaTime;
-        while (pathProgress > 1f && pathIndex < path.Count - 1)
+        if (_path == null || _path.Count < 2) return;
+        _pathProgress += _currentSpeed * Time.deltaTime;
+        while (_pathProgress > 1f && _pathIndex < _path.Count - 1)
         {
-            pathProgress -= 1f;
-            pathIndex++;
+            _pathProgress -= 1f;
+            _pathIndex++;
         }
-        if (pathIndex >= path.Count - 1)
+        if (_pathIndex >= _path.Count - 1)
         {
-            pathIndex = 0;
-            pathProgress = 0f;
+            _pathIndex = 0;
+            _pathProgress = 0f;
         }
-        transform.position = Vector2.Lerp(path[pathIndex], path[pathIndex + 1], pathProgress);
+        transform.position = Vector2.Lerp(_path[_pathIndex], _path[_pathIndex + 1], _pathProgress);
     }
 
     private void DoNeedleSwing()
     {
-        swingTimer += Time.deltaTime * currentSpeed;
-        float angle = Mathf.Lerp(SwingMinAngle, SwingMaxAngle, (Mathf.Sin(swingTimer) + 1f) / 2f);
-        transform.rotation = Quaternion.Euler(0, 0, startAngle + angle);
+        _swingTimer += Time.deltaTime * _currentSpeed;
+        var angle = Mathf.Lerp(SwingMinAngle, SwingMaxAngle, (Mathf.Sin(_swingTimer) + 1f) / 2f);
+        transform.rotation = Quaternion.Euler(0, 0, _startAngle + angle);
     }
 
     private void DoSpin()
     {
-        spinAngle += 90f * currentSpeed * Time.deltaTime * spinDir;
-        transform.rotation = Quaternion.Euler(0, 0, spinAngle);
+        _spinAngle += 90f * _currentSpeed * Time.deltaTime * _spinDir;
+        transform.rotation = Quaternion.Euler(0, 0, _spinAngle);
     }
 
     private void DoPulse()
     {
-        pulseTimer += Time.deltaTime * currentSpeed * 2f;
-        float scale = 1f + Mathf.Sin(pulseTimer) * 0.2f;
-        transform.localScale = originalScale * scale;
+        _pulseTimer += Time.deltaTime * _currentSpeed * 2f;
+        var scale = 1f + Mathf.Sin(_pulseTimer) * 0.2f;
+        transform.localScale = _originalScale * scale;
     }
 
     private void DoFlicker()
     {
-        flickerTimer += Time.deltaTime * currentSpeed;
-        float period = 0.5f;
-        bool shouldBeVisible = (Mathf.FloorToInt(flickerTimer / period) % 2) == 0;
-        if (shouldBeVisible != isVisible)
-        {
-            isVisible = shouldBeVisible;
-            if (spriteRenderer != null)
-                spriteRenderer.enabled = isVisible;
-            else
-                gameObject.SetActive(isVisible);
-        }
+        _flickerTimer += Time.deltaTime * _currentSpeed;
+        var period = 0.5f;
+        var shouldBeVisible = (Mathf.FloorToInt(_flickerTimer / period) % 2) == 0;
+        if (shouldBeVisible == _isVisible) return;
+        _isVisible = shouldBeVisible;
+        if (_spriteRenderer != null)
+            _spriteRenderer.enabled = _isVisible;
+        else
+            gameObject.SetActive(_isVisible);
     }
 
     private void DoJitter()
     {
-        jitterTimer += Time.deltaTime * 10f;
-        float offsetX = (Mathf.PerlinNoise(jitterTimer, 0) - 0.5f) * 0.2f;
-        float offsetY = (Mathf.PerlinNoise(0, jitterTimer) - 0.5f) * 0.2f;
-        transform.position = originalPos + new Vector3(offsetX, offsetY, 0);
+        _jitterTimer += Time.deltaTime * 10f;
+        var offsetX = (Mathf.PerlinNoise(_jitterTimer, 0) - 0.5f) * 0.2f;
+        var offsetY = (Mathf.PerlinNoise(0, _jitterTimer) - 0.5f) * 0.2f;
+        transform.position = _originalPos + new Vector3(offsetX, offsetY, 0);
     }
 
     private void DoBounce()
     {
-        bounceTimer += Time.deltaTime * currentSpeed * 2f;
-        float offsetY = Mathf.Sin(bounceTimer) * 0.3f;
-        transform.position = new Vector3(originalPos.x, originalPos.y + offsetY, originalPos.z);
+        _bounceTimer += Time.deltaTime * _currentSpeed * 2f;
+        var offsetY = Mathf.Sin(_bounceTimer) * 0.3f;
+        transform.position = new Vector3(_originalPos.x, _originalPos.y + offsetY, _originalPos.z);
     }
 
-    // ----- 路径生成（完全保留）-----
+    // ----- 路径生成（静态方法，无状态）-----
     private static List<Vector2> GeneratePresetPath(Vector2 origin)
     {
-        float r = 4f;
+        const float radius = 4f;
         var shapes = new List<System.Func<List<Vector2>>>
         {
-            () => Square(origin, r),
-            () => Hexagon(origin, r),
-            () => Hexagram(origin, r),
-            () => Triangle(origin, r),
-            () => Pentagram(origin, r),
-            () => Circle(origin, r, 14),
-            () => Figure8(origin, r, 12),
-            () => Diamond(origin, r),
-            () => Cross(origin, r),
+            () => Square(origin, radius),
+            () => Hexagon(origin, radius),
+            () => Hexagram(origin, radius),
+            () => Triangle(origin, radius),
+            () => Pentagram(origin, radius),
+            () => Circle(origin, radius, 14),
+            () => Figure8(origin, radius, 12),
+            () => Diamond(origin, radius),
+            () => Cross(origin, radius),
         };
         return shapes[UnityEngine.Random.Range(0, shapes.Count)]();
     }
 
-    private static List<Vector2> Square(Vector2 o, float r) => new() { o + new Vector2(-r, r), o + new Vector2(r, r), o + new Vector2(r, -r), o + new Vector2(-r, -r), o + new Vector2(-r, r), o };
+    private static List<Vector2> Square(Vector2 o, float r) =>
+        new() { o + new Vector2(-r, r), o + new Vector2(r, r), o + new Vector2(r, -r), o + new Vector2(-r, -r), o + new Vector2(-r, r), o };
+
     private static List<Vector2> Hexagon(Vector2 o, float r)
     {
         var pts = new List<Vector2>();
-        for (int i = 0; i <= 6; i++) { float angle = Mathf.Deg2Rad * (60f * i - 30f); pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r)); }
-        pts.Add(o); return pts;
+        for (var i = 0; i <= 6; i++)
+        {
+            var angle = Mathf.Deg2Rad * (60f * i - 30f);
+            pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r));
+        }
+        pts.Add(o);
+        return pts;
     }
+
     private static List<Vector2> Hexagram(Vector2 o, float r)
     {
         var pts = new List<Vector2>();
-        for (int i = 0; i < 6; i++) { float angle = Mathf.Deg2Rad * (60f * i - 90f); pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r)); }
-        pts.Add(o); return pts;
+        for (var i = 0; i < 6; i++)
+        {
+            var angle = Mathf.Deg2Rad * (60f * i - 90f);
+            pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r));
+        }
+        pts.Add(o);
+        return pts;
     }
+
     private static List<Vector2> Triangle(Vector2 o, float r)
     {
         var pts = new List<Vector2>();
-        for (int i = 0; i < 3; i++) { float angle = Mathf.Deg2Rad * (120f * i - 90f); pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r)); }
-        pts.Add(o); return pts;
+        for (var i = 0; i < 3; i++)
+        {
+            var angle = Mathf.Deg2Rad * (120f * i - 90f);
+            pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r));
+        }
+        pts.Add(o);
+        return pts;
     }
+
     private static List<Vector2> Pentagram(Vector2 o, float r)
     {
         var pts = new List<Vector2>();
-        float r2 = r * 0.382f;
-        for (int i = 0; i < 5; i++)
+        var r2 = r * 0.382f;
+        for (var i = 0; i < 5; i++)
         {
-            float angle = Mathf.Deg2Rad * (72f * i - 90f);
+            var angle = Mathf.Deg2Rad * (72f * i - 90f);
             pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r));
             pts.Add(o + new Vector2(Mathf.Cos(angle + Mathf.Deg2Rad * 36f) * r2, Mathf.Sin(angle + Mathf.Deg2Rad * 36f) * r2));
         }
-        pts.Add(o); return pts;
+        pts.Add(o);
+        return pts;
     }
+
     private static List<Vector2> Circle(Vector2 o, float r, int segments)
     {
         var pts = new List<Vector2>();
-        for (int i = 0; i <= segments; i++) { float angle = Mathf.Deg2Rad * (360f * i / segments); pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r)); }
-        pts.Add(o); return pts;
+        for (var i = 0; i <= segments; i++)
+        {
+            var angle = Mathf.Deg2Rad * (360f * i / segments);
+            pts.Add(o + new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r));
+        }
+        pts.Add(o);
+        return pts;
     }
+
     private static List<Vector2> Figure8(Vector2 o, float r, int segments)
     {
         var pts = new List<Vector2>();
-        for (int i = 0; i <= segments / 2; i++) { float angle = Mathf.Deg2Rad * (360f * i / segments); pts.Add(o + new Vector2(r + Mathf.Cos(angle) * r, Mathf.Sin(angle) * r * 1.5f)); }
-        for (int i = segments / 2; i <= segments; i++) { float angle = Mathf.Deg2Rad * (360f * i / segments); pts.Add(o + new Vector2(-r + Mathf.Cos(angle) * r, Mathf.Sin(angle) * r * 1.5f)); }
-        pts.Add(o); return pts;
+        for (var i = 0; i <= segments / 2; i++)
+        {
+            var angle = Mathf.Deg2Rad * (360f * i / segments);
+            pts.Add(o + new Vector2(r + Mathf.Cos(angle) * r, Mathf.Sin(angle) * r * 1.5f));
+        }
+        for (var i = segments / 2; i <= segments; i++)
+        {
+            var angle = Mathf.Deg2Rad * (360f * i / segments);
+            pts.Add(o + new Vector2(-r + Mathf.Cos(angle) * r, Mathf.Sin(angle) * r * 1.5f));
+        }
+        pts.Add(o);
+        return pts;
     }
-    private static List<Vector2> Diamond(Vector2 o, float r) => new() { o + new Vector2(0, r), o + new Vector2(r, 0), o + new Vector2(0, -r), o + new Vector2(-r, 0), o + new Vector2(0, r), o };
+
+    private static List<Vector2> Diamond(Vector2 o, float r) =>
+        new() { o + new Vector2(0, r), o + new Vector2(r, 0), o + new Vector2(0, -r), o + new Vector2(-r, 0), o + new Vector2(0, r), o };
+
     private static List<Vector2> Cross(Vector2 o, float r)
     {
-        float half = r * 0.4f;
+        var half = r * 0.4f;
         return new List<Vector2>
         {
-            o + new Vector2(0, r), o + new Vector2(half, r * 0.6f), o + new Vector2(half, half), o + new Vector2(r * 0.6f, half), o + new Vector2(r, 0),
-            o + new Vector2(r * 0.6f, -half), o + new Vector2(half, -half), o + new Vector2(half, -r * 0.6f), o + new Vector2(0, -r),
-            o + new Vector2(-half, -r * 0.6f), o + new Vector2(-half, -half), o + new Vector2(-r * 0.6f, -half), o + new Vector2(-r, 0),
-            o + new Vector2(-r * 0.6f, half), o + new Vector2(-half, half), o + new Vector2(-half, r * 0.6f), o
+            o + new Vector2(0, r),
+            o + new Vector2(half, r * 0.6f),
+            o + new Vector2(half, half),
+            o + new Vector2(r * 0.6f, half),
+            o + new Vector2(r, 0),
+            o + new Vector2(r * 0.6f, -half),
+            o + new Vector2(half, -half),
+            o + new Vector2(half, -r * 0.6f),
+            o + new Vector2(0, -r),
+            o + new Vector2(-half, -r * 0.6f),
+            o + new Vector2(-half, -half),
+            o + new Vector2(-r * 0.6f, -half),
+            o + new Vector2(-r, 0),
+            o + new Vector2(-r * 0.6f, half),
+            o + new Vector2(-half, half),
+            o + new Vector2(-half, r * 0.6f),
+            o
         };
     }
 
     private static List<Vector2> GenerateZigzagLoop(Vector2 start, int minSeg, int maxSeg, float maxW, float maxH)
     {
         var rng = new System.Random();
-        int n = rng.Next(minSeg, maxSeg);
+        var n = rng.Next(minSeg, maxSeg);
         var list = new List<Vector2> { start };
-        float x = start.x, y = start.y;
-        for (int i = 0; i < n - 1; i++)
+        var x = start.x;
+        var y = start.y;
+        for (var i = 0; i < n - 1; i++)
         {
-            float dx = (rng.Next(2) == 0 ? 1 : -1) * (5f + (float)rng.NextDouble() * 7f);
-            float dy = (rng.Next(2) == 0 ? 1 : -1) * (3f + (float)rng.NextDouble() * 5f);
+            var dx = (rng.Next(2) == 0 ? 1 : -1) * (5f + (float)rng.NextDouble() * 7f);
+            var dy = (rng.Next(2) == 0 ? 1 : -1) * (3f + (float)rng.NextDouble() * 5f);
             x += dx;
             y += dy;
             list.Add(new Vector2(x, y));
@@ -338,8 +390,8 @@ public static class TrapMovement
         if (ExcludedTraps.Contains(trapId)) return;
         if (rng.NextDouble() > GlobalMoveChance) return;
 
-        MoveStyle style = AllStyles[rng.Next(AllStyles.Count)];
-        TrapPersonality personality = (TrapPersonality)rng.Next(0, 3);
+        var style = AllStyles[rng.Next(AllStyles.Count)];
+        var personality = (TrapPersonality)rng.Next(0, 3);
 
         var mover = trapObj.AddComponent<TrapMover>();
         mover.style = style;

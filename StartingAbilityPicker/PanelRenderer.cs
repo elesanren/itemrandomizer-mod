@@ -7,58 +7,72 @@ namespace StartingAbilityPicker;
 
 public static class PanelRenderer
 {
-    // 冷白色，用于所有文字
-    private static readonly Color BrightWhite = new Color(0.95f, 0.97f, 1.0f);
+    private static readonly Color BrightWhite = new(0.95f, 0.97f, 1.0f);
 
-    // 反射缓存（陷阱相关）
-    private static Type _trapType;
-    private static PropertyInfo _trapEnabledProp;
-    private static PropertyInfo _trapMovementEnabledProp;
-    private static MethodInfo _spawnTrapsMethod;
-    private static MethodInfo _clearAllMethod;
-    private static MethodInfo _initializeMethod;
-    private static FieldInfo _trapDifficultyField;
-    private static MethodInfo _setDifficultyMethod;
-    private static Type _trapDifficultyEnumType;
-    private static MethodInfo _respawnTrapsMethod;
+    // 陷阱反射缓存 - 静态初始化
+    private static readonly Type TrapType;
+    private static readonly PropertyInfo TrapEnabledProp;
+    private static readonly PropertyInfo TrapMovementEnabledProp;
+    private static readonly MethodInfo SpawnTrapsMethod;
+    private static readonly MethodInfo ClearAllMethod;
+    private static readonly MethodInfo InitializeMethod;
+    private static readonly FieldInfo TrapDifficultyField;
+    private static readonly MethodInfo SetDifficultyMethod;
+    private static readonly Type TrapDifficultyEnumType;
 
-    private static void InitTrapReflection()
+    static PanelRenderer()
     {
-        if (_trapType != null) return;
-        _trapType = Type.GetType("SilksongItemRandomizer.TrapRandomizer, SilksongItemRandomizer");
-        if (_trapType == null) return;
+        TrapType = Type.GetType("SilksongItemRandomizer.TrapRandomizer, SilksongItemRandomizer");
+        if (TrapType != null)
+        {
+            TrapEnabledProp = TrapType.GetProperty("Enabled", BindingFlags.Public | BindingFlags.Static);
+            TrapMovementEnabledProp = TrapType.GetProperty("MovementEnabled", BindingFlags.Public | BindingFlags.Static);
+            SpawnTrapsMethod = TrapType.GetMethod("SpawnTraps", BindingFlags.Public | BindingFlags.Static);
+            ClearAllMethod = TrapType.GetMethod("ClearAll", BindingFlags.Public | BindingFlags.Static);
+            InitializeMethod = TrapType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static);
+            TrapDifficultyField = TrapType.GetField("CurrentDifficulty", BindingFlags.Public | BindingFlags.Static);
+            SetDifficultyMethod = TrapType.GetMethod("SetDifficulty", BindingFlags.Public | BindingFlags.Static);
+            var preloaderType = Type.GetType("SilksongItemRandomizer.TrapPreloader, SilksongItemRandomizer");
+            TrapDifficultyEnumType = preloaderType?.GetNestedType("TrapDifficulty");
+        }
+    }
 
-        _trapEnabledProp = _trapType.GetProperty("Enabled", BindingFlags.Public | BindingFlags.Static);
-        _trapMovementEnabledProp = _trapType.GetProperty("MovementEnabled", BindingFlags.Public | BindingFlags.Static);
-        _spawnTrapsMethod = _trapType.GetMethod("SpawnTraps", BindingFlags.Public | BindingFlags.Static);
-        _clearAllMethod = _trapType.GetMethod("ClearAll", BindingFlags.Public | BindingFlags.Static);
-        _initializeMethod = _trapType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static);
-        _trapDifficultyField = _trapType.GetField("CurrentDifficulty", BindingFlags.Public | BindingFlags.Static);
-        _setDifficultyMethod = _trapType.GetMethod("SetDifficulty", BindingFlags.Public | BindingFlags.Static);
-        _respawnTrapsMethod = _trapType.GetMethod("RespawnTraps", BindingFlags.Public | BindingFlags.Static);
+    // GUI 样式缓存
+    private static GUIStyle _titleStyle, _statusStyle, _diffTitleStyle, _diffStatusStyle;
 
-        var preloaderType = Type.GetType("SilksongItemRandomizer.TrapPreloader, SilksongItemRandomizer");
-        _trapDifficultyEnumType = preloaderType?.GetNestedType("TrapDifficulty");
+    // 滚动位置缓存（用于分类随机模式的滑块区域）
+    private static Vector2 _skillScrollPos;
+
+    private static void EnsureStyles()
+    {
+        if (_titleStyle == null)
+        {
+            _titleStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, fontSize = 14, fontStyle = FontStyle.Bold, normal = { textColor = BrightWhite } };
+            _statusStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerCenter, fontSize = 11, normal = { textColor = BrightWhite } };
+            _diffTitleStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, fontSize = 18, fontStyle = FontStyle.Bold, normal = { textColor = BrightWhite } };
+            _diffStatusStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerCenter, fontSize = 15, normal = { textColor = BrightWhite } };
+        }
     }
 
     // ===== 左侧面板 =====
     public static void DrawLeftPanel(Plugin p)
     {
-        // 备份原有颜色
-        Color originalLabelColor = GUI.skin.label.normal.textColor;
-        // 全部改为冷白
+        var originalLabelColor = GUI.skin.label.normal.textColor;
         GUI.skin.label.normal.textColor = BrightWhite;
         GUI.skin.toggle.normal.textColor = BrightWhite;
         GUI.skin.button.normal.textColor = BrightWhite;
         GUI.skin.horizontalSlider.normal.textColor = BrightWhite;
         GUI.skin.textField.normal.textColor = BrightWhite;
 
-        GUI.skin.label.fontSize = 20; GUI.skin.toggle.fontSize = 20; GUI.skin.button.fontSize = 24;
-        GUI.skin.horizontalSlider.fontSize = 18; GUI.skin.textField.fontSize = 18;
+        GUI.skin.label.fontSize = 20;
+        GUI.skin.toggle.fontSize = 20;
+        GUI.skin.button.fontSize = 24;
+        GUI.skin.horizontalSlider.fontSize = 18;
+        GUI.skin.textField.fontSize = 18;
 
         GUILayout.Label(Locale.Get("当前存档开局设置："), GUILayout.Height(40));
         GUILayout.Space(15);
-        bool alreadyChosen = IsAlreadyChosen(p);
+        var alreadyChosen = IsAlreadyChosen(p);
         if (alreadyChosen)
         {
             GUILayout.Label(Locale.Get("（此存档已设置过，只能查看）"), GUILayout.Height(35));
@@ -66,6 +80,12 @@ public static class PanelRenderer
             if (GUILayout.Button(Locale.Get("重置本存档设置"), GUILayout.Height(45)))
             {
                 ResetProfile(p);
+                GUI.backgroundColor = Color.white;
+                GUI.skin.label.normal.textColor = originalLabelColor;
+                GUI.skin.toggle.normal.textColor = originalLabelColor;
+                GUI.skin.button.normal.textColor = originalLabelColor;
+                GUI.skin.horizontalSlider.normal.textColor = originalLabelColor;
+                GUI.skin.textField.normal.textColor = originalLabelColor;
                 return;
             }
             GUI.backgroundColor = Color.white;
@@ -73,31 +93,36 @@ public static class PanelRenderer
         GUILayout.Space(20);
 
         DrawAttackDirection(p, alreadyChosen);
-
         GUILayout.Space(20);
-
         DrawSkillModeButtons(p, alreadyChosen);
-
         GUILayout.Space(10);
+
+        // ★ 滚动区域：解决分类随机模式下面板过高的问题 ★
+        GUILayout.BeginVertical(GUILayout.Height(200)); // 固定高度，可根据需要调整
+        _skillScrollPos = GUILayout.BeginScrollView(_skillScrollPos, GUILayout.ExpandHeight(true));
+
         if (!p.skillMode)
             DrawTotalSlider(p, alreadyChosen);
         else
             DrawCategorySliders(p, alreadyChosen);
 
+        GUILayout.EndScrollView();
+        GUILayout.EndVertical();
+
         GUILayout.Space(15);
         DrawItemSlider(p, alreadyChosen);
-
         GUILayout.Space(25);
         DrawSeedInput(p, alreadyChosen);
         DrawConfirmAndClose(p, alreadyChosen);
 
         GUILayout.Space(15);
-        int originalFontSize = GUI.skin.label.fontSize; GUI.skin.label.fontSize = 26; GUI.color = Color.yellow;
+        var originalFontSize = GUI.skin.label.fontSize;
+        GUI.skin.label.fontSize = 26;
+        GUI.color = Color.yellow;
         GUILayout.Label(Locale.Get("提示: 按 F7 呼出此窗口"), GUILayout.Height(40));
         GUI.color = BrightWhite;
         GUI.skin.label.fontSize = originalFontSize;
 
-        // 恢复颜色（备份原来的颜色，可能是别的，但不用改回蓝色）
         GUI.skin.label.normal.textColor = originalLabelColor;
         GUI.skin.toggle.normal.textColor = originalLabelColor;
         GUI.skin.button.normal.textColor = originalLabelColor;
@@ -108,7 +133,7 @@ public static class PanelRenderer
     // ===== 右侧面板 =====
     public static void DrawScenePanel(Plugin p)
     {
-        Color originalLabelColor = GUI.skin.label.normal.textColor;
+        var originalLabelColor = GUI.skin.label.normal.textColor;
         GUI.skin.label.normal.textColor = BrightWhite;
         GUI.skin.button.normal.textColor = BrightWhite;
         GUI.skin.toggle.normal.textColor = BrightWhite;
@@ -134,28 +159,24 @@ public static class PanelRenderer
         DrawSceneToggle(p);
         DrawTrapToggle(p);
         DrawTrapDifficulty(p);
-
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
-
         DrawTrapMovementToggle(p);
 
         GUILayout.Space(5);
-        int prevFont = GUI.skin.label.fontSize;
+        var prevFont = GUI.skin.label.fontSize;
         GUI.skin.label.fontSize = 20;
         GUI.color = Color.yellow;
         GUILayout.Label(Locale.Get("陷阱、房间随机建议丝之心，疾跑和上冲"), GUILayout.Height(60));
         GUI.color = BrightWhite;
         GUI.skin.label.fontSize = prevFont;
         GUILayout.Space(5);
-
         GUILayout.Space(12);
 
         int seed = p.GetCurrentSeed();
         GUILayout.Label($"{Locale.Get("当前种子")}: {seed}", GUILayout.Height(30));
         GUILayout.Space(8);
-
         string sceneName = p.GetCurrentSceneName();
         GUILayout.Label($"{Locale.Get("当前场景")}: {sceneName}", GUILayout.Height(30));
         GUILayout.Space(18);
@@ -171,8 +192,7 @@ public static class PanelRenderer
         GUI.skin.toggle.normal.textColor = originalLabelColor;
     }
 
-    // ===== 子模块 =====
-
+    // ===== 辅助方法（部分） =====
     private static bool IsAlreadyChosen(Plugin p)
     {
         var currentProfileID = GameManager.instance?.profileID ?? -1;
@@ -186,11 +206,14 @@ public static class PanelRenderer
         var currentProfileID = GameManager.instance?.profileID ?? -1;
         var setField = typeof(Plugin).GetField("chosenProfileSet", BindingFlags.Instance | BindingFlags.NonPublic);
         var set = setField?.GetValue(p) as System.Collections.Generic.HashSet<int>;
-        if (set != null) set.Remove(currentProfileID);
-
+        set?.Remove(currentProfileID);
         typeof(Plugin).GetMethod("SaveChosenProfiles", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(p, null);
-        p.allowUpward = false; p.allowLeft = false; p.allowRight = false;
-        p.itemCount = 0; p.resetPickups = false; p.skillMode = false;
+        p.allowUpward = false;
+        p.allowLeft = false;
+        p.allowRight = false;
+        p.itemCount = 0;
+        p.resetPickups = false;
+        p.skillMode = false;
         p.skillTotal = p.skillV = p.skillH = p.skillS = p.skillA = 0;
         RoomRandomMode.ResetPending();
     }
@@ -207,7 +230,6 @@ public static class PanelRenderer
         bool newUp = DrawModeButton(Locale.Get("上劈"), p.allowUpward, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newUp != p.allowUpward && !alreadyChosen) p.allowUpward = newUp;
 
-        // ★ 交换左右劈绑定：左劈按钮控制 allowRight，右劈按钮控制 allowLeft
         bool newLeft = DrawModeButton(Locale.Get("左劈"), p.allowRight, 18, GUILayout.Width(220), GUILayout.Height(60));
         if (newLeft != p.allowRight && !alreadyChosen) p.allowRight = newLeft;
 
@@ -226,14 +248,36 @@ public static class PanelRenderer
         bool newTypeMode = DrawModeButton(Locale.Get("分类随机"), p.skillMode, 18, GUILayout.Width(130), GUILayout.Height(60));
         if (newTypeMode != p.skillMode && !alreadyChosen) p.skillMode = true;
 
-        bool crazyOn = false;
-        bool newCrazy = DrawModeButton(Locale.Get("彻底疯狂"), crazyOn, 18, GUILayout.Width(160), GUILayout.Height(60));
-        if (newCrazy && !alreadyChosen) { CrazyRandomizer.Apply(p); }
+        bool newCrazy = DrawModeButton(Locale.Get("彻底疯狂"), false, 18, GUILayout.Width(160), GUILayout.Height(60));
+        if (newCrazy && !alreadyChosen) CrazyRandomizer.Apply(p);
 
         bool newRoomMode = DrawModeButton(Locale.Get("丝之心、疾跑和上冲"), RoomRandomMode.IsPending, 14, GUILayout.Width(160), GUILayout.Height(60));
         if (newRoomMode != RoomRandomMode.IsPending && !alreadyChosen) RoomRandomMode.Toggle();
 
         GUILayout.EndHorizontal();
+
+        GUILayout.Space(10);
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        bool crestCurseEnabled = p.GetCrestCurseEnabled();
+        GUI.enabled = !alreadyChosen;
+        bool newCrestCurse = DrawModeButton(Locale.Get("纹章诅咒"), crestCurseEnabled, 18, GUILayout.Width(160), GUILayout.Height(60));
+        if (newCrestCurse != crestCurseEnabled && !alreadyChosen) p.SetCrestCurseEnabled(newCrestCurse);
+
+        bool forceCompletion = p.GetForceCompletionDisplay();
+        bool newForceCompletion = DrawModeButton(Locale.Get("完成度"), forceCompletion, 18, GUILayout.Width(160), GUILayout.Height(60));
+        if (newForceCompletion != forceCompletion && !alreadyChosen) p.SetForceCompletionDisplay(newForceCompletion);
+
+        GUI.enabled = true;
+        GUILayout.EndHorizontal();
+
+        if (crestCurseEnabled)
+        {
+            GUILayout.Space(5);
+            GUI.color = Color.yellow;
+            GUILayout.Label(Locale.Get("启用纹章诅咒（每个纹章带有偏科效果）"), GUILayout.Height(30));
+            GUI.color = BrightWhite;
+        }
     }
 
     private static void DrawTotalSlider(Plugin p, bool alreadyChosen)
@@ -299,11 +343,10 @@ public static class PanelRenderer
 
     private static void DrawConfirmAndClose(Plugin p, bool alreadyChosen)
     {
-        GUI.enabled = !alreadyChosen; GUI.backgroundColor = Color.green;
+        GUI.enabled = !alreadyChosen;
+        GUI.backgroundColor = Color.green;
         if (GUILayout.Button(Locale.Get("确认"), GUILayout.Height(50)) && !alreadyChosen)
-        {
             typeof(Plugin).GetMethod("ApplySettings", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(p, null);
-        }
         GUI.backgroundColor = Color.white;
         GUI.enabled = true;
         GUI.backgroundColor = new Color(0.8f, 0.2f, 0.2f);
@@ -312,7 +355,6 @@ public static class PanelRenderer
     }
 
     // ===== 右侧子模块 =====
-
     private static void DrawSceneToggle(Plugin p)
     {
         bool enableRandom = p.GetSceneRandomEnabled();
@@ -341,8 +383,7 @@ public static class PanelRenderer
 
     private static void DrawTrapDifficulty(Plugin p)
     {
-        InitTrapReflection();
-        if (_trapType == null || _trapDifficultyEnumType == null) return;
+        if (TrapType == null || TrapDifficultyEnumType == null) return;
 
         int currentDiff = GetTrapDifficulty();
         GUILayout.Label(Locale.Get("陷阱难度："), GUILayout.Height(25));
@@ -359,42 +400,25 @@ public static class PanelRenderer
             btnHeight = 90f * (h / w);
         }
 
-        // 文字样式全部改为冷白
-        GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
-        {
-            alignment = TextAnchor.UpperCenter,
-            fontSize = 14,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = BrightWhite }
-        };
-        GUIStyle statusStyle = new GUIStyle(GUI.skin.label)
-        {
-            alignment = TextAnchor.LowerCenter,
-            fontSize = 11,
-            fontStyle = FontStyle.Normal,
-            normal = { textColor = BrightWhite }
-        };
+        EnsureStyles();
 
         for (int i = 0; i < 3; i++)
         {
-            bool isOn = (currentDiff == i);
+            bool isOn = currentDiff == i;
             Sprite icon = icons[i];
-
-            Rect btnRect = GUILayoutUtility.GetRect(90f, btnHeight, GUILayout.Width(90), GUILayout.Height(btnHeight));
+            var btnRect = GUILayoutUtility.GetRect(90f, btnHeight, GUILayout.Width(90), GUILayout.Height(btnHeight));
 
             Color bgColor = isOn ? new Color(0.2f, 1.0f, 0.2f) : new Color(0.6f, 0.6f, 0.6f);
-            Color oldBg = GUI.backgroundColor;
+            var oldBg = GUI.backgroundColor;
             GUI.backgroundColor = bgColor;
             GUI.Box(btnRect, "");
             GUI.backgroundColor = oldBg;
 
-            if (icon != null && icon.texture != null)
+            if (icon?.texture != null)
             {
                 float imgW = icon.rect.width;
                 float imgH = icon.rect.height;
-                float drawW, drawH;
-                float offsetX, offsetY;
-
+                float drawW, drawH, offsetX, offsetY;
                 if (i == 0)
                 {
                     drawH = btnRect.height;
@@ -409,9 +433,7 @@ public static class PanelRenderer
                     offsetX = btnRect.x + (btnRect.width - drawW) / 2f;
                     offsetY = btnRect.y + (btnRect.height - drawH) / 2f;
                 }
-
-                Rect imgRect = new Rect(offsetX, offsetY, drawW, drawH);
-                GUI.DrawTexture(imgRect, icon.texture, ScaleMode.StretchToFill);
+                GUI.DrawTexture(new Rect(offsetX, offsetY, drawW, drawH), icon.texture, ScaleMode.StretchToFill);
             }
 
             if (GUI.Button(btnRect, "", GUIStyle.none))
@@ -420,10 +442,10 @@ public static class PanelRenderer
                 if (GetTrapEnabled()) { TriggerTrapClear(); TriggerTrapSpawn(); }
             }
 
-            Rect titleRect = new Rect(btnRect.x, btnRect.y, btnRect.width, btnRect.height / 2f);
-            Rect statusRect = new Rect(btnRect.x, btnRect.y + btnRect.height / 2f, btnRect.width, btnRect.height / 2f);
-            GUI.Label(titleRect, Locale.Get(diffNames[i]), titleStyle);
-            GUI.Label(statusRect, isOn ? Locale.Get("[开]") : Locale.Get("[关]"), statusStyle);
+            var titleRect = new Rect(btnRect.x, btnRect.y, btnRect.width, btnRect.height / 2f);
+            var statusRect = new Rect(btnRect.x, btnRect.y + btnRect.height / 2f, btnRect.width, btnRect.height / 2f);
+            GUI.Label(titleRect, Locale.Get(diffNames[i]), _diffTitleStyle);
+            GUI.Label(statusRect, isOn ? Locale.Get("[开]") : Locale.Get("[关]"), _diffStatusStyle);
         }
         GUILayout.EndHorizontal();
         GUILayout.Space(5);
@@ -431,8 +453,7 @@ public static class PanelRenderer
 
     private static void DrawTrapMovementToggle(Plugin p)
     {
-        InitTrapReflection();
-        if (_trapType == null || _trapMovementEnabledProp == null) return;
+        if (TrapType == null || TrapMovementEnabledProp == null) return;
 
         bool moveEnabled = GetTrapMovementEnabled();
         bool newValue = DrawModeButton(Locale.Get("陷阱生命化"), moveEnabled, 18, GUILayout.Width(260), GUILayout.Height(60));
@@ -446,7 +467,31 @@ public static class PanelRenderer
     private static void DrawSeedChanger(Plugin p)
     {
         GUILayout.Label(Locale.Get("修改种子:"), GUILayout.Height(25));
-        p.SceneSeedInput = GUILayout.TextField(p.SceneSeedInput, GUILayout.Width(260), GUILayout.Height(30));
+
+        string newText = GUILayout.TextField(p.SceneSeedInput, GUILayout.Width(260), GUILayout.Height(30));
+
+        if (string.IsNullOrEmpty(newText) && GUI.GetNameOfFocusedControl() != "SeedTextField")
+        {
+            var rect = GUILayoutUtility.GetLastRect();
+            GUI.SetNextControlName("SeedTextField");
+            var originalColor = GUI.color;
+            GUI.color = Color.yellow;
+            var placeholderStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 14,
+                normal = { textColor = GUI.color }
+            };
+            GUI.Label(rect, Locale.Get("直接应用可随机"), placeholderStyle);
+            GUI.color = originalColor;
+        }
+        else
+        {
+            GUI.SetNextControlName("SeedTextField");
+        }
+
+        p.SceneSeedInput = newText;
+
         GUILayout.Space(4);
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button(Locale.Get("应用种子"), GUILayout.Height(32), GUILayout.Width(260)))
@@ -454,8 +499,7 @@ public static class PanelRenderer
             int newSeed;
             string input = p.SceneSeedInput.Trim();
             if (string.IsNullOrEmpty(input)) newSeed = new Random().Next(1, int.MaxValue);
-            else if (int.TryParse(input, out newSeed)) { }
-            else return;
+            else if (!int.TryParse(input, out newSeed)) return;
 
             try
             {
@@ -502,19 +546,15 @@ public static class PanelRenderer
 
         GUI.color = showSceneLabel ? Color.green : BrightWhite;
         if (GUILayout.Toggle(showSceneLabel, Locale.Get("显示当前场景名"), GUILayout.Height(30)))
-        {
-            if (!showSceneLabel) p.SetShowSceneLabel(true);
-        }
+        { if (!showSceneLabel) p.SetShowSceneLabel(true); }
         else { if (showSceneLabel) p.SetShowSceneLabel(false); }
         GUI.color = BrightWhite;
         GUILayout.Space(6);
 
         GUI.color = showSeedLabel ? Color.green : BrightWhite;
         if (GUILayout.Toggle(showSeedLabel, Locale.Get("显示当前种子"), GUILayout.Height(30)))
-        {
-            if (!showSeedLabel) p.SetShowSceneLabel(true, isSeed: true);
-        }
-        else { if (showSeedLabel) p.SetShowSceneLabel(false, isSeed: true); }
+        { if (!showSeedLabel) p.SetShowSceneLabel(true, true); }
+        else { if (showSeedLabel) p.SetShowSceneLabel(false, true); }
         GUI.color = BrightWhite;
     }
 
@@ -522,107 +562,84 @@ public static class PanelRenderer
     {
         string statusText = isOn ? Locale.Get("[开]") : Locale.Get("[关]");
         Color bgColor = isOn ? new Color(0.2f, 1.0f, 0.2f) : new Color(0.6f, 0.6f, 0.6f);
-        Color oldBg = GUI.backgroundColor;
+        var oldBg = GUI.backgroundColor;
         GUI.backgroundColor = bgColor;
 
         bool clicked = GUILayout.Button("", options);
-        Rect buttonRect = GUILayoutUtility.GetLastRect();
+        var buttonRect = GUILayoutUtility.GetLastRect();
 
-        // 按钮文字全部改为冷白
-        GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
-        {
-            alignment = TextAnchor.UpperCenter,
-            fontSize = titleFontSize,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = BrightWhite }
-        };
-        GUIStyle statusStyle = new GUIStyle(GUI.skin.label)
-        {
-            alignment = TextAnchor.LowerCenter,
-            fontSize = titleFontSize - 3,
-            fontStyle = FontStyle.Normal,
-            normal = { textColor = BrightWhite }
-        };
+        EnsureStyles();
+        var titleStyle = new GUIStyle(_titleStyle) { fontSize = titleFontSize };
+        var statusStyle = new GUIStyle(_statusStyle) { fontSize = titleFontSize - 3 };
 
         GUI.Label(new Rect(buttonRect.x, buttonRect.y, buttonRect.width, buttonRect.height / 2), label, titleStyle);
         GUI.Label(new Rect(buttonRect.x, buttonRect.y + buttonRect.height / 2, buttonRect.width, buttonRect.height / 2), statusText, statusStyle);
 
         GUI.backgroundColor = oldBg;
 
-        if (clicked) return !isOn;
-        return isOn;
+        return clicked ? !isOn : isOn;
     }
 
-    // ===== 陷阱随机辅助方法 =====
-
+    // ===== 陷阱辅助 =====
     private static bool GetTrapEnabled()
     {
-        InitTrapReflection();
-        if (_trapEnabledProp == null) return false;
-        try { return (bool)_trapEnabledProp.GetValue(null); }
+        if (TrapEnabledProp == null) return false;
+        try { return (bool)TrapEnabledProp.GetValue(null); }
         catch { return false; }
     }
 
     private static void SetTrapEnabled(bool enabled)
     {
-        InitTrapReflection();
-        try { _trapEnabledProp?.SetValue(null, enabled); }
+        try { TrapEnabledProp?.SetValue(null, enabled); }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱开关设置失败: {ex}"); }
     }
 
     private static void SetTrapSeed(int seed)
     {
-        InitTrapReflection();
-        try { _initializeMethod?.Invoke(null, new object[] { seed }); }
+        try { InitializeMethod?.Invoke(null, new object[] { seed }); }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱种子设置失败: {ex}"); }
     }
 
     private static void TriggerTrapSpawn()
     {
-        InitTrapReflection();
-        try { _spawnTrapsMethod?.Invoke(null, null); }
+        try { SpawnTrapsMethod?.Invoke(null, null); }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱生成失败: {ex}"); }
     }
 
     private static void TriggerTrapClear()
     {
-        InitTrapReflection();
-        try { _clearAllMethod?.Invoke(null, null); }
+        try { ClearAllMethod?.Invoke(null, null); }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱清除失败: {ex}"); }
     }
 
     private static int GetTrapDifficulty()
     {
-        InitTrapReflection();
-        if (_trapDifficultyField == null) return 0;
-        try { return Convert.ToInt32(_trapDifficultyField.GetValue(null)); }
+        if (TrapDifficultyField == null) return 0;
+        try { return Convert.ToInt32(TrapDifficultyField.GetValue(null)); }
         catch { return 0; }
     }
 
     private static void SetTrapDifficulty(int difficultyIndex)
     {
-        InitTrapReflection();
-        if (_setDifficultyMethod == null || _trapDifficultyEnumType == null) return;
+        if (SetDifficultyMethod == null || TrapDifficultyEnumType == null) return;
         try
         {
-            var enumValue = Enum.ToObject(_trapDifficultyEnumType, difficultyIndex);
-            _setDifficultyMethod.Invoke(null, new[] { enumValue });
+            var enumValue = Enum.ToObject(TrapDifficultyEnumType, difficultyIndex);
+            SetDifficultyMethod.Invoke(null, new[] { enumValue });
         }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱难度设置失败: {ex}"); }
     }
 
     private static bool GetTrapMovementEnabled()
     {
-        InitTrapReflection();
-        if (_trapMovementEnabledProp == null) return true;
-        try { return (bool)_trapMovementEnabledProp.GetValue(null); }
+        if (TrapMovementEnabledProp == null) return true;
+        try { return (bool)TrapMovementEnabledProp.GetValue(null); }
         catch { return true; }
     }
 
     private static void SetTrapMovementEnabled(bool value)
     {
-        InitTrapReflection();
-        try { _trapMovementEnabledProp?.SetValue(null, value); }
+        try { TrapMovementEnabledProp?.SetValue(null, value); }
         catch (Exception ex) { Plugin.Log.LogError($"陷阱移动开关设置失败: {ex}"); }
     }
 }

@@ -489,6 +489,7 @@ public class RandomSceneLoader : BaseUnityPlugin
     private HashSet<string> visitedScenesF6 = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public static bool EnableRandomization = false;
     private ConfigEntry<bool> cfgEnableRandomization;
+    private ConfigEntry<bool> cfgInstantMusicTransition;   // ★ 新增：音乐瞬间切换开关
 
     private void Awake()
     {
@@ -505,14 +506,14 @@ public class RandomSceneLoader : BaseUnityPlugin
         try { cfgShowSceneLabel = Config.Bind<bool>("UI", "ShowSceneLabel", true, "Show small scene label in upper-left (toggle)"); } catch { }
         try { cfgTeleportScene = Config.Bind<string>("Teleport", "TeleportScene", "", "Scene name to teleport to (type exact scene name)"); } catch { }
         try { cfgTeleportConfirm = Config.Bind<bool>("Teleport", "TeleportConfirm", false, "Set to true to teleport to scene in TeleportScene (resets automatically)"); } catch { }
-
-        // ★ 开关绑定
         try
         {
             cfgEnableRandomization = Config.Bind<bool>("General", "EnableRandomization", false, "Enable/disable scene transition randomization");
             EnableRandomization = cfgEnableRandomization.Value;
         }
         catch { }
+        // ★ 新增配置：音乐瞬间切换（默认开启）
+        try { cfgInstantMusicTransition = Config.Bind<bool>("Audio", "InstantMusicTransition", true, "Instant music transition when changing scenes (disable fade in/out)"); } catch { }
 
         discoveryFilePath = Path.Combine(Paths.PluginPath, "discovered_exits.txt");
         log.LogInfo($"RandomSceneLoader loaded. Current scene: {currentSceneName}. F5=random, F7=discover");
@@ -664,27 +665,22 @@ public class RandomSceneLoader : BaseUnityPlugin
                 return;
             }
 
-            // ---- 分离场景名和入口名 ----
             string desiredEntryGate = null;
             string scenePart = sceneName.Trim();
 
-            // 查找最后一个空格，之前为场景，之后为入口
             int lastSpace = scenePart.LastIndexOf(' ');
             if (lastSpace > 0)
             {
                 desiredEntryGate = scenePart.Substring(lastSpace + 1).Trim();
                 scenePart = scenePart.Substring(0, lastSpace).Trim();
-                // 如果入口名为空字符串，则视为未指定
                 if (string.IsNullOrEmpty(desiredEntryGate))
                     desiredEntryGate = null;
             }
 
-            // ---- 模糊匹配场景 ----
             string entryGate = null;
             SceneConfig config = null;
             string matchedScene = null;
 
-            // 1. 精确匹配（忽略大小写）
             if (sceneConfigs != null && sceneConfigs.TryGetValue(scenePart, out config))
             {
                 matchedScene = scenePart;
@@ -695,11 +691,9 @@ public class RandomSceneLoader : BaseUnityPlugin
                 string inputLetters = new string(scenePart.Where(char.IsLetter).ToArray());
                 string inputDigits = new string(scenePart.Where(char.IsDigit).ToArray());
 
-                // 2a. 再次尝试精确匹配（和 TryGetValue 相同，但可能有大小写差异）
                 matchedScene = allScenes.FirstOrDefault(s =>
                     string.Equals(s, scenePart, StringComparison.OrdinalIgnoreCase));
 
-                // 2b. 字母+数字匹配（针对有数字后缀的场景）
                 if (matchedScene == null
                     && !string.IsNullOrEmpty(inputLetters)
                     && !string.IsNullOrEmpty(inputDigits))
@@ -714,7 +708,6 @@ public class RandomSceneLoader : BaseUnityPlugin
                     });
                 }
 
-                // 2c. 纯字母匹配（针对无数字的场景）
                 if (matchedScene == null
                     && !string.IsNullOrEmpty(inputLetters)
                     && string.IsNullOrEmpty(inputDigits))
@@ -727,7 +720,6 @@ public class RandomSceneLoader : BaseUnityPlugin
                     });
                 }
 
-                // 2d. 简单包含匹配（兜底）
                 if (matchedScene == null)
                 {
                     matchedScene = allScenes.FirstOrDefault(s =>
@@ -735,10 +727,8 @@ public class RandomSceneLoader : BaseUnityPlugin
                 }
             }
 
-            // ---- 确定入口门 ----
             if (matchedScene != null && sceneConfigs.TryGetValue(matchedScene, out config))
             {
-                // 如果用户指定了入口，且该入口在场景的出口列表中，则使用；否则随机
                 if (desiredEntryGate != null)
                 {
                     if (config.Exits != null && config.Exits.Contains(desiredEntryGate, StringComparer.OrdinalIgnoreCase))
@@ -748,7 +738,6 @@ public class RandomSceneLoader : BaseUnityPlugin
                     else
                     {
                         log.LogWarning($"TeleportToScene: entry '{desiredEntryGate}' not valid for scene '{matchedScene}', will pick random.");
-                        // 仍随机选一个
                         if (config.Exits != null && config.Exits.Count > 0)
                             entryGate = config.Exits[rng.Next(config.Exits.Count)];
                     }
@@ -776,6 +765,7 @@ public class RandomSceneLoader : BaseUnityPlugin
             log.LogError($"TeleportToScene failed: {ex}");
         }
     }
+
     private void DiscoverGatesInCurrentScene()
     {
         log.LogInfo("=== DISCOVERING GATES ===");
@@ -926,6 +916,10 @@ public class RandomSceneLoader : BaseUnityPlugin
             StartCoroutine(AutoDiscoverAfterLoad());
         else
             StartCoroutine(DetectEntryGateAfterLoad());
+
+        // ★ 新增：音乐瞬间切换
+        if (cfgInstantMusicTransition != null && cfgInstantMusicTransition.Value)
+            SetMusicRegionsInstantTransition();
     }
 
     private IEnumerator AutoDiscoverAfterLoad()
@@ -966,7 +960,6 @@ public class RandomSceneLoader : BaseUnityPlugin
 
     private void OnActiveSceneChanged(Scene prev, Scene next)
     {
-        // ★ 退出流程保护：如果新场景是菜单，不执行任何随机过渡逻辑
         if (next.name == "Menu_Title" || next.name == "Quit_To_Menu")
         {
             lastEntryGateUsed = null;
@@ -1000,6 +993,42 @@ public class RandomSceneLoader : BaseUnityPlugin
             GUI.Label(new Rect(8f, 8f, 300f, 20f), cachedSceneLabel, sceneLabelStyle);
         }
         catch { }
+    }
+
+    // ★ 新增方法：将所有 MusicRegion 的过渡时间设为 0
+    private void SetMusicRegionsInstantTransition()
+    {
+        try
+        {
+            Type musicRegionType = Type.GetType("MusicRegion, Assembly-CSharp");
+            if (musicRegionType == null) return;
+
+            var regions = Resources.FindObjectsOfTypeAll(musicRegionType);
+            var enterField = musicRegionType.GetField("enterTransitionTime");
+            var exitField = musicRegionType.GetField("exitTransitionTime");
+            var delayField = musicRegionType.GetField("delay");
+            if (enterField == null || exitField == null) return;
+
+            int count = 0;
+            foreach (var region in regions)
+            {
+                if (region == null) continue;
+                var go = (region as Component)?.gameObject;
+                if (go != null && go.scene == SceneManager.GetActiveScene())
+                {
+                    enterField.SetValue(region, 0f);
+                    exitField.SetValue(region, 0f);
+                    if (delayField != null) delayField.SetValue(region, 0);
+                    count++;
+                }
+            }
+            if (count > 0)
+                log.LogInfo($"Set {count} MusicRegion transition times to 0.");
+        }
+        catch (Exception ex)
+        {
+            log.LogWarning($"SetMusicRegionsInstantTransition error: {ex.Message}");
+        }
     }
 
     internal class SceneConfig
